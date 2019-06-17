@@ -1,6 +1,11 @@
 import React from 'react';
-import './styles.css';
+import SimpleTable from './SimpleTable';
+import {columns, rows} from './data';
+
 const MyComponent = () => (
-    <h1>Hello from My Component</h1>
+    <SimpleTable
+      tableHead={columns}
+      tableData={rows}
+    />
 );
 export default MyComponent;
