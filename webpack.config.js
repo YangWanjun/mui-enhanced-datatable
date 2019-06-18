@@ -28,11 +28,16 @@ module.exports = {
   },
   // 開発用Webサーバのポートを指定します。
   devServer: {
-    port: 3001
+    port: 3001,
+    noInfo: true,
+    hot: true,
+    inline: true,
+    historyApiFallback: true
   },
   output: {
     path: path.join(__dirname, "examples/dist"),
-    filename: "bundle.js"
+    filename: "bundle.js",
+    publicPath: '/'
   },
   performance: { hints: false }
 }
