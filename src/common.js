@@ -84,4 +84,75 @@ export const common = {
     }
     return results;
   },
+
+  /**
+   * 並び替え
+   * @param {Array} array 
+   * @param {Function} cmp 
+   */
+  stableSort: function(array, cmp) {
+    const stabilizedThis = array.map((el, index) => [el, index]);
+    stabilizedThis.sort((a, b) => {
+      const order = cmp(a[0], b[0]);
+      if (order !== 0) return order;
+      return a[1] - b[1];
+    });
+    return stabilizedThis.map(el => el[0]);  
+  },
+
+  stableFilter: function(array, filters) {
+    Object.keys(filters).map( key => {
+      array = array.filter(function(item) {
+        let item_value = item[key];
+        if (item_value === true || item_value === false) {
+          return (filters[key] === true || filters[key] === false) ? item_value === filters[key] : true;
+        } else if (filters[key] === true || filters[key] === false) {
+          return item_value === (filters[key] === true ? 1 : 0);
+        } else if (item_value) {
+          return item_value.indexOf(filters[key]) >= 0;
+        } else {
+          return false;
+        }
+      })
+      return array;
+    });
+    return array;
+  },
+
+  /**
+   * 
+   * @param {String} order 昇順／降順
+   * @param {String} orderBy 並び替え項目
+   * @param {Boolean} isNumeric 並び替え項目が数字かどうか
+   */
+  getSorting: function(order, orderBy, isNumeric) {
+    if (isNumeric) {
+      return order === 'desc'
+      ? (a, b) => (b[orderBy] - a[orderBy])
+      : (a, b) => (a[orderBy] - b[orderBy]);
+    } else {
+      return order === 'desc'
+      ? (a, b) => ((b[orderBy] || '') < (a[orderBy] || '') ? -1 : 1)
+      : (a, b) => ((a[orderBy] || '') < (b[orderBy] || '') ? -1 : 1);
+    }
+  },
+
+  getLabelFromColumn: function(value, column) {
+    let label = value;
+    if (column === null || column === undefined) {
+
+    } else if (column.choices && !this.isEmpty(column.choices)) {
+      let item = this.getFromList(column.choices, 'value', value);
+      if (item) {
+        label = item.display_name;
+      }
+    } else if (column.type === 'boolean') {
+      if (value === true) {
+        label = column.label;
+      } else if (value === false) {
+        label = column.label + 'ではない';
+      }
+    }
+    return label;
+  },
 };

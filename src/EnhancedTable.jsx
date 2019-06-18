@@ -12,6 +12,7 @@ import {
 import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';
 import DataTablePagination from './DataTablePagination';
+import DataTableToolbar from "./DataTableToolbar";
 import tableStyle from "./styles";
 import { common } from "./common";
 import { constant } from "./constant";
@@ -26,6 +27,10 @@ class MyEnhancedTable extends React.Component {
       tableData: common.initTableData(props.tableData),
       page: 0,
       rowsPerPage: props.rowsPerPage,
+      order: 'asc',
+      orderBy: '',
+      orderNumeric: false,
+      filters: props.filters,
       showFixedHeader: false,
     };
   }
@@ -41,21 +46,51 @@ class MyEnhancedTable extends React.Component {
     }
   };
 
+  handleSort = (event, property, orderNumeric) => {
+    const orderBy = property;
+    let order = 'desc';
+    let order_by = property;
+
+    if (this.state.orderBy === property && this.state.order === 'desc') {
+      order = 'asc';
+    } else {
+      order_by = '-' + order_by;
+    }
+    this.setState({ order, orderBy, orderNumeric });
+  };
+
+  handleChangeFilter = (filters) => {
+    this.setState({ filters });
+  }
+
   render() {
     const { classes, tableHead, tableData, tableActions, rowActions } = this.props;
-    const { page, rowsPerPage } = this.state;
+    const { filters, page, rowsPerPage, order, orderBy, orderNumeric } = this.state;
+    let results = common.stableSort(tableData, common.getSorting(order, orderBy, orderNumeric));
+    if (!common.isEmpty(filters)) {
+      results = common.stableFilter(results, filters);
+    }
 
     return (
       <div className={classes.tableResponsive}>
+        <DataTableToolbar
+          title={this.props.title}
+          filters={filters}
+          tableHead={tableHead}
+          onChangeFilter={this.handleChangeFilter}
+        />
         <Table className={classes.table} id={this.tableId} {...this.props.tableProps}>
           <DataTableHead
             classes={classes}
             tableHeaderColor={this.props.tableHeaderColor}
             tableHead={tableHead}
             actions={tableActions ? tableActions : (rowActions ? true : false)}
+            onSort={this.handleSort}
+            order={order}
+            orderBy={orderBy}
           />
           <TableBody>
-            {common.getDataForDisplay(tableData, rowsPerPage, page)
+            {common.getDataForDisplay(results, rowsPerPage, page)
               .map((row, key) => {
                 return (
                   <TableRow key={key} hover>
@@ -77,7 +112,7 @@ class MyEnhancedTable extends React.Component {
         <DataTablePagination
           component="div"
           // id={paginationId}
-          count={tableData.length}
+          count={results.length}
           rowsPerPage={rowsPerPage}
           rowsPerPageOptions={this.props.rowsPerPageOptions}
           page={page}
@@ -103,6 +138,8 @@ MyEnhancedTable.propTypes = {
   rowsPerPage: PropTypes.number,
   rowsPerPageOptions: PropTypes.array,
   server: PropTypes.bool,
+  title: PropTypes.string,
+  filters: PropTypes.object,
 };
 
 MyEnhancedTable.defaultProps = {
@@ -113,6 +150,8 @@ MyEnhancedTable.defaultProps = {
   rowsPerPage: 10,
   rowsPerPageOptions: [5, 10, 15, 25, 50],
   server: false,
+  title: null,
+  filters: {},
 };
 
 const EnhancedTable = withStyles(tableStyle)(MyEnhancedTable)

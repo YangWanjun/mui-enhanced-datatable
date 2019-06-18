@@ -31,14 +31,17 @@ class MySimpleTable extends React.Component {
   };
 
   render () {
-    const { classes, tableHeaderColor, tableHead, tableData, tableProps, rowsPerPage } = this.props;
+    const { classes, tableHead, tableData, tableProps, rowsPerPage } = this.props;
     const { page } = this.state;
 
     return (
       <div className={classes.tableResponsive}>
         <Table className={classes.table} {...tableProps}>
           <DataTableHead
-            {...{classes, tableHeaderColor, tableHead}}
+            classes={classes}
+            tableHeaderColor={this.props.tableHeaderColor}
+            tableHead={tableHead}
+            sortable={false}
           />
           <TableBody>
             {common.getDataForDisplay(tableData, rowsPerPage, page)

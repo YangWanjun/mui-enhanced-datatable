@@ -7,7 +7,6 @@ const MyHierarchyTable = () => (
     <HierarchyTable
       tableHead={hierarchyColumns}
       tableData={hierarchyRows}
-      rowsPerPage={10}
       tableHeaderColor={'warning'}
       pk='pk'
     />

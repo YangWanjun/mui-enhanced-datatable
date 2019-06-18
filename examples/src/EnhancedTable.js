@@ -11,6 +11,7 @@ const MyEnhancedTable = () => (
       tableHeaderColor={'warning'}
       pk='pk'
       server={false}
+      title="テーブルのタイトルです"
     />
   </div>
 );
