@@ -62,4 +62,26 @@ export const common = {
     return vsprintf(format, args);
   },
 
+  initTableData: function(data) {
+    if (data) {
+      data.map((row, index) => row['__index__'] = index);
+    }
+    return data;
+  },
+
+  /**
+   * 
+   * @param {Array} data テーブルのデータ
+   * @param {Integer} rowsPerPage 一ページに表示する行数
+   * @param {Integer} page 現在は何ページ目
+   */
+  getDataForDisplay: function(data, rowsPerPage, page) {
+    let results = null;
+    if (!rowsPerPage) {
+      results = data;
+    } else {
+      results = data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+    }
+    return results;
+  },
 };

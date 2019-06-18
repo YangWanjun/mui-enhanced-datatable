@@ -54,4 +54,39 @@ export const rows = [
   { "pk": 20, "name": "蔣　三", "class_name": "３-Ｃ", "english": "101", "evaluation": "3" },
   { "pk": 21, "name": "花　三", "class_name": "３-Ｃ", "english": "102", "evaluation": "3" },
   { "pk": 22, "name": "99999999999999999999999999999999999999999999999999999999", "class_name": "３-Ｃ", "english": "102", "evaluation": "3" },
-]
+];
+
+export const hierarchyColumns = [
+  {
+    "name": "name",
+    "type": "string",
+    "label": "部署名称",
+    "link": '/detail/%(pk)s/',
+    "maxWidth": 260,
+  },
+  {
+    "name": "member_count",
+    "type": "integer",
+    "label": "人数",
+  },
+  {
+    "name": "leader",
+    "type": "string",
+    "label": "部長",
+  },
+];
+
+export const hierarchyRows = [
+  { "pk": 1, "name": "第一事業部", "member_count": "1201", "leader": "田中", 'parent': null },
+  { "pk": 11, "name": "第一部", "member_count": "250", "leader": "佐藤", 'parent': 1 },
+  { "pk": 101, "name": "第一課", "member_count": "250", "leader": "佐藤", 'parent': 11 },
+  { "pk": 102, "name": "第二課", "member_count": "250", "leader": "佐藤", 'parent': 11 },
+  { "pk": 102, "name": "第三課", "member_count": "250", "leader": "佐藤", 'parent': 11 },
+  { "pk": 12, "name": "第二部", "member_count": "250", "leader": "佐藤", 'parent': 1 },
+  { "pk": 121, "name": "第一課", "member_count": "250", "leader": "佐藤", 'parent': 12 },
+  { "pk": 122, "name": "第二課", "member_count": "250", "leader": "佐藤", 'parent': 12 },
+  { "pk": 123, "name": "第三課", "member_count": "250", "leader": "佐藤", 'parent': 12 },
+  { "pk": 13, "name": "第三部", "member_count": "250", "leader": "佐藤", 'parent': 1 },
+  { "pk": 131, "name": "第一課", "member_count": "250", "leader": "佐藤", 'parent': 13 },
+  { "pk": 2, "name": "第二事業部", "member_count": "800", "leader": "田中", 'parent': null },
+];

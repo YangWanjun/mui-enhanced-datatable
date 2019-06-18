@@ -12,6 +12,7 @@ import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';
 import DataTablePagination from './DataTablePagination';
 import tableStyle from "./styles";
+import { common } from "./common";
 
 class MySimpleTable extends React.Component {
 
@@ -28,16 +29,6 @@ class MySimpleTable extends React.Component {
     this.setState({page});
   };
 
-  getDataForDisplay = (data, rowsPerPage, page) => {
-    let results = null;
-    if (!rowsPerPage) {
-      results = data;
-    } else {
-      results = data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-    }
-    return results;
-  };
-
   render () {
     const { classes, tableHeaderColor, tableHead, tableData, tableProps, rowsPerPage } = this.props;
     const { page } = this.state;
@@ -49,7 +40,7 @@ class MySimpleTable extends React.Component {
             {...{classes, tableHeaderColor, tableHead}}
           />
           <TableBody>
-            {this.getDataForDisplay(tableData, rowsPerPage, page)
+            {common.getDataForDisplay(tableData, rowsPerPage, page)
               .map((row, key) => {
                 return (
                   <TableRow key={key} hover>
@@ -90,13 +81,6 @@ class MySimpleTable extends React.Component {
   }
 }
 
-MySimpleTable.defaultProps = {
-  tableHeaderColor: "gray",
-  tableHead: [],
-  tableData: [],
-  rowsPerPage: null,
-};
-
 MySimpleTable.propTypes = {
   classes: PropTypes.object.isRequired,
   tableHeaderColor: PropTypes.oneOf([
@@ -112,6 +96,13 @@ MySimpleTable.propTypes = {
   tableData: PropTypes.arrayOf(PropTypes.object),
   rowsPerPage: PropTypes.number,
   tableProps: PropTypes.object,
+};
+
+MySimpleTable.defaultProps = {
+  tableHeaderColor: "gray",
+  tableHead: [],
+  tableData: [],
+  rowsPerPage: null,
 };
 
 const SimpleTable = withStyles(tableStyle)(MySimpleTable)

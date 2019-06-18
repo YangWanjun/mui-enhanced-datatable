@@ -73,6 +73,7 @@ class DataTableCell extends React.Component {
   render() {
     const { classes, column, data, actions, actionsTrigger } = this.props;
     const { open } = this.state;
+    let value = data[column.name];
 
     let style = Object.assign({}, this.props.style);
     let attrs = {};
@@ -133,12 +134,10 @@ class DataTableCell extends React.Component {
       );
     } else if (column.type === 'integer' || column.type === 'decimal') {
       // 数字の場合右揃え、カンマ区切り表示
-      let value = data[column.name];
       attrs['align'] = 'right';
       value = common.toNumComma(value);
       output = this.getOutput(value);
     } else if (column.type === 'boolean') {
-      let value = data[column.name];
       style['padding'] = 0;
       attrs['align'] = 'center';
       if (value === true || value === 1) {
@@ -147,7 +146,6 @@ class DataTableCell extends React.Component {
         output = <HighlightOffIcon style={{color: 'red'}} />;
       }
     } else if (column.type === 'file') {
-      let value = data[column.name];
       style['padding'] = 0;
       output = (value ? (
         <IconButton onClick={this.handleFileDownload(value)} style={{padding: 10}}>
@@ -155,7 +153,6 @@ class DataTableCell extends React.Component {
         </IconButton>
       ) : null);
     } else if (column.type === 'choice') {
-      let value = data[column.name];
       if (column.choices && !common.isEmpty(column.choices)) {
         const choice = common.getFromList(column.choices, 'value', value);
         const display_name = choice ? choice.display_name : null;
@@ -164,7 +161,6 @@ class DataTableCell extends React.Component {
         output = this.getOutput(value);
       }
     } else {
-      let value = data[column.name];
       output = this.getOutput(value);
     }
 
@@ -187,6 +183,7 @@ DataTableCell.defaultProps = {
 };
 
 DataTableCell.propTypes = {
+  classes: PropTypes.object.isRequired,
   column: PropTypes.object,
   data: PropTypes.object,
   actions: PropTypes.array,
