@@ -31,9 +31,14 @@ class DataTableCell extends React.Component {
 
   getOutput(value) {
     const { column, data } = this.props;
+    let url = null;
+    if (column.link) {
+      url = common.formatStr(column.link, data);
+    }
+
     return (
-      (column.url_field && data[column.url_field]) ? (
-        <Link to={data[column.url_field]}>{value}</Link>
+      url ? (
+        <Link to={url}>{value}</Link>
       ) : value
     );
   }

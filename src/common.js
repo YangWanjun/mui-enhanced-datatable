@@ -1,3 +1,5 @@
+import { vsprintf } from 'sprintf-js';
+
 export const common = {
   /**
    * 数字をカンマ区切りで表示
@@ -49,4 +51,15 @@ export const common = {
       return cols.length > 0 ? cols[0] : {};
     }
   },
+
+  /**
+   * 文字列をフォーマットする
+   * @param {String} format 
+   *
+   * 使用方法：utils.format('This is argument: %s', arg1);
+   */
+  formatStr: function(format, args) {
+    return vsprintf(format, args);
+  },
+
 };

@@ -6,14 +6,14 @@ import {
   Table,
   TableRow,
   TableBody,
-  TablePagination,
 } from "@material-ui/core";
 // core components
 import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';
+import DataTablePagination from './DataTablePagination';
 import tableStyle from "./styles";
 
-class SimpleTable extends React.Component {
+class MySimpleTable extends React.Component {
 
   constructor(props) {
     super(props);
@@ -28,10 +28,19 @@ class SimpleTable extends React.Component {
     this.setState({page});
   };
 
+  getDataForDisplay = (data, rowsPerPage, page) => {
+    let results = null;
+    if (!rowsPerPage) {
+      results = data;
+    } else {
+      results = data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+    }
+    return results;
+  };
+
   render () {
-    const { classes, tableHeaderColor, tableHead, tableData, rowsPerPage, tableProps } = this.props;
+    const { classes, tableHeaderColor, tableHead, tableData, tableProps, rowsPerPage } = this.props;
     const { page } = this.state;
-    console.log(tableProps)
 
     return (
       <div className={classes.tableResponsive}>
@@ -40,10 +49,10 @@ class SimpleTable extends React.Component {
             {...{classes, tableHeaderColor, tableHead}}
           />
           <TableBody>
-            {tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            {this.getDataForDisplay(tableData, rowsPerPage, page)
               .map((row, key) => {
                 return (
-                  <TableRow key={key}>
+                  <TableRow key={key} hover>
                     {tableHead.map((col, key) => {
                       return (
                         <DataTableCell
@@ -60,7 +69,7 @@ class SimpleTable extends React.Component {
           </TableBody>
         </Table>
         {tableData.length > rowsPerPage ? (
-          <TablePagination
+          <DataTablePagination
             component="div"
             // id={paginationId}
             count={tableData.length}
@@ -81,14 +90,14 @@ class SimpleTable extends React.Component {
   }
 }
 
-SimpleTable.defaultProps = {
+MySimpleTable.defaultProps = {
   tableHeaderColor: "gray",
   tableHead: [],
   tableData: [],
-  rowsPerPage: 10,
+  rowsPerPage: null,
 };
 
-SimpleTable.propTypes = {
+MySimpleTable.propTypes = {
   classes: PropTypes.object.isRequired,
   tableHeaderColor: PropTypes.oneOf([
     "warning",
@@ -105,4 +114,5 @@ SimpleTable.propTypes = {
   tableProps: PropTypes.object,
 };
 
-export default withStyles(tableStyle)(SimpleTable);
+const SimpleTable = withStyles(tableStyle)(MySimpleTable)
+export { SimpleTable } ;
