@@ -8,6 +8,7 @@ const MySimpleTable = () => (
       tableHead={columns}
       tableData={rows}
       tableHeaderColor={'warning'}
+      rowsPerPage={10}
     />
   </div>
 );

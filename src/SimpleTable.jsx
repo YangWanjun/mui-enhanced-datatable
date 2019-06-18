@@ -13,6 +13,7 @@ import DataTableHead from './DataTableHead';
 import DataTablePagination from './DataTablePagination';
 import tableStyle from "./styles";
 import { common } from "./common";
+import { constant } from "./constant";
 
 class MySimpleTable extends React.Component {
 
@@ -59,7 +60,7 @@ class MySimpleTable extends React.Component {
             })}
           </TableBody>
         </Table>
-        {tableData.length > rowsPerPage ? (
+        {(rowsPerPage && tableData.length > rowsPerPage) ? (
           <DataTablePagination
             component="div"
             // id={paginationId}
@@ -82,26 +83,12 @@ class MySimpleTable extends React.Component {
 }
 
 MySimpleTable.propTypes = {
-  classes: PropTypes.object.isRequired,
-  tableHeaderColor: PropTypes.oneOf([
-    "warning",
-    "primary",
-    "danger",
-    "success",
-    "info",
-    "rose",
-    "gray"
-  ]),
-  tableHead: PropTypes.arrayOf(PropTypes.object),
-  tableData: PropTypes.arrayOf(PropTypes.object),
+  ...constant.tableProps,
   rowsPerPage: PropTypes.number,
-  tableProps: PropTypes.object,
 };
 
 MySimpleTable.defaultProps = {
-  tableHeaderColor: "gray",
-  tableHead: [],
-  tableData: [],
+  ...constant.tablePropsDefault,
   rowsPerPage: null,
 };
 

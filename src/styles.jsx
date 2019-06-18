@@ -45,13 +45,14 @@ const tableStyle = theme => ({
   tableHeadCell: {
     color: "inherit",
     ...defaultFont,
-    fontSize: "1em"
+    fontSize: "0.85em",
   },
   tableCell: {
     ...defaultFont,
     lineHeight: "1.42857143",
     // padding: "12px 8px",
-    verticalAlign: "middle"
+    verticalAlign: "middle",
+    fontSize: "0.85em",
   },
   tableResponsive: {
     width: "100%",

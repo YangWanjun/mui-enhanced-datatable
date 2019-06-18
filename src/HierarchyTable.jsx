@@ -13,6 +13,7 @@ import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';
 import tableStyle from "./styles";
 import { common } from "./common";
+import { constant } from "./constant";
 
 const indent = 8;
 
@@ -86,13 +87,13 @@ class MyHierarchyTable extends React.Component {
   }
 
   render () {
-    const { classes, tableHeaderColor, tableHead, tableActions, rowActions } = this.props;
+    const { classes, tableHeaderColor, tableHead, tableActions, rowActions, tableProps } = this.props;
     const { showFixedHeader, fixedHeaderPosition, fixedHeaderColsWidth } = this.state;
     const rows = this.getAllRows()
 
     return (
-      <div className={classes.tableResponsive} style={{marginTop: 0}}>
-        <Table className={classes.table} id={this.tableId}>
+      <div className={classes.tableResponsive}>
+        <Table className={classes.table} id={this.tableId} {...tableProps}>
           <DataTableHead
             {...{classes, tableHeaderColor, tableHead}}
             actions={tableActions ? tableActions : (rowActions ? true : false)}
@@ -122,32 +123,16 @@ class MyHierarchyTable extends React.Component {
 }
 
 MyHierarchyTable.propTypes = {
-  classes: PropTypes.object.isRequired,
-  tableHeaderColor: PropTypes.oneOf([
-    "warning",
-    "primary",
-    "danger",
-    "success",
-    "info",
-    "rose",
-    "gray"
-  ]),
-  tableHead: PropTypes.arrayOf(PropTypes.object),
-  tableData: PropTypes.arrayOf(PropTypes.object),
-  tableActions: PropTypes.arrayOf(PropTypes.object),
-  rowActions: PropTypes.arrayOf(PropTypes.object),
-  actionsTrigger: PropTypes.func,
+  ...constant.tableProps,
+  ...constant.tableActionProps,
   selectable: PropTypes.oneOf(['none', 'single']),
   relatedName: PropTypes.string,
   pk: PropTypes.string,
 };
 
 MyHierarchyTable.defaultProps = {
-  tableHeaderColor: "gray",
-  tableHead: [],
-  tableData: [],
-  tableActions: [],
-  rowActions: [],
+  ...constant.tablePropsDefault,
+  ...constant.tableActionPropsDefault,
   selectable: 'none',
   relatedName: 'parent',
   pk: 'id',
