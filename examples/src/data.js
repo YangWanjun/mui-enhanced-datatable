@@ -44,6 +44,12 @@ export const columns = [
       true: {'backgroundColor': 'lightgray'}
     },
   },
+  {
+    "name": "no_display",
+    "type": "string",
+    "label": "非表示項目",
+    "visible": false,
+  },
 ];
 
 export const rows = [

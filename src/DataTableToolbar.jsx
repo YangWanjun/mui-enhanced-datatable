@@ -102,7 +102,6 @@ class DataTableToolbar extends React.Component {
     const { classes, title, tableHead, fixedOption } = this.props;
     const { filters } = this.state;
     let fixedStyles = null;
-    console.log(fixedOption)
     if (fixedOption && fixedOption.visible === true) {
       fixedStyles = {
         position: "fixed",

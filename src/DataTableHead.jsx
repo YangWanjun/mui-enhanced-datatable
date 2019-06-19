@@ -41,7 +41,7 @@ class DataTableHead extends React.Component {
       return (
         <TableHead className={classes[tableHeaderColor + "TableHeader"]}>
           <TableRow>
-            {tableHead.map((column, key) => {
+            {tableHead.filter(col => col.visible !== false).map((column, key) => {
               let width = 'inherit';
               if (column.visible !== false && colsWidth && colsWidth.length >= key) {
                 width = colsWidth[key];
