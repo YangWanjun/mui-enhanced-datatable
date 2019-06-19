@@ -100,6 +100,11 @@ export const common = {
     return stabilizedThis.map(el => el[0]);  
   },
 
+  /**
+   * JSONの配列にデータを検索する
+   * @param {Array} array 
+   * @param {JSON} filters 
+   */
   stableFilter: function(array, filters) {
     Object.keys(filters).map( key => {
       array = array.filter(function(item) {
@@ -108,6 +113,8 @@ export const common = {
           return (filters[key] === true || filters[key] === false) ? item_value === filters[key] : true;
         } else if (filters[key] === true || filters[key] === false) {
           return item_value === (filters[key] === true ? 1 : 0);
+        } else if (typeof item_value === 'number') {
+          return item_value === filters[key];
         } else if (item_value) {
           return item_value.indexOf(filters[key]) >= 0;
         } else {

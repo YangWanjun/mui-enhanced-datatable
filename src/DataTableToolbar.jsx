@@ -20,8 +20,8 @@ import { common } from "./common";
 
 const styles = theme => ({
   root: {
+    paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
-    minHeight: 48,
   },
   spacer: {
     flex: '1 1 100%',

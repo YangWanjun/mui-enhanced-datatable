@@ -66,10 +66,12 @@ class MyEnhancedTable extends React.Component {
   }
 
   handleChangePage = (event, page) => {
+    this.handleFixedHeader();
     this.setState({page});
   };
 
   handleChangeRowsPerPage = event => {
+    this.handleFixedHeader();
     if (this.props.server) {
     } else {
       this.setState({ rowsPerPage: event.target.value });
@@ -86,10 +88,12 @@ class MyEnhancedTable extends React.Component {
     } else {
       order_by = '-' + order_by;
     }
+    this.handleFixedHeader();
     this.setState({ order, orderBy, orderNumeric });
   };
 
   handleChangeFilter = (filters) => {
+    this.handleFixedHeader();
     this.setState({ filters });
   }
 
