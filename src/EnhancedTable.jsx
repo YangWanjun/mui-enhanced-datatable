@@ -43,14 +43,15 @@ class MyEnhancedTable extends React.Component {
   }
 
   handleFixedHeader = () => {
+    let { pushpinTop } = this.props;
     let toolbarHeight = 0;
     if (this.props.toolbar) {
       toolbarHeight = document.getElementById(this.toolbarId).getBoundingClientRect().height;
       const tableHeight = document.getElementById(this.tableId).getBoundingClientRect().height;
-      const fixedToolbarOption = common.getFixedDivOption(this.toolbarId, tableHeight);
+      const fixedToolbarOption = common.getFixedDivOption(this.toolbarId, tableHeight, pushpinTop);
       this.setState({fixedToolbarOption});
     }
-    const fixedHeaderOption = common.getFixedHeaderOption(this.tableId, toolbarHeight);
+    const fixedHeaderOption = common.getFixedHeaderOption(this.tableId, pushpinTop + toolbarHeight);
     this.setState({fixedHeaderOption});
   }
 
@@ -197,6 +198,7 @@ MyEnhancedTable.propTypes = {
   toolbar: PropTypes.bool,
   title: PropTypes.string,
   filters: PropTypes.object,
+  pushpinTop: PropTypes.number,
 };
 
 MyEnhancedTable.defaultProps = {
@@ -210,6 +212,7 @@ MyEnhancedTable.defaultProps = {
   toolbar: true,
   title: null,
   filters: {},
+  pushpinTop: 0,
 };
 
 const EnhancedTable = withStyles(tableStyle)(MyEnhancedTable)

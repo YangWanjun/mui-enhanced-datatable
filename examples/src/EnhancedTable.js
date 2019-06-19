@@ -22,6 +22,7 @@ class MyEnhancedTable extends React.Component {
         server={false}
         title="テーブルのタイトルです"
         toolbar={true}
+        pushpinTop={0}
       />
     );
   }
