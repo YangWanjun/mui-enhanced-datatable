@@ -7,6 +7,8 @@ import {
   Table,
   TableRow,
   TableBody,
+  TableCell,
+  Checkbox,
 } from "@material-ui/core";
 // core components
 import DataTableCell from './DataTableCell';
@@ -33,6 +35,7 @@ class MyEnhancedTable extends React.Component {
       orderBy: '',
       orderNumeric: false,
       filters: props.filters,
+      selected: [],
       fixedHeaderOption: {
         visible: false,
       },
@@ -95,11 +98,56 @@ class MyEnhancedTable extends React.Component {
   handleChangeFilter = (filters) => {
     this.handleFixedHeader();
     this.setState({ filters });
-  }
+  };
+
+  isSelected = index => {
+    return this.state.selected.indexOf(index) !== -1
+  };
+
+  handleRowSelect = (index) => {
+    if (this.props.selectable === 'none') {
+      return;
+    }
+    const { selected } = this.state;
+    const selectedIndex = selected.indexOf(index);
+    let newSelected = [];
+    if (this.props.selectable === 'multiple') {
+      if (selectedIndex === -1) {
+        newSelected = newSelected.concat(selected, index);
+      } else if (selectedIndex === 0) {
+        newSelected = newSelected.concat(selected.slice(1));
+      } else if (selectedIndex === selected.length - 1) {
+        newSelected = newSelected.concat(selected.slice(0, -1));
+      } else if (selectedIndex > 0) {
+        newSelected = newSelected.concat(
+          selected.slice(0, selectedIndex),
+          selected.slice(selectedIndex + 1),
+        );
+      }
+    } else if (this.props.selectable === 'single') {
+      if (selectedIndex === -1) {
+        newSelected = [index];
+      } else {
+        newSelected = [];
+      }
+    }
+
+    this.setState({ selected: newSelected });
+  };
+
+  handleSelectAllClick = (event, checked) => {
+    if (checked) {
+      const { filters } = this.state;
+      const results = common.stableFilter(this.props.tableData, filters);
+      this.setState(state => ({ selected: results.map(row => row.__index__) }));
+      return;
+    }
+    this.setState({ selected: [] });
+  };
 
   render() {
-    const { classes, tableHead, tableData, tableActions, rowActions, toolbar } = this.props;
-    const { filters, page, rowsPerPage, order, orderBy, orderNumeric, fixedHeaderOption, fixedToolbarOption } = this.state;
+    const { classes, tableHead, tableData, tableActions, rowActions, toolbar, selectable } = this.props;
+    const { filters, page, rowsPerPage, order, orderBy, orderNumeric, fixedHeaderOption, fixedToolbarOption, selected } = this.state;
     let results = common.stableSort(tableData, common.getSorting(order, orderBy, orderNumeric));
     if (!common.isEmpty(filters)) {
       results = common.stableFilter(results, filters);
@@ -112,6 +160,10 @@ class MyEnhancedTable extends React.Component {
       onSort: this.handleSort,
       order: order,
       orderBy: orderBy,
+      selectable: selectable,
+      selected: selected,
+      data: results,
+      onSelectAllClick: this.handleSelectAllClick,
     }
     const toolbarProps = {
       title: this.props.title,
@@ -142,8 +194,18 @@ class MyEnhancedTable extends React.Component {
             {common.getDataForDisplay(results, rowsPerPage, page)
               .map((row, key) => {
                 const rowStyles = common.getExtraRowStyles(row, tableHead);
+                const isSelected = this.isSelected(row.__index__);
+                let chkCell = null;
+                if (selectable === 'multiple' || selectable === 'single') {
+                  chkCell = (
+                    <TableCell padding="none">
+                      <Checkbox checked={isSelected} onClick={() => this.handleRowSelect(row.__index__)} />
+                    </TableCell>
+                  );
+                }
                 return (
                   <TableRow key={key} className={classes.tableRow} style={{...rowStyles}}>
+                    {chkCell}
                     {tableHead.map((col, key) => {
                       return (
                         <DataTableCell
@@ -194,7 +256,7 @@ class MyEnhancedTable extends React.Component {
 MyEnhancedTable.propTypes = {
   ...constant.tableProps,
   ...constant.tableActionProps,
-  selectable: PropTypes.oneOf(['none', 'single']),
+  selectable: PropTypes.oneOf(['none', 'single', 'multiple']),
   pk: PropTypes.string,
   rowsPerPage: PropTypes.number,
   rowsPerPageOptions: PropTypes.array,

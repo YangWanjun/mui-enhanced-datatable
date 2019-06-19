@@ -16,7 +16,7 @@ class MyEnhancedTable extends React.Component {
       <EnhancedTable
         tableHead={columns}
         tableData={rows}
-        rowsPerPage={30}
+        rowsPerPage={25}
         tableHeaderColor={'warning'}
         pk='pk'
         server={false}
@@ -24,6 +24,7 @@ class MyEnhancedTable extends React.Component {
         toolbar={true}
         pushpinTop={0}
         filters={{retired: false}}
+        selectable={'multiple'}
       />
     );
   }

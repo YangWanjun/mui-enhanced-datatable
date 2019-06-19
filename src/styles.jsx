@@ -64,6 +64,9 @@ const tableStyle = theme => ({
     verticalAlign: "middle",
     fontSize: "0.85em",
   },
+  tableCellCheckable: {
+    width: 42,
+  },
   tableResponsive: {
     width: "100%",
     marginTop: theme.spacing(3),

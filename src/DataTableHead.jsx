@@ -6,6 +6,7 @@ import {
   TableCell,
   Tooltip,
   TableSortLabel,
+  Checkbox,
 } from "@material-ui/core";
 import DataTableCell from './DataTableCell';
 
@@ -32,8 +33,30 @@ class DataTableHead extends React.Component {
   }
 
   render() {
-    const { classes, tableHeaderColor, tableHead, colsWidth, sortable, order, orderBy } = this.props;
+    const { classes, tableHeaderColor, tableHead, colsWidth, sortable, order, orderBy, selected, selectable, data } = this.props;
     const actionCell = this.getActions();
+    const numSelected = selected ? selected.length : 0;
+    const rowCount = data ? data.length : 0;
+    let chkCell = <React.Fragment/>;
+    let idx = 0;
+    if (selectable === 'multiple') {
+      chkCell = (
+        <TableCell padding="none" className={classes.tableCellCheckable}>
+          <Checkbox
+            indeterminate={numSelected > 0 && numSelected < rowCount}
+            checked={numSelected === rowCount}
+            onChange={this.props.onSelectAllClick}
+            disabled={rowCount === 0}
+          />
+        </TableCell>
+      );
+      idx += 1;
+    } else if (selectable === 'single') {
+      chkCell = (
+        <TableCell padding="none" className={classes.tableCellCheckable}></TableCell>
+      );
+      idx += 1;
+    }
 
     if (tableHead === undefined) {
       return null;
@@ -41,11 +64,12 @@ class DataTableHead extends React.Component {
       return (
         <TableHead className={classes[tableHeaderColor + "TableHeader"]}>
           <TableRow>
+            { chkCell }
             {tableHead.filter(col => col.visible !== false).map((column, key) => {
               let width = 'inherit';
-              if (column.visible !== false && colsWidth && colsWidth.length >= key) {
-                width = colsWidth[key];
-                key += 1;
+              if (column.visible !== false && colsWidth && colsWidth.length >= idx) {
+                width = colsWidth[idx];
+                idx += 1;
               }
               let align = 'left';
               let numeric = false;
