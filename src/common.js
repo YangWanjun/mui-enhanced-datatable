@@ -155,4 +155,54 @@ export const common = {
     }
     return label;
   },
+
+  /**
+   * 項目の定義からＣＳＳスタイルを取得する
+   * @param {JSON} rowData 
+   */
+  getExtraRowStyles: function(rowData, tableHead) {
+    let extraStyles = {};
+    const columns = tableHead.filter(col => col.hasOwnProperty('rowStyles'));
+    columns.map(col => {
+      let styles = col.rowStyles[rowData[col.name]];
+      return Object.assign(extraStyles, styles);
+    });
+    return extraStyles;
+  },
+
+  getFixedDivOption: function(divId, range, offset=0) {
+    const {left, width, top} = document.getElementById(divId).getBoundingClientRect();
+    if (top < offset && (!range || top > (offset - range))) {
+      return {visible: true, positions: {left, width, top: offset},};
+    } else {
+      return {visible: false};
+    }
+  },
+
+  /**
+   * テーブルのヘッダー部分が固定時の位置の取得
+   * @param {String} tableId テーブルのＩＤ
+   * @param {Integer} offset 調整値
+   */
+  getFixedHeaderOption: function(tableId, offset=0) {
+    const table = document.getElementById(tableId);
+    let {left, width, top, height} = table.getBoundingClientRect();
+    let colsWidth = [];
+    let colWidth = 0;
+    const headerCells = table.querySelector('thead>tr').children;
+    Array.prototype.forEach.call(headerCells, function(ele, idx) {
+      colWidth = ele.getBoundingClientRect().width;
+      colsWidth.push(colWidth);
+    });
+    const bodyHeight = table.querySelector('tbody').getBoundingClientRect().height;
+    if (bodyHeight) {
+      height = bodyHeight;
+    }
+  
+    if (top < offset && top > (offset - height)) {
+      return {visible: true, positions: {left, width, top: offset}, colsWidth};
+    } else {
+      return {visible: false};
+    }
+  },
 };

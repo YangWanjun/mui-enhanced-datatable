@@ -7,11 +7,12 @@ const MyEnhancedTable = () => (
     <EnhancedTable
       tableHead={columns}
       tableData={rows}
-      rowsPerPage={10}
+      rowsPerPage={30}
       tableHeaderColor={'warning'}
       pk='pk'
       server={false}
       title="テーブルのタイトルです"
+      toolbar={true}
     />
   </div>
 );

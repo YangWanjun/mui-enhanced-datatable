@@ -40,6 +40,9 @@ export const columns = [
     "label": "退学",
     "sortable": true,
     "searchable": true,
+    "rowStyles": {
+      true: {'backgroundColor': 'lightgray'}
+    },
   },
 ];
 

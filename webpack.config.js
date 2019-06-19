@@ -29,7 +29,6 @@ module.exports = {
   // 開発用Webサーバのポートを指定します。
   devServer: {
     port: 3001,
-    noInfo: true,
     hot: true,
     inline: true,
     historyApiFallback: true

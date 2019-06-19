@@ -13,12 +13,14 @@ import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';
 import DataTablePagination from './DataTablePagination';
 import DataTableToolbar from "./DataTableToolbar";
+import DataTableFixedHead from "./DataTableFixedHead";
 import tableStyle from "./styles";
 import { common } from "./common";
 import { constant } from "./constant";
 
 class MyEnhancedTable extends React.Component {
   tableId = uuid();
+  toolbarId = uuid();
 
   constructor(props) {
     super(props);
@@ -31,8 +33,35 @@ class MyEnhancedTable extends React.Component {
       orderBy: '',
       orderNumeric: false,
       filters: props.filters,
-      showFixedHeader: false,
+      fixedHeaderOption: {
+        visible: false,
+      },
+      fixedToolbarOption: {
+        visible: false,
+      },
     };
+  }
+
+  handleFixedHeader = () => {
+    let toolbarHeight = 0;
+    if (this.props.toolbar) {
+      toolbarHeight = document.getElementById(this.toolbarId).getBoundingClientRect().height;
+      const tableHeight = document.getElementById(this.tableId).getBoundingClientRect().height;
+      const fixedToolbarOption = common.getFixedDivOption(this.toolbarId, tableHeight);
+      this.setState({fixedToolbarOption});
+    }
+    const fixedHeaderOption = common.getFixedHeaderOption(this.tableId, toolbarHeight);
+    this.setState({fixedHeaderOption});
+  }
+
+  componentDidMount() {
+    window.addEventListener('scroll', this.handleFixedHeader);
+    window.addEventListener('resize', this.handleFixedHeader);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.handleFixedHeader);
+    window.removeEventListener('resize', this.handleFixedHeader);
   }
 
   handleChangePage = (event, page) => {
@@ -64,36 +93,52 @@ class MyEnhancedTable extends React.Component {
   }
 
   render() {
-    const { classes, tableHead, tableData, tableActions, rowActions } = this.props;
-    const { filters, page, rowsPerPage, order, orderBy, orderNumeric } = this.state;
+    const { classes, tableHead, tableData, tableActions, rowActions, toolbar } = this.props;
+    const { filters, page, rowsPerPage, order, orderBy, orderNumeric, fixedHeaderOption, fixedToolbarOption } = this.state;
     let results = common.stableSort(tableData, common.getSorting(order, orderBy, orderNumeric));
     if (!common.isEmpty(filters)) {
       results = common.stableFilter(results, filters);
     }
+    const headerProps = {
+      classes: classes,
+      tableHeaderColor: this.props.tableHeaderColor,
+      tableHead: tableHead,
+      actions: tableActions ? tableActions : (rowActions ? true : false),
+      onSort: this.handleSort,
+      order: order,
+      orderBy: orderBy,
+    }
+    const toolbarProps = {
+      title: this.props.title,
+      filters: filters,
+      tableHead: tableHead,
+      onChangeFilter: this.handleChangeFilter,
+    }
 
     return (
       <div className={classes.tableResponsive}>
-        <DataTableToolbar
-          title={this.props.title}
-          filters={filters}
-          tableHead={tableHead}
-          onChangeFilter={this.handleChangeFilter}
-        />
+        {toolbar ? (
+          <DataTableToolbar
+            id={this.toolbarId}
+            {...toolbarProps}
+          />
+        ) : null}
+        {toolbar && fixedHeaderOption && fixedHeaderOption.visible === true ? (
+          <DataTableToolbar
+            {...toolbarProps}
+            fixedOption={fixedToolbarOption}
+          />
+        ) : null}
         <Table className={classes.table} id={this.tableId} {...this.props.tableProps}>
           <DataTableHead
-            classes={classes}
-            tableHeaderColor={this.props.tableHeaderColor}
-            tableHead={tableHead}
-            actions={tableActions ? tableActions : (rowActions ? true : false)}
-            onSort={this.handleSort}
-            order={order}
-            orderBy={orderBy}
+            {...headerProps}
           />
           <TableBody>
             {common.getDataForDisplay(results, rowsPerPage, page)
               .map((row, key) => {
+                const rowStyles = common.getExtraRowStyles(row, tableHead);
                 return (
-                  <TableRow key={key} hover>
+                  <TableRow key={key} className={classes.tableRow} style={{...rowStyles}}>
                     {tableHead.map((col, key) => {
                       return (
                         <DataTableCell
@@ -111,7 +156,6 @@ class MyEnhancedTable extends React.Component {
         </Table>
         <DataTablePagination
           component="div"
-          // id={paginationId}
           count={results.length}
           rowsPerPage={rowsPerPage}
           rowsPerPageOptions={this.props.rowsPerPageOptions}
@@ -125,6 +169,18 @@ class MyEnhancedTable extends React.Component {
           onChangePage={this.handleChangePage}
           onChangeRowsPerPage={this.handleChangeRowsPerPage}
         />
+        {fixedHeaderOption && fixedHeaderOption.visible === true ? (
+          <DataTableFixedHead
+            classes={classes}
+            fixedPosition={fixedHeaderOption.positions}
+            children={
+              <DataTableHead
+                {...headerProps}
+                colsWidth={fixedHeaderOption.colsWidth}
+              />
+            }
+          />
+        ) : null}
       </div>
     );
   }
@@ -138,6 +194,7 @@ MyEnhancedTable.propTypes = {
   rowsPerPage: PropTypes.number,
   rowsPerPageOptions: PropTypes.array,
   server: PropTypes.bool,
+  toolbar: PropTypes.bool,
   title: PropTypes.string,
   filters: PropTypes.object,
 };
@@ -150,6 +207,7 @@ MyEnhancedTable.defaultProps = {
   rowsPerPage: 10,
   rowsPerPageOptions: [5, 10, 15, 25, 50],
   server: false,
+  toolbar: true,
   title: null,
   filters: {},
 };

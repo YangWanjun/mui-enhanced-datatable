@@ -42,10 +42,20 @@ const tableStyle = theme => ({
     borderSpacing: "0",
     borderCollapse: "collapse"
   },
+  tableRow: {
+    "&:hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.07) !important"
+    }
+  },
   tableHeadCell: {
     color: "inherit",
     ...defaultFont,
     fontSize: "0.85em",
+  },
+  tableFixedHeader: {
+    "& th": {
+      boxSizing: 'border-box',
+    }
   },
   tableCell: {
     ...defaultFont,

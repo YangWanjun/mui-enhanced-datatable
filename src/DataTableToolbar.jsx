@@ -58,13 +58,12 @@ class DataTableToolbar extends React.Component {
     this.setState({ openFilter: false });
   };
 
-  handleSubmitFilter = (event) => {
-    event.preventDefault();
-    this.setState({ openFilter: false });
+  handleClearFilter = () => {
+    this.setState({ filters: {} });
     if (this.props.onChangeFilter) {
-      this.props.onChangeFilter(this.state.filters);
+      this.props.onChangeFilter({});
     }
-  };
+  }
 
   handleDeleteFilter = name => () => {
     const { filters } = this.state;
@@ -92,16 +91,29 @@ class DataTableToolbar extends React.Component {
       } else {
         filters[name] = value;
       }
+      if (this.props.onChangeFilter) {
+        this.props.onChangeFilter(filters);
+      }
       return {filters: filters};
     });
   };
 
   render() {
-    const { classes, title, tableHead } = this.props;
+    const { classes, title, tableHead, fixedOption } = this.props;
     const { filters } = this.state;
+    let fixedStyles = null;
+    console.log(fixedOption)
+    if (fixedOption && fixedOption.visible === true) {
+      fixedStyles = {
+        position: "fixed",
+        backgroundColor: 'white',
+        zIndex: 1,
+        ...fixedOption.positions,
+      }
+    }
 
     return (
-      <div>
+      <div id={this.props.id} style={fixedStyles}>
         <Toolbar className={classes.root}>
           <div className={classes.title}>
             {Object.keys(filters).map(name => {
@@ -133,8 +145,8 @@ class DataTableToolbar extends React.Component {
           onClose={this.handleCloseFilter}
           aria-labelledby="form-dialog-title"
         >
-          <form onSubmit={this.handleSubmitFilter}>
-            <DialogTitle id="form-dialog-title">{title}を検索</DialogTitle>
+          <form>
+            <DialogTitle id="form-dialog-title">{title} 検索</DialogTitle>
             <DialogContent>
               {tableHead.map((column, key) => {
                 if (column.searchable === true) {
@@ -154,11 +166,11 @@ class DataTableToolbar extends React.Component {
               })}
             </DialogContent>
             <DialogActions>
-              <Button onClick={this.handleClose} color="secondary">
-                キャンセル
+              <Button onClick={this.handleClearFilter} color="secondary">
+                クリア
               </Button>
-              <Button onClick={this.handleOk} color="primary" type="submit">
-                検索
+              <Button onClick={this.handleCloseFilter} color="primary">
+                閉じる
               </Button>
             </DialogActions>
           </form>
