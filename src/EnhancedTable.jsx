@@ -146,7 +146,7 @@ class MyEnhancedTable extends React.Component {
   };
 
   render() {
-    const { classes, tableHead, tableData, tableActions, rowActions, toolbar, selectable } = this.props;
+    const { classes, tableHead, tableData, tableActions, rowActions, toolbar, selectable, allowCsv } = this.props;
     const { filters, page, rowsPerPage, order, orderBy, orderNumeric, fixedHeaderOption, fixedToolbarOption, selected } = this.state;
     let results = common.stableSort(tableData, common.getSorting(order, orderBy, orderNumeric));
     if (!common.isEmpty(filters)) {
@@ -173,6 +173,7 @@ class MyEnhancedTable extends React.Component {
       onChangeFilter: this.handleChangeFilter,
       tableActions: tableActions,
       rowActions: rowActions,
+      allowCsv: allowCsv,
     }
 
     return (
@@ -270,6 +271,7 @@ MyEnhancedTable.propTypes = {
   pushpinTop: PropTypes.number,
   tableActions: PropTypes.arrayOf(PropTypes.object),
   rowActions: PropTypes.arrayOf(PropTypes.object),
+  allowCsv: PropTypes.bool,
 };
 
 MyEnhancedTable.defaultProps = {
@@ -286,6 +288,7 @@ MyEnhancedTable.defaultProps = {
   pushpinTop: 0,
   tableActions: [],
   rowActions: [],
+  allowCsv: false,
 };
 
 const EnhancedTable = withStyles(tableStyle)(MyEnhancedTable);

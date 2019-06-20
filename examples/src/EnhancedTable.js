@@ -36,6 +36,7 @@ class MyEnhancedTable extends React.Component {
             'handleClick': (data) => (console.log(data)),
           }
         ]}
+        allowCsv={true}
       />
     );
   }

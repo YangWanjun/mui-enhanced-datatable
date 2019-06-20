@@ -23,6 +23,7 @@ const styles = theme => ({
   root: {
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
+    minHeight: 48,
   },
   spacer: {
     flex: '1 1 100%',
@@ -150,7 +151,7 @@ class DataTableToolbar extends React.Component {
   };
 
   render() {
-    const { classes, title, tableHead, fixedOption } = this.props;
+    const { classes, title, tableHead, fixedOption, allowCsv } = this.props;
     const { filters } = this.state;
     let fixedStyles = null;
     if (fixedOption && fixedOption.visible === true) {
@@ -182,7 +183,7 @@ class DataTableToolbar extends React.Component {
           <div className={classes.spacer} />
           <div className={classes.actions}>
             {this.createActions()}
-            {this.createCsvAction()}
+            {allowCsv ? this.createCsvAction() : null}
             {tableHead.filter(col => col.searchable === true).length > 0 ? (
               <Tooltip title="検索" placement='bottom' enterDelay={300}>
                 <IconButton aria-label="Filter list" onClick={this.handleOpenFilter}>
