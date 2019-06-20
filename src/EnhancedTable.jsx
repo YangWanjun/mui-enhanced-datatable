@@ -156,7 +156,6 @@ class MyEnhancedTable extends React.Component {
       classes: classes,
       tableHeaderColor: this.props.tableHeaderColor,
       tableHead: tableHead,
-      actions: tableActions ? tableActions : (rowActions ? true : false),
       onSort: this.handleSort,
       order: order,
       orderBy: orderBy,
@@ -169,7 +168,11 @@ class MyEnhancedTable extends React.Component {
       title: this.props.title,
       filters: filters,
       tableHead: tableHead,
+      tableData: results,
+      selected: selected,
       onChangeFilter: this.handleChangeFilter,
+      tableActions: tableActions,
+      rowActions: rowActions,
     }
 
     return (
@@ -265,6 +268,8 @@ MyEnhancedTable.propTypes = {
   title: PropTypes.string,
   filters: PropTypes.object,
   pushpinTop: PropTypes.number,
+  tableActions: PropTypes.arrayOf(PropTypes.object),
+  rowActions: PropTypes.arrayOf(PropTypes.object),
 };
 
 MyEnhancedTable.defaultProps = {
@@ -279,7 +284,9 @@ MyEnhancedTable.defaultProps = {
   title: null,
   filters: {},
   pushpinTop: 0,
+  tableActions: [],
+  rowActions: [],
 };
 
-const EnhancedTable = withStyles(tableStyle)(MyEnhancedTable)
+const EnhancedTable = withStyles(tableStyle)(MyEnhancedTable);
 export { EnhancedTable } ;

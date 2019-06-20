@@ -15,6 +15,7 @@ import {
   Chip,
 } from "@material-ui/core";
 import FilterListIcon from '@material-ui/icons/FilterList';
+import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import ControlCreator from './ControlCreator';
 import { common } from "./common";
 
@@ -98,6 +99,56 @@ class DataTableToolbar extends React.Component {
     });
   };
 
+  createCsvAction = () => {
+    const { title, tableHead, tableData } = this.props;
+    return (
+      <Tooltip title='CSVダウンロード' placement='bottom' enterDelay={300}>
+        <IconButton
+          aria-label="Action"
+          onClick={() => common.downloadDataTableCSV(title, tableHead, tableData)}
+        >
+          <CloudDownloadIcon/>
+        </IconButton>
+      </Tooltip>
+    );
+  }
+
+  createActions = () => {
+    const { selected, tableActions, rowActions, tableData } = this.props;
+    if (Array.isArray(selected) && selected.length > 0 ) {
+      // 行ごとのアクション
+      let data = null;
+      if (selected.length === 1) {
+        data = common.getFromList(tableData, '__index__', selected[0]);
+      } else {
+        data = tableData.filter(row => selected.indexOf(row.__index__) >= 0);
+      }
+      return (
+        <React.Fragment>
+          {rowActions.map((action, key) => (
+            <Tooltip key={key} title={action.tooltip} placement='bottom' enterDelay={300}>
+              <IconButton aria-label="Action" onClick={() => action.handleClick(data)}>
+                {action.icon}
+              </IconButton>
+            </Tooltip>
+          ))}
+        </React.Fragment>
+      );
+    } else {
+      return (
+        <React.Fragment>
+          {tableActions.map((action, key) => (
+            <Tooltip key={key} title={action.tooltip} placement='bottom' enterDelay={300}>
+              <IconButton aria-label="Action" onClick={action.handleClick}>
+                {action.icon}
+              </IconButton>
+            </Tooltip>
+          ))}
+        </React.Fragment>
+      );
+    }
+  };
+
   render() {
     const { classes, title, tableHead, fixedOption } = this.props;
     const { filters } = this.state;
@@ -130,6 +181,8 @@ class DataTableToolbar extends React.Component {
           </div>
           <div className={classes.spacer} />
           <div className={classes.actions}>
+            {this.createActions()}
+            {this.createCsvAction()}
             {tableHead.filter(col => col.searchable === true).length > 0 ? (
               <Tooltip title="検索" placement='bottom' enterDelay={300}>
                 <IconButton aria-label="Filter list" onClick={this.handleOpenFilter}>

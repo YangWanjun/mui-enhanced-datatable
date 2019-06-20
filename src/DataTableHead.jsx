@@ -8,7 +8,6 @@ import {
   TableSortLabel,
   Checkbox,
 } from "@material-ui/core";
-import DataTableCell from './DataTableCell';
 
 class DataTableHead extends React.Component {
 
@@ -18,23 +17,8 @@ class DataTableHead extends React.Component {
     }
   };
 
-  getActions() {
-    const { actions } = this.props;
-    if (!actions) {
-      return null;
-    } else if (Array.isArray(actions) && actions.length > 0) {
-      return (
-        <DataTableCell {...this.props}
-        />
-      );
-    } else {
-      return null;
-    }
-  }
-
   render() {
     const { classes, tableHeaderColor, tableHead, colsWidth, sortable, order, orderBy, selected, selectable, data } = this.props;
-    const actionCell = this.getActions();
     const numSelected = selected ? selected.length : 0;
     const rowCount = data ? data.length : 0;
     let chkCell = <React.Fragment/>;
@@ -105,7 +89,6 @@ class DataTableHead extends React.Component {
                 </TableCell>
               );
             })}
-            {actionCell}
           </TableRow>
         </TableHead>
       );

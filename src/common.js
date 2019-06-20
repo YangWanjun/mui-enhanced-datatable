@@ -212,4 +212,67 @@ export const common = {
       return {visible: false};
     }
   },
+
+  /**
+   * DataTableのデータをＣＳＶに変換する
+   * @param {Array} tableHead テーブルのヘッダー
+   * @param {Array} tableData テーブルのデータ
+   */
+  dataTableToCSV: function(tableHead, tableData) {
+    let headArray = [];
+    let csvArray = [];
+    tableHead = tableHead.filter(col => col.visible !== false);
+    tableHead.map(col => (
+      headArray.push(col.label || col.name)
+    ));
+    csvArray.push(headArray);
+    // データ部分をＣＳＶに入れる
+    tableData.forEach(function(row) {
+      let dataArray = [];
+      tableHead.map(col => dataArray.push(row[col.name]));
+      csvArray.push(dataArray);
+    });
+
+    return this.arrayToCSV(csvArray);
+  },
+
+  arrayToCSV: function(array) {
+    let lineArray = [];
+    array.forEach(function (infoArray, index) {
+      let line = infoArray.join(",");
+      lineArray.push(line);
+    });
+    let csvContent = lineArray.join("\n");
+    return csvContent;
+  },
+
+  downloadCSV: function (csvContent, filename) {
+    if (filename) {
+      filename += '.csv';
+    } else {
+      filename = 'export.csv';
+    }
+    let link = document.createElement('a');
+    let bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    let blob = new Blob([bom, csvContent], { type: 'text/csv' });
+    link.setAttribute('download', filename);
+    if (window.webkitURL && window.webkitURL.createObjectURL) {
+      // for chrome (and safari)
+      link.setAttribute('href', window.webkitURL.createObjectURL(blob));
+      link.click();
+    } else if (window.URL && window.URL.createObjectURL) {
+      // for firefox
+      link.setAttribute('href', window.URL.createObjectURL(blob));
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      alert('サポートしないブラウザです。')
+    }
+  },
+
+  downloadDataTableCSV: function(filename, tableHead, tableData) {
+    const data = this.dataTableToCSV(tableHead, tableData);
+    this.downloadCSV(data, filename);
+  },
 };
