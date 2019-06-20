@@ -139,9 +139,14 @@ class MyEnhancedTable extends React.Component {
     if (checked) {
       const { filters } = this.state;
       const results = common.stableFilter(this.props.tableData, filters);
-      this.setState(state => ({ selected: results.map(row => row.__index__) }));
+      this.setState({ selected: results.map(row => row.__index__) });
       return;
+    } else {
+      this.clearSelected();
     }
+  };
+
+  clearSelected = () => {
     this.setState({ selected: [] });
   };
 
