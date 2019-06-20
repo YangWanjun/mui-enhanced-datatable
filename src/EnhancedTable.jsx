@@ -213,7 +213,14 @@ class MyEnhancedTable extends React.Component {
                   );
                 }
                 return (
-                  <TableRow key={key} className={classes.tableRow} style={{...rowStyles}}>
+                  <TableRow
+                    key={key}
+                    className={classes.tableRow}
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    selected={isSelected}
+                    style={{...rowStyles}}
+                  >
                     {chkCell}
                     {tableHead.map((col, key) => {
                       return (

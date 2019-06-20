@@ -1,4 +1,7 @@
-# Tableの属性
+### DEMO
+https://yangwanjun.github.io/enhanced-table/
+
+### Tableの属性
 |属性|既定値|説明|
 |:---|:---|:---|
 |tableHeaderColor|"gray"|["warning", "primary", "danger", "success", "info", "rose", "gray"]
@@ -7,7 +10,7 @@
 |rowsPerPage|null|ページサイズ、デフォルトは改頁しない
 |tableProps|null|Material UIテーブルの属性
 
-# Tableヘッダーの定義
+### Tableヘッダーの定義
 |属性|既定値|説明|
 |:---|:---|:---|
 |name|必須|項目名

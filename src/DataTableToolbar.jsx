@@ -1,4 +1,5 @@
 import React from "react";
+import classNames from 'classnames';
 import {
   Typography,
 } from '@material-ui/core';
@@ -16,6 +17,7 @@ import {
 } from "@material-ui/core";
 import FilterListIcon from '@material-ui/icons/FilterList';
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
+import { lighten } from '@material-ui/core/styles/colorManipulator';
 import ControlCreator from './ControlCreator';
 import { common } from "./common";
 
@@ -25,6 +27,17 @@ const styles = theme => ({
     paddingRight: theme.spacing(1),
     minHeight: 48,
   },
+  highlight:
+    theme.palette.type === 'light'
+      ? {
+        color: theme.palette.secondary.main,
+        backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+      }
+      : {
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.secondary.dark,
+      },
+
   spacer: {
     flex: '1 1 100%',
   },
@@ -38,6 +51,9 @@ const styles = theme => ({
   },
   chip: {
     margin: theme.spacing(0.5),
+  },
+  selected: {
+    marginRight: theme.spacing(1),
   },
 });
 
@@ -151,8 +167,9 @@ class DataTableToolbar extends React.Component {
   };
 
   render() {
-    const { classes, title, tableHead, fixedOption, allowCsv } = this.props;
+    const { classes, title, tableHead, fixedOption, selected, allowCsv } = this.props;
     const { filters } = this.state;
+    const numSelected = selected.length;
     let fixedStyles = null;
     if (fixedOption && fixedOption.visible === true) {
       fixedStyles = {
@@ -165,8 +182,17 @@ class DataTableToolbar extends React.Component {
 
     return (
       <div id={this.props.id} style={fixedStyles}>
-        <Toolbar className={classes.root}>
+        <Toolbar
+          className={classNames(classes.root, {
+            [classes.highlight]: numSelected > 0,
+          })}
+        >
           <div className={classes.title}>
+            {numSelected > 0 ? (
+              <Typography color="inherit" variant="subheading" className={classes.selected}>
+                {numSelected} 選択
+              </Typography>
+            ) : null}
             {Object.keys(filters).map(name => {
               const value = filters[name];
               const column = common.getFromList(tableHead, 'name', name);
