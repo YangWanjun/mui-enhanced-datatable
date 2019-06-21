@@ -10,15 +10,15 @@ const App = () => (
   <Router>
     <div>
       <ul>
-        <li><Link to={'/'}>Home</Link></li>
-        <li><Link to={'/simple-table/'}>SimpleTable</Link></li>
-        <li><Link to={'/hierarchy-table/'}>HierarchyTable</Link></li>
-        <li><Link to={'/enhanced-table/'}>EnhancedTable</Link></li>
+        <li><Link to={'/mui-enhanced-datatable/'}>Home</Link></li>
+        <li><Link to={'/mui-enhanced-datatable/simple-table/'}>SimpleTable</Link></li>
+        <li><Link to={'/mui-enhanced-datatable/hierarchy-table/'}>HierarchyTable</Link></li>
+        <li><Link to={'/mui-enhanced-datatable/enhanced-table/'}>EnhancedTable</Link></li>
       </ul>
-      <Route path='/simple-table/' component={MySimpleTable} />
-      <Route path='/hierarchy-table/' component={MyHierarchyTable} />
-      <Route path='/enhanced-table/' component={MyEnhancedTable} />
-      <Route path='/detail/:pk/' component={Detail} />
+      <Route path='/mui-enhanced-datatable/simple-table/' component={MySimpleTable} />
+      <Route path='/mui-enhanced-datatable/hierarchy-table/' component={MyHierarchyTable} />
+      <Route path='/mui-enhanced-datatable/enhanced-table/' component={MyEnhancedTable} />
+      <Route path='/mui-enhanced-datatable/detail/:pk/' component={Detail} />
     </div>
   </Router>
 );

@@ -3,7 +3,7 @@ export const columns = [
     "name": "name",
     "type": "string",
     "label": "名前",
-    "link": '/detail/%(pk)s/',
+    "link": '/mui-enhanced-datatable/detail/%(pk)s/',
     "maxWidth": 260,
     "sortable": true,
     "searchable": true,

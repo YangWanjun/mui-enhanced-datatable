@@ -29,14 +29,14 @@ module.exports = {
   // 開発用Webサーバのポートを指定します。
   devServer: {
     port: 3001,
-    hot: true,
-    inline: true,
-    historyApiFallback: true
+    historyApiFallback: {
+      index: '/mui-enhanced-datatable/'
+    }
   },
   output: {
     path: path.join(__dirname, "examples/dist"),
     filename: "bundle.js",
-    publicPath: '/'
+    publicPath: '/mui-enhanced-datatable/'
   },
   performance: { hints: false }
 }
