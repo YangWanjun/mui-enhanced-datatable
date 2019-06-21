@@ -1,8 +1,5 @@
 import React from "react";
 import classNames from 'classnames';
-import {
-  Typography,
-} from '@material-ui/core';
 import withStyles from "@material-ui/core/styles/withStyles";
 import {
   Toolbar,
@@ -131,20 +128,22 @@ class DataTableToolbar extends React.Component {
   }
 
   createActions = () => {
-    const { selected, tableActions, rowActions, tableData } = this.props;
+    const { selected, tableActions, rowActions, tableData, pk } = this.props;
     if (Array.isArray(selected) && selected.length > 0 ) {
       // 行ごとのアクション
-      let data = null;
-      if (selected.length === 1) {
-        data = common.getFromList(tableData, '__index__', selected[0]);
-      } else {
-        data = tableData.filter(row => selected.indexOf(row.__index__) >= 0);
-      }
       return (
         <React.Fragment>
           {rowActions.map((action, key) => (
-            <Tooltip key={key} title={action.tooltip} placement='bottom' enterDelay={300}>
-              <IconButton aria-label="Action" onClick={() => action.handleClick(data)}>
+            <Tooltip
+              key={key} 
+              title={action.tooltip} 
+              placement='bottom' 
+              enterDelay={300}
+            >
+              <IconButton
+                aria-label="Action"
+                onClick={() => action.handleClick(selected.length === 1 ? selected[0] : selected)}
+              >
                 {action.icon}
               </IconButton>
             </Tooltip>
@@ -189,9 +188,9 @@ class DataTableToolbar extends React.Component {
         >
           <div className={classes.title}>
             {numSelected > 0 ? (
-              <Typography color="inherit" variant="subheading" className={classes.selected}>
-                {numSelected} 選択
-              </Typography>
+              <span color="inherit" className={classes.selected}>
+                {numSelected} 件選択
+              </span>
             ) : null}
             {Object.keys(filters).map(name => {
               const value = filters[name];

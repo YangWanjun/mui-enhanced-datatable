@@ -27,6 +27,7 @@ class MyEnhancedTable extends React.Component {
   constructor(props) {
     super(props);
 
+    this.isSelected = this.isSelected.bind(this);
     this.state = {
       tableData: common.initTableData(props.tableData),
       page: 0,
@@ -100,33 +101,57 @@ class MyEnhancedTable extends React.Component {
     this.setState({ filters });
   };
 
-  isSelected = index => {
-    return this.state.selected.indexOf(index) !== -1
+  isSelected = (data) => {
+    if (!data) {
+      return false;
+    }
+    const { selected } = this.state;
+    let key = null;
+    if (data.__index__ !== null && data.__index__ !== undefined) {
+      key = '__index__';
+    } else {
+      key = this.props.pk;
+    }
+
+    if (!selected) {
+      return false;
+    } else {
+      return selected.filter(row => row[key] === data[key]).length > 0;
+    }
   };
 
-  handleRowSelect = (index) => {
+  handleRowSelect = (data) => {
     if (this.props.selectable === 'none') {
       return;
     }
     const { selected } = this.state;
-    const selectedIndex = selected.indexOf(index);
+    const isSelected = this.isSelected(data);
     let newSelected = [];
     if (this.props.selectable === 'multiple') {
-      if (selectedIndex === -1) {
-        newSelected = newSelected.concat(selected, index);
-      } else if (selectedIndex === 0) {
-        newSelected = newSelected.concat(selected.slice(1));
-      } else if (selectedIndex === selected.length - 1) {
-        newSelected = newSelected.concat(selected.slice(0, -1));
-      } else if (selectedIndex > 0) {
+      // if (selectedIndex === -1) {
+      //   newSelected = newSelected.concat(selected, index);
+      // } else if (selectedIndex === 0) {
+      //   newSelected = newSelected.concat(selected.slice(1));
+      // } else if (selectedIndex === selected.length - 1) {
+      //   newSelected = newSelected.concat(selected.slice(0, -1));
+      // } else if (selectedIndex > 0) {
+      //   newSelected = newSelected.concat(
+      //     selected.slice(0, selectedIndex),
+      //     selected.slice(selectedIndex + 1),
+      //   );
+      // }
+      if (isSelected === true) {
+        const selectedIndex = selected.indexOf(data);
         newSelected = newSelected.concat(
           selected.slice(0, selectedIndex),
           selected.slice(selectedIndex + 1),
         );
+      } else {
+        newSelected = newSelected.concat(selected, data);
       }
     } else if (this.props.selectable === 'single') {
-      if (selectedIndex === -1) {
-        newSelected = [index];
+      if (isSelected === true) {
+        newSelected = [data];
       } else {
         newSelected = [];
       }
@@ -139,7 +164,7 @@ class MyEnhancedTable extends React.Component {
     if (checked) {
       const { filters } = this.state;
       const results = common.stableFilter(this.props.tableData, filters);
-      this.setState({ selected: results.map(row => row.__index__) });
+      this.setState({ selected: results });
       return;
     } else {
       this.clearSelected();
@@ -151,7 +176,7 @@ class MyEnhancedTable extends React.Component {
   };
 
   render() {
-    const { classes, tableHead, tableData, tableActions, rowActions, toolbar, selectable, allowCsv } = this.props;
+    const { classes, tableHead, tableData, tableActions, rowActions, toolbar, selectable, allowCsv, pk } = this.props;
     const { filters, page, rowsPerPage, order, orderBy, orderNumeric, fixedHeaderOption, fixedToolbarOption, selected } = this.state;
     let results = common.stableSort(tableData, common.getSorting(order, orderBy, orderNumeric));
     if (!common.isEmpty(filters)) {
@@ -179,6 +204,7 @@ class MyEnhancedTable extends React.Component {
       tableActions: tableActions,
       rowActions: rowActions,
       allowCsv: allowCsv,
+      pk: pk,
     }
 
     return (
@@ -203,12 +229,12 @@ class MyEnhancedTable extends React.Component {
             {common.getDataForDisplay(results, rowsPerPage, page)
               .map((row, key) => {
                 const rowStyles = common.getExtraRowStyles(row, tableHead);
-                const isSelected = this.isSelected(row.__index__);
+                const isSelected = this.isSelected(row);
                 let chkCell = null;
                 if (selectable === 'multiple' || selectable === 'single') {
                   chkCell = (
                     <TableCell padding="none">
-                      <Checkbox checked={isSelected} onClick={() => this.handleRowSelect(row.__index__)} />
+                      <Checkbox checked={isSelected} onClick={() => this.handleRowSelect(row)} />
                     </TableCell>
                   );
                 }
