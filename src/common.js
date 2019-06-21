@@ -187,6 +187,21 @@ export const common = {
   },
 
   /**
+   * 選択肢から表示する名称を取得
+   * @param {Object} value 選択肢の値
+   * @param {JSON} column 項目のスキーマ
+   */
+  getDisplayNameFromChoice: function(value, column) {
+    if (column.choices && !this.isEmpty(column.choices)) {
+      const choice = this.getFromList(column.choices, 'value', value);
+      const display_name = choice ? choice.display_name : null;
+      return display_name || value;
+    } else {
+      return value;
+    }
+  },
+
+  /**
    * テーブルのヘッダー部分が固定時の位置の取得
    * @param {String} tableId テーブルのＩＤ
    * @param {Integer} offset 調整値
@@ -219,6 +234,7 @@ export const common = {
    * @param {Array} tableData テーブルのデータ
    */
   dataTableToCSV: function(tableHead, tableData) {
+    let self = this;
     let headArray = [];
     let csvArray = [];
     tableHead = tableHead.filter(col => col.visible !== false);
@@ -229,7 +245,13 @@ export const common = {
     // データ部分をＣＳＶに入れる
     tableData.forEach(function(row) {
       let dataArray = [];
-      tableHead.map(col => dataArray.push(row[col.name]));
+      tableHead.map(col => {
+        let value = row[col.name];
+        if (col.type === 'choice') {
+          value = self.getDisplayNameFromChoice(value, col);
+        }
+        dataArray.push(value);
+      });
       csvArray.push(dataArray);
     });
 

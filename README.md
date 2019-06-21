@@ -1,5 +1,5 @@
 ### DEMO
-https://yangwanjun.github.io/enhanced-table/
+https://yangwanjun.github.io/mui-enhanced-datatable/
 
 ### Tableの属性
 |属性|既定値|説明|

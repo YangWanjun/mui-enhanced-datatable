@@ -153,13 +153,8 @@ class DataTableCell extends React.Component {
         </IconButton>
       ) : null);
     } else if (column.type === 'choice') {
-      if (column.choices && !common.isEmpty(column.choices)) {
-        const choice = common.getFromList(column.choices, 'value', value);
-        const display_name = choice ? choice.display_name : null;
-        output = this.getOutput(display_name || value);
-      } else {
-        output = this.getOutput(value);
-      }
+      const display_name = common.getDisplayNameFromChoice(value, column);
+      output = this.getOutput(display_name);
     } else {
       output = this.getOutput(value);
     }
