@@ -11,9 +11,9 @@ import {
 // core components
 import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';
-import tableStyle from "./styles";
-import { common } from "./common";
-import { constant } from "./constant";
+import tableStyle from "../assets/css/datatable";
+import { common } from "../utils/common";
+import { constant } from "../utils/constant";
 
 const indent = 8;
 

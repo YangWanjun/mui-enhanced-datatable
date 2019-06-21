@@ -15,8 +15,8 @@ import {
 import FilterListIcon from '@material-ui/icons/FilterList';
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import { lighten } from '@material-ui/core/styles/colorManipulator';
-import ControlCreator from './ControlCreator';
-import { common } from "./common";
+import ControlCreator from '../form/ControlCreator';
+import { common } from "../utils/common";
 
 const styles = theme => ({
   root: {

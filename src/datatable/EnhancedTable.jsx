@@ -16,9 +16,9 @@ import DataTableHead from './DataTableHead';
 import DataTablePagination from './DataTablePagination';
 import DataTableToolbar from "./DataTableToolbar";
 import DataTableFixedHead from "./DataTableFixedHead";
-import tableStyle from "./styles";
-import { common } from "./common";
-import { constant } from "./constant";
+import tableStyle from "../assets/css/datatable";
+import { common } from "../utils/common";
+import { constant } from "../utils/constant";
 
 class MyEnhancedTable extends React.Component {
   tableId = uuid();

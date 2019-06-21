@@ -16,7 +16,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import ArchiveIcon from '@material-ui/icons/Archive';
-import { common } from './common';
+import { common } from "../utils/common";
 
 class DataTableCell extends React.Component {
 

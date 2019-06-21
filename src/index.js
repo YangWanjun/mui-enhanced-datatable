@@ -1,3 +1,3 @@
-export * from './SimpleTable';
-export * from './HierarchyTable';
-export * from './EnhancedTable';
+export * from './datatable/SimpleTable';
+export * from './datatable/HierarchyTable';
+export * from './datatable/EnhancedTable';
