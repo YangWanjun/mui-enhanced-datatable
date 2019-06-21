@@ -7,21 +7,8 @@ import {
   Select,
   MenuItem,
 } from "@material-ui/core";
+import formStyle from "../assets/css/form";
 import { common } from '../utils/common'; 
-
-const styles = theme => ({
-  root: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
-  },
-});
 
 class ControlCreator extends React.Component {
 
@@ -36,14 +23,19 @@ class ControlCreator extends React.Component {
   };
 
   render() {
-    const { classes, column, value } = this.props;
+    const { classes, column } = this.props;
+    let value = this.props.value === undefined ? null : this.props.value;
 
     if (column.type === 'boolean') {
       // チェックボックスを表示
       return (
         <FormControl className={classes.formControl}>
           <InputLabel htmlFor={column.name}>{column.label}</InputLabel>
-          <Select value={value.toString()} inputProps={{ name: column.name, value: value }} onChange={this.handleChange}>
+          <Select
+            value={(value === null || value === undefined) ? '' : value.toString()}
+            inputProps={{ name: column.name, value: value }}
+            onChange={this.handleChange}
+          >
             <MenuItem value=""><em>None</em></MenuItem>
               <MenuItem key='true' value='true'>はい</MenuItem>
               <MenuItem key='false' value='false'>いいえ</MenuItem>
@@ -55,10 +47,21 @@ class ControlCreator extends React.Component {
       return (
         <FormControl className={classes.formControl}>
           <InputLabel htmlFor={column.name}>{column.label}</InputLabel>
-          <Select value={value} inputProps={{ name: column.name, value: value }} onChange={this.handleChange}>
+          <Select
+            value={value}
+            inputProps={{ name: column.name, value: value }}
+            onChange={this.handleChange}
+          >
             <MenuItem value=""><em>None</em></MenuItem>
             {column.choices.map(item => {
-              return (<MenuItem key={item.value} value={item.value}>{item.display_name}</MenuItem>);
+              return (
+                <MenuItem
+                  key={item.value}
+                  value={item.value}
+                >
+                  {item.display_name}
+                </MenuItem>
+              );
             })}
           </Select>
         </FormControl>
@@ -78,4 +81,4 @@ class ControlCreator extends React.Component {
   }
 }
 
-export default withStyles(styles)(ControlCreator);
+export default withStyles(formStyle)(ControlCreator);
