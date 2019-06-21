@@ -83,13 +83,11 @@ class MyEnhancedTable extends React.Component {
   };
 
   handleSort = (event, property, orderNumeric) => {
-    let orderBy = property;
+    const orderBy = property;
     let order = 'desc';
 
     if (this.state.orderBy === property && this.state.order === 'desc') {
       order = 'asc';
-    } else {
-      orderBy = '-' + orderBy;
     }
     this.handleFixedHeader();
     this.setState({ order, orderBy, orderNumeric });
