@@ -251,6 +251,7 @@ export const common = {
           value = self.getDisplayNameFromChoice(value, col);
         }
         dataArray.push(value);
+        return true;
       });
       csvArray.push(dataArray);
     });

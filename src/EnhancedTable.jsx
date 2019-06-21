@@ -83,14 +83,13 @@ class MyEnhancedTable extends React.Component {
   };
 
   handleSort = (event, property, orderNumeric) => {
-    const orderBy = property;
+    let orderBy = property;
     let order = 'desc';
-    let order_by = property;
 
     if (this.state.orderBy === property && this.state.order === 'desc') {
       order = 'asc';
     } else {
-      order_by = '-' + order_by;
+      orderBy = '-' + orderBy;
     }
     this.handleFixedHeader();
     this.setState({ order, orderBy, orderNumeric });
@@ -151,9 +150,9 @@ class MyEnhancedTable extends React.Component {
       }
     } else if (this.props.selectable === 'single') {
       if (isSelected === true) {
-        newSelected = [data];
-      } else {
         newSelected = [];
+      } else {
+        newSelected = [data];
       }
     }
 

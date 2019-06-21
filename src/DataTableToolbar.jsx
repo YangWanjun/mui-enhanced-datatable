@@ -128,7 +128,7 @@ class DataTableToolbar extends React.Component {
   }
 
   createActions = () => {
-    const { selected, tableActions, rowActions, tableData, pk } = this.props;
+    const { selected, tableActions, rowActions } = this.props;
     if (Array.isArray(selected) && selected.length > 0 ) {
       // 行ごとのアクション
       return (
@@ -240,6 +240,8 @@ class DataTableToolbar extends React.Component {
                       handleChange={this.handleChange}
                     />
                   )
+                } else {
+                  return null;
                 }
               })}
             </DialogContent>
