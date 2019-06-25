@@ -40,9 +40,64 @@ export const columns = [
     "label": "退学",
     "sortable": true,
     "searchable": true,
+    "variant": 'select',
     "rowStyles": {
       true: {'backgroundColor': 'lightgray'}
     },
+  },
+  {
+    "name": "no_display",
+    "type": "string",
+    "label": "非表示項目",
+    "visible": false,
+  },
+];
+
+export const add_schema = [
+  {
+    "name": "name",
+    "type": "string",
+    "label": "名前",
+    "link": '/mui-enhanced-datatable/detail/%(pk)s/',
+    "maxWidth": 260,
+    "sortable": true,
+    "searchable": true,
+    "required": true,
+  },
+  {
+    "name": "class_name",
+    "type": "string",
+    "label": "クラス",
+    "required": true,
+  },
+  {
+    "name": "english",
+    "type": "integer",
+    "label": "英語",
+    "sortable": true,
+  },
+  {
+    "name": "evaluation",
+    "type": "choice",
+    "label": "評価",
+    "choices": [
+      { "value": "1", "display_name": "非常にいい" },
+      { "value": "2", "display_name": "とてもいい" },
+      { "value": "3", "display_name": "比較的にいい" },
+      { "value": "4", "display_name": "合格" },
+      { "value": "5", "display_name": "不合格" },
+      { "value": "6", "display_name": "危ない" },
+    ],
+    "sortable": true,
+    "searchable": true,
+    "required": true,
+  },
+  {
+    "name": "retired",
+    "type": "boolean",
+    "label": "退学",
+    "sortable": true,
+    "searchable": true,
   },
   {
     "name": "no_display",

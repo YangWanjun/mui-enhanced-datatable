@@ -4,13 +4,15 @@ import {
   Grid,
 } from '@material-ui/core';
 import ControlCreateor from './ControlCreator';
-import {common} from '../utils';
+import { common, constant } from '../utils';
+
 
 class Form extends React.Component {
 
   constructor(props) {
     super(props);
 
+    this.handleChange = this.handleChange.bind(this);
     this.state = { 
       data: this.initialize(props),
       errors: props.errors || {},
@@ -32,10 +34,7 @@ class Form extends React.Component {
     }
   }
 
-  handleChange(event) {
-    const value = event.target.value;
-    const name = event.target.name;
-
+  handleChange(name, value, type) {
     this.setState((state) => {
       let data = state.data;
       data[name] = value;
@@ -55,6 +54,76 @@ class Form extends React.Component {
       return true;
     });
   }
+
+  validate = () => {
+    const { data } = this.state;
+    let valid = true;
+    let errors = {};
+    // 必須項目チェック
+    this.props.schema.map(col => {
+      const value = data[col.name];
+      if (col.required === true) {
+        if (value === null || value === '' || value === undefined || (typeof value === 'object' && common.isEmpty(value))) {
+          valid = false;
+          this.pushError(col.name, common.formatStr(constant.ERROR.REQUIRE_FIELD, {name: col.label}), errors);
+        }
+      }
+      return true;
+    });
+    // カスタマイズのチェック
+    this.props.checkList.map(method => {
+      const retVal = method(data);
+      if (retVal !== true) {
+        valid = false;
+        retVal.map(item => (
+          this.pushError(item.name, item.message, errors)
+        ));
+      }
+      return true;
+    });
+
+    this.setState({errors});
+    return valid;
+  };
+
+  pushError = (name, error, errors) => {
+    if (name in errors) {
+      errors[name].push(error);
+    } else {
+      errors[name] = [error];
+    }
+  };
+
+  clean = () => {
+    if (this.validate() === true) {
+      let data = Object.assign({}, this.state.data);
+      this.props.schema.map(col => {
+        if (col.type === 'field') {
+          const value = data[col.name];
+          if (Array.isArray(value) && value.length > 0) {
+            const item = value[0];
+            data[col.name] = item.value;
+          }
+        } else if (col.type === 'fields') {
+          const value = data[col.name];
+          if (Array.isArray(value) && value.length > 0) {
+            let items = [];
+            value.map(item => (items.push(item.value)))
+            data[col.name] = items;
+          }
+        }
+        return true;
+      });
+      return data;
+    } else {
+      return null;
+    }
+  };
+
+  handleOk = () => {
+    const formData = this.clean();
+    return formData;
+  };
 
   createFormLayout(data, schema, layout) {
     let control = null;
@@ -99,7 +168,7 @@ class Form extends React.Component {
 
   createFormField(col, key, colSpan, data) {
     const { classes } = this.props;
-    const { errors } = this.state;
+    const errors = this.state.errors[col.name];
     if (col.read_only === true) {
       return (
         <Grid item key={key} xs={12} sm={12} md={colSpan}>
@@ -127,7 +196,6 @@ class Form extends React.Component {
         />
       );
     } else {
-      const message = errors[col.name] || null;
       const choices = data[col.name + '_choices'];
       let value = data[col.name];
       if (col.type === 'choices' && choices) {
@@ -147,7 +215,7 @@ class Form extends React.Component {
             data={data}
             label={col.label}
             placeholder={col.help_text}
-            message={message}
+            errors={errors}
             handleChange={this.handleChange}
             // handleFieldChange={this.handleFieldChange}
             // handleCheck={this.handleCheck}
@@ -169,11 +237,15 @@ Form.propTypes = {
   schema: PropTypes.arrayOf(PropTypes.object).isRequired,
   layout: PropTypes.array,
   data: PropTypes.object,
+  onChanges: PropTypes.arrayOf(PropTypes.func),
+  checkList: PropTypes.arrayOf(PropTypes.func),
 };
 
 Form.defaultProps = {
   layout: [],
   data: {},
+  onChanges: [],
+  checkList: [],
 };
 
 export {Form};

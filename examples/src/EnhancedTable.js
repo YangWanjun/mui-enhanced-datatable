@@ -2,7 +2,7 @@ import React from 'react';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import {EnhancedTable, Form} from '../../src/index';
-import {columns, rows} from './data';
+import {columns, rows, add_schema} from './data';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core';
 
 class MyEnhancedTable extends React.Component {
@@ -17,11 +17,18 @@ class MyEnhancedTable extends React.Component {
 
   handleOpen = () => {
     this.setState({open: true});
-  }
+  };
 
   handleClose = () => {
     this.setState({open: false});
-  }
+  };
+
+  handleOk = () => {
+    if (this._handleOk) {
+      const data = this._handleOk();
+      console.log(data);
+    }
+  };
 
   render() {
     const { open } = this.state;
@@ -63,13 +70,17 @@ class MyEnhancedTable extends React.Component {
           <DialogTitle>
             データを追加
           </DialogTitle>
-          <DialogContent>
+          <DialogContent dividers>
             <Form
-              schema={columns}
+              schema={add_schema}
+              ref={(form) => {
+                this._handleOk = form && form.handleOk;
+              }}
             />
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose}>キャンセル</Button>
+            <Button onClick={this.handleOk} autoFocus={true}>確定</Button>
           </DialogActions>
         </Dialog>
       </div>

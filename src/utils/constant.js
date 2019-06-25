@@ -30,4 +30,7 @@ export const constant = {
     tableActions: [],
     rowActions: [],
   },
+  ERROR: {
+    REQUIRE_FIELD: '%(name)sは必須項目です。',
+  },
 };

@@ -89,16 +89,6 @@ class DataTableToolbar extends React.Component {
   };
 
   handleChange = (name, value, type) => {
-    if (type === 'boolean') {
-      if (value === 'true') {
-        value = true;
-      } else if (value === 'false') {
-        value = false;
-      } else {
-        value = '';
-      }
-    }
-
     this.setState((state) => {
       let filters = state.filters;
       if (value === '' || value === null) {
@@ -228,10 +218,7 @@ class DataTableToolbar extends React.Component {
             <DialogContent>
               {tableHead.map((column, key) => {
                 if (column.searchable === true) {
-                  let value = filters[column.name];
-                  if (value === null || value === undefined) {
-                    value = '';
-                  }
+                  const value = filters[column.name];
                   return (
                     <ControlCreator
                       key={key}

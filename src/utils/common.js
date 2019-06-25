@@ -1,6 +1,16 @@
 import { vsprintf } from 'sprintf-js';
 
 export const common = {
+
+  /**
+   * 整数に変更する
+   * @param {String} num 
+   */
+  toInteger: function(num, radix=10) {
+    let val = parseInt(num, radix);
+    return isNaN(val) ? 0 : val;
+  },
+
   /**
    * 数字をカンマ区切りで表示
    * @param {Integer} num 数字
