@@ -1,13 +1,23 @@
 import React from "react";
 import PropTypes from "prop-types";
+import withStyles from "@material-ui/core/styles/withStyles";
 import {
   Grid,
 } from '@material-ui/core';
 import ControlCreateor from './ControlCreator';
 import { common, constant } from '../utils';
 
+const styles = () => ({
+  error: {
+    color: 'red',
+  },
+  message: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+});
 
-class Form extends React.Component {
+class MyForm extends React.Component {
 
   constructor(props) {
     super(props);
@@ -217,8 +227,6 @@ class Form extends React.Component {
             placeholder={col.help_text}
             errors={errors}
             handleChange={this.handleChange}
-            // handleFieldChange={this.handleFieldChange}
-            // handleCheck={this.handleCheck}
           />
         </Grid>
       );
@@ -226,26 +234,43 @@ class Form extends React.Component {
   }
 
   render() {
-    const { schema, layout } = this.props;
+    const { classes, schema, layout } = this.props;
     const { data } = this.state;
-    return this.createFormLayout(data, schema, layout);
+    const { non_field_errors } = this.state.errors;
+
+    return (
+      <div>
+        {Array.isArray(non_field_errors) && non_field_errors.length > 0 ? (
+          <ul className={classes.error}>
+            {non_field_errors.map((error, key) => (
+              <li key={key}>
+                {error}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {this.createFormLayout(data, schema, layout)}
+      </div>
+    );
   }
 
 }
 
-Form.propTypes = {
+MyForm.propTypes = {
   schema: PropTypes.arrayOf(PropTypes.object).isRequired,
   layout: PropTypes.array,
   data: PropTypes.object,
   onChanges: PropTypes.arrayOf(PropTypes.func),
   checkList: PropTypes.arrayOf(PropTypes.func),
+  errors: PropTypes.object,
 };
 
-Form.defaultProps = {
+MyForm.defaultProps = {
   layout: [],
   data: {},
   onChanges: [],
   checkList: [],
 };
 
+const Form = withStyles(styles)(MyForm);
 export {Form};

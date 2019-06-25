@@ -76,6 +76,11 @@ class MyEnhancedTable extends React.Component {
               ref={(form) => {
                 this._handleOk = form && form.handleOk;
               }}
+              // errors={{non_field_errors: [
+              //   '唯一の名前を入力してください。', 
+              //   '存在しないクラスです、正しいクラスを入力してください', 
+              //   'この項目は必須です。'
+              // ]}}
             />
           </DialogContent>
           <DialogActions>
