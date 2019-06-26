@@ -72,13 +72,6 @@ export const common = {
     return vsprintf(format, args);
   },
 
-  initTableData: function(data) {
-    if (data) {
-      data.map((row, index) => row['__index__'] = index);
-    }
-    return data;
-  },
-
   /**
    * 
    * @param {Array} data テーブルのデータ
@@ -308,4 +301,148 @@ export const common = {
     const data = this.dataTableToCSV(tableHead, tableData);
     this.downloadCSV(data, filename);
   },
+
+  /**
+   * JSONデータをＵＲＬ用のパラメーターに変換する
+   * @param {Object} json JSONデータ
+   */
+  jsonToUrl: function(json) {
+    return Object.keys(json).map(function(k) {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(json[k])
+    }).join('&');
+  },
+
+  /**
+   * ＵＲＬをＪＳＯＮに変換する
+   * @param {String} url URL
+   */
+  urlToJson: function(url) {
+    if (!url) {
+      return {};
+    }
+    var hash;
+    var json = {};
+    var hashes = url.slice(url.indexOf('?') + 1).split('&');
+    for (var i = 0; i < hashes.length; i++) {
+        hash = hashes[i].split('=');
+        json[hash[0]] = hash[1] === 'true' ? true : hash[1] === 'false' ? false : hash[1];
+        // If you want to get in native datatypes
+        // json[hash[0]] = JSON.parse(hash[1]); 
+    }
+    return json;
+  },
+};
+
+export const table = {
+  /**
+   * テーブルのデータを初期化する
+   * @param {Array} data デーブルデータ
+   */
+  initTableData: function(data) {
+    if (data) {
+      data.map((row, index) => row['__index__'] = index);
+    }
+    return data;
+  },
+
+  /**
+   * ＵＲＬから並び順を取得
+   * @param {String} location URL
+   */
+  getOrder: function(location) {
+    let order = {'__order': 'asc', '__orderBy': ''};
+    if (location && location.search) {
+      const json = common.urlToJson(location.search);
+      const order_by = json.__order;
+      const orderNumeric = json.__orderNumeric;
+      if (order_by && order_by[0] === '-') {
+        order['__order'] = 'desc';
+        order['__orderBy'] = order_by.slice(1);
+      } else {
+        order['__orderBy'] = order_by;
+      }
+      order['__orderNumeric'] = orderNumeric;
+    }
+    return order;
+  },
+
+  /**
+   * 
+   * @param {String} order 昇順／降順
+   * @param {String} orderBy 並び替え項目
+   * @param {Boolean} orderNumeric 数字に対する並び替えなのかどうか
+   * @param {String} location ＵＲＬ
+   * @param {Object} history 
+   */
+  changeOrderUrl: function(order, orderBy, orderNumeric, location, history) {
+    let json = common.urlToJson(location.search);
+    json['__order'] = (order === 'asc' ? '' : '-') + orderBy;
+    json['__orderNumeric'] = orderNumeric;
+    history.push({
+      'pathname': location.pathname,
+      'search': common.jsonToUrl(json),
+    });
+  },
+
+  /**
+   * 
+   * @param {String} page 何ページ目
+   * @param {String} location ＵＲＬ
+   * @param {*} history 
+   */
+  changePaginationUrl: function(page, location, history) {
+    let json = common.urlToJson(location.search);
+    json['__page'] = page;
+    history.push({
+      'pathname': location.pathname,
+      'search': common.jsonToUrl(json),
+    });
+  },
+
+  changePageSizeUrl: function(pageSize, location, history) {
+    let json = common.urlToJson(location.search);
+    json['__rowsPerPage'] = pageSize;
+    history.push({
+      'pathname': location.pathname,
+      'search': common.jsonToUrl(json),
+    });
+  },
+
+  /**
+   * フィルター項目をＵＲＬに反映する
+   * @param {JSON} filters フィルター項目
+   * @param {String} location ＵＲＬ
+   * @param {Object} history 
+   */
+  changeFilterUrl: function(filters, location, history) {
+    let json = common.urlToJson(location.search);
+    Object.keys(json).map(key => {
+      if (key.slice(0, 2) !== '__') {
+        delete json[key];
+      }
+    });
+    Object.assign(json, filters);
+    history.push({
+      'pathname': location.pathname,
+      'search': common.jsonToUrl(json),
+    });
+  },
+
+  /**
+   * ＵＲＬからフィルターを取得する
+   * @param {String} location ＵＲＬ
+   */
+  loadFilters: function(location) {
+    if (location && location.search) {
+      let json = common.urlToJson(location.search);
+      Object.keys(json).map(key => {
+        if (key.slice(0, 2) === '__') {
+          delete json[key];
+        }
+      });
+      return json;
+    } else {
+      return {};
+    }
+  }
 };

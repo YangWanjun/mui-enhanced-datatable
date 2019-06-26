@@ -62,6 +62,7 @@ class MyEnhancedTable extends React.Component {
             }
           ]}
           allowCsv={true}
+          urlReflect={true}
         />
         <Dialog
           open={open}

@@ -1,4 +1,5 @@
 import React from "react";
+import { withRouter } from 'react-router-dom';
 import uuid from 'uuid';
 import PropTypes from "prop-types";
 // @material-ui/core components
@@ -17,8 +18,7 @@ import DataTablePagination from './DataTablePagination';
 import DataTableToolbar from "./DataTableToolbar";
 import DataTableFixedHead from "./DataTableFixedHead";
 import tableStyle from "../assets/css/datatable";
-import { common } from "../utils/common";
-import { constant } from "../utils/constant";
+import { common, constant, table } from "../utils";
 
 class MyEnhancedTable extends React.Component {
   tableId = uuid();
@@ -29,13 +29,7 @@ class MyEnhancedTable extends React.Component {
 
     this.isSelected = this.isSelected.bind(this);
     this.state = {
-      tableData: common.initTableData(props.tableData),
-      page: 0,
-      rowsPerPage: props.rowsPerPage,
-      order: 'asc',
-      orderBy: '',
-      orderNumeric: false,
-      filters: props.filters,
+      tableData: table.initTableData(props.tableData),
       selected: [],
       fixedHeaderOption: {
         visible: false,
@@ -43,8 +37,40 @@ class MyEnhancedTable extends React.Component {
       fixedToolbarOption: {
         visible: false,
       },
+      ...this.initialize(),
     };
   }
+
+  initialize = () => {
+    const { location, rowsPerPage, filters } = this.props;
+    const json = common.urlToJson(location.search);
+    const order = table.getOrder(location)
+    let state = {
+      page: 0,
+      rowsPerPage: rowsPerPage,
+      order: 'asc',
+      orderBy: '',
+      orderNumeric: false,
+      filters: filters,
+    };
+    if (order) {
+      state['order'] = order.__order;
+      state['orderBy'] = order.__orderBy;
+      state['orderNumeric'] = order.__orderNumeric;
+    }
+    if (json.__rowsPerPage) {
+      state['rowsPerPage'] = common.toInteger(json.__rowsPerPage);
+    }
+    if (json.__page) {
+      state['page'] = common.toInteger(json.__page);
+    }
+    // フィルター項目
+    const urlFilters = table.loadFilters(location);
+    if (!common.isEmpty(urlFilters)) {
+      state['filters'] = urlFilters;
+    }
+    return state;
+  };
 
   handleFixedHeader = () => {
     let { pushpinTop } = this.props;
@@ -57,7 +83,7 @@ class MyEnhancedTable extends React.Component {
     }
     const fixedHeaderOption = common.getFixedHeaderOption(this.tableId, pushpinTop + toolbarHeight);
     this.setState({fixedHeaderOption});
-  }
+  };
 
   componentDidMount() {
     window.addEventListener('scroll', this.handleFixedHeader);
@@ -72,6 +98,10 @@ class MyEnhancedTable extends React.Component {
   handleChangePage = (event, page) => {
     this.handleFixedHeader();
     this.setState({page});
+    const { urlReflect, location, history } = this.props;
+    if (urlReflect === true) {
+      table.changePaginationUrl(page, location, history);
+    }
   };
 
   handleChangeRowsPerPage = event => {
@@ -79,6 +109,12 @@ class MyEnhancedTable extends React.Component {
     if (this.props.server) {
     } else {
       this.setState({ rowsPerPage: event.target.value });
+    }
+    // 1ページ目に移動
+    this.handleChangePage(event, 0);
+    const { urlReflect, location, history } = this.props;
+    if (urlReflect === true) {
+      table.changePageSizeUrl(event.target.value, location, history);
     }
   };
 
@@ -91,11 +127,21 @@ class MyEnhancedTable extends React.Component {
     }
     this.handleFixedHeader();
     this.setState({ order, orderBy, orderNumeric });
+    const { urlReflect, location, history } = this.props;
+    if (urlReflect === true) {
+      table.changeOrderUrl(order, orderBy, orderNumeric, location, history);
+    }
   };
 
   handleChangeFilter = (filters) => {
     this.handleFixedHeader();
     this.setState({ filters });
+    // 1ページ目に移動
+    this.handleChangePage(event, 0);
+    const { urlReflect, location, history } = this.props;
+    if (urlReflect === true) {
+      table.changeFilterUrl(filters, location, history);
+    }
   };
 
   isSelected = (data) => {
@@ -307,6 +353,7 @@ MyEnhancedTable.propTypes = {
   tableActions: PropTypes.arrayOf(PropTypes.object),
   rowActions: PropTypes.arrayOf(PropTypes.object),
   allowCsv: PropTypes.bool,
+  urlReflect: PropTypes.bool,
 };
 
 MyEnhancedTable.defaultProps = {
@@ -324,7 +371,8 @@ MyEnhancedTable.defaultProps = {
   tableActions: [],
   rowActions: [],
   allowCsv: false,
+  urlReflect: false,
 };
 
-const EnhancedTable = withStyles(tableStyle)(MyEnhancedTable);
+const EnhancedTable = withRouter(withStyles(tableStyle)(MyEnhancedTable));
 export { EnhancedTable } ;

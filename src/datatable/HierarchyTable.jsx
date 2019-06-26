@@ -12,8 +12,7 @@ import {
 import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';
 import tableStyle from "../assets/css/datatable";
-import { common } from "../utils/common";
-import { constant } from "../utils/constant";
+import { common, constant, table } from "../utils";
 
 const indent = 8;
 
@@ -24,7 +23,7 @@ class MyHierarchyTable extends React.Component {
     super(props);
 
     this.state = {
-      tableData: common.initTableData(props.tableData),
+      tableData: table.initTableData(props.tableData),
       showFixedHeader: false,
     }
   }
