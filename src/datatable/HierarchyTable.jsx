@@ -11,6 +11,7 @@ import {
 // core components
 import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';
+import DataTableFixedHead from './DataTableFixedHead';
 import tableStyle from "../assets/css/datatable";
 import { common, constant, table } from "../utils";
 

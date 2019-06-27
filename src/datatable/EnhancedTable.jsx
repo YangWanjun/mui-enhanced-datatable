@@ -28,7 +28,14 @@ class MyEnhancedTable extends React.Component {
   constructor(props) {
     super(props);
 
+    this.handleChangePage = this.handleChangePage.bind(this);
+    this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this);
+    this.handleSort = this.handleSort.bind(this);
+    this.handleChangeFilter = this.handleChangeFilter.bind(this);
     this.isSelected = this.isSelected.bind(this);
+    this.handleRowSelect = this.handleRowSelect.bind(this);
+    this.handleSelectAllClick = this.handleSelectAllClick.bind(this);
+    this.clearSelected = this.clearSelected.bind(this);
     this.state = {
       tableData: table.initTableData(props.tableData),
       selected: [],
@@ -142,7 +149,7 @@ class MyEnhancedTable extends React.Component {
     }
   };
 
-  handleChangeFilter = (filters) => {
+  handleChangeFilter = (event, filters) => {
     this.handleFixedHeader();
     this.setState({ filters });
     // 1ページ目に移動

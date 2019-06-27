@@ -73,22 +73,22 @@ class DataTableToolbar extends React.Component {
     this.setState({ openFilter: false });
   };
 
-  handleClearFilter = () => {
+  handleClearFilter = () => (event) => {
     this.setState({ filters: {} });
     if (this.props.onChangeFilter) {
-      this.props.onChangeFilter({});
+      this.props.onChangeFilter(event, {});
     }
   }
 
-  handleDeleteFilter = name => () => {
+  handleDeleteFilter = name => (event) => {
     const { filters } = this.state;
     delete filters[name];
     if (this.props.onChangeFilter) {
-      this.props.onChangeFilter(filters);
+      this.props.onChangeFilter(event, filters);
     }
   };
 
-  handleChange = (name, value, type) => {
+  handleChange = (name, value, type) => (event) => {
     this.setState((state) => {
       let filters = state.filters;
       if (value === '' || value === null) {
@@ -97,7 +97,7 @@ class DataTableToolbar extends React.Component {
         filters[name] = value;
       }
       if (this.props.onChangeFilter) {
-        this.props.onChangeFilter(filters);
+        this.props.onChangeFilter(event, filters);
       }
       return {filters: filters};
     });

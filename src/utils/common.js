@@ -248,7 +248,7 @@ export const common = {
     const table = document.getElementById(tableId);
     const headerCells = table.querySelector('thead>tr').children;
     Array.prototype.forEach.call(headerCells, function(ele, idx) {
-      ele.style.width = colsWidth[idx];
+      ele.style.width = colsWidth[idx] + 'px';
     });
   },
 
@@ -441,6 +441,7 @@ export const table = {
       if (key.slice(0, 2) !== '__') {
         delete json[key];
       }
+      return true;
     });
     Object.assign(json, filters);
     history.push({
@@ -460,6 +461,7 @@ export const table = {
         if (key.slice(0, 2) === '__') {
           delete json[key];
         }
+        return true;
       });
       return json;
     } else {

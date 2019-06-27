@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import withStyles from "@material-ui/core/styles/withStyles";
 import {
   Grid,
+  FormControl,
+  TextField,
 } from '@material-ui/core';
 import ControlCreateor from './ControlCreator';
 import { common, constant } from '../utils';
