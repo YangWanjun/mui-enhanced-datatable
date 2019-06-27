@@ -18,11 +18,10 @@ class DataTableHead extends React.Component {
   };
 
   render() {
-    const { classes, tableHeaderColor, tableHead, colsWidth, sortable, order, orderBy, selected, selectable, data } = this.props;
+    const { classes, tableHeaderColor, tableHead, sortable, order, orderBy, selected, selectable, data } = this.props;
     const numSelected = selected ? selected.length : 0;
     const rowCount = data ? data.length : 0;
     let chkCell = <React.Fragment/>;
-    let idx = 0;
     if (selectable === 'multiple') {
       chkCell = (
         <TableCell padding="none" className={classes.tableCellCheckable}>
@@ -34,12 +33,10 @@ class DataTableHead extends React.Component {
           />
         </TableCell>
       );
-      idx += 1;
     } else if (selectable === 'single') {
       chkCell = (
         <TableCell padding="none" className={classes.tableCellCheckable}></TableCell>
       );
-      idx += 1;
     }
 
     if (tableHead === undefined) {
@@ -50,11 +47,6 @@ class DataTableHead extends React.Component {
           <TableRow>
             { chkCell }
             {tableHead.filter(col => col.visible !== false).map((column, key) => {
-              let width = 'inherit';
-              if (column.visible !== false && colsWidth && colsWidth.length >= idx) {
-                width = colsWidth[idx];
-                idx += 1;
-              }
               let align = 'left';
               let numeric = false;
               if (column.type === 'integer' || column.type === 'decimal') {
@@ -67,7 +59,6 @@ class DataTableHead extends React.Component {
                 <TableCell
                   className={classes.tableCell + " " + classes.tableHeadCell}
                   key={key}
-                  style={{width}}
                   align={align}
                   sortDirection={orderBy === column.name ? order : false}
                 >

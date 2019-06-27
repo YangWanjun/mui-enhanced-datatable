@@ -23,6 +23,7 @@ import { common, constant, table } from "../utils";
 class MyEnhancedTable extends React.Component {
   tableId = uuid();
   toolbarId = uuid();
+  fixedTableId = uuid();
 
   constructor(props) {
     super(props);
@@ -93,6 +94,14 @@ class MyEnhancedTable extends React.Component {
   componentWillUnmount() {
     window.removeEventListener('scroll', this.handleFixedHeader);
     window.removeEventListener('resize', this.handleFixedHeader);
+  }
+
+  componentDidUpdate() {
+    const { fixedHeaderOption } = this.state;
+    if (fixedHeaderOption.visible === true) {
+      const colsWidth = common.getFixedHeaderColsWidth(this.tableId);
+      common.setFixedHeaderColsWidth(this.fixedTableId, colsWidth);
+    }
   }
 
   handleChangePage = (event, page) => {
@@ -171,18 +180,6 @@ class MyEnhancedTable extends React.Component {
     const isSelected = this.isSelected(data);
     let newSelected = [];
     if (this.props.selectable === 'multiple') {
-      // if (selectedIndex === -1) {
-      //   newSelected = newSelected.concat(selected, index);
-      // } else if (selectedIndex === 0) {
-      //   newSelected = newSelected.concat(selected.slice(1));
-      // } else if (selectedIndex === selected.length - 1) {
-      //   newSelected = newSelected.concat(selected.slice(0, -1));
-      // } else if (selectedIndex > 0) {
-      //   newSelected = newSelected.concat(
-      //     selected.slice(0, selectedIndex),
-      //     selected.slice(selectedIndex + 1),
-      //   );
-      // }
       if (isSelected === true) {
         const selectedIndex = selected.indexOf(data);
         newSelected = newSelected.concat(
@@ -323,6 +320,7 @@ class MyEnhancedTable extends React.Component {
         />
         {fixedHeaderOption && fixedHeaderOption.visible === true ? (
           <DataTableFixedHead
+            id={this.fixedTableId}
             classes={classes}
             fixedPosition={fixedHeaderOption.positions}
             children={

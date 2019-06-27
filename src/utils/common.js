@@ -212,23 +212,44 @@ export const common = {
   getFixedHeaderOption: function(tableId, offset=0) {
     const table = document.getElementById(tableId);
     let {left, width, top, height} = table.getBoundingClientRect();
-    let colsWidth = [];
-    let colWidth = 0;
-    const headerCells = table.querySelector('thead>tr').children;
-    Array.prototype.forEach.call(headerCells, function(ele, idx) {
-      colWidth = ele.getBoundingClientRect().width;
-      colsWidth.push(colWidth);
-    });
     const bodyHeight = table.querySelector('tbody').getBoundingClientRect().height;
     if (bodyHeight) {
       height = bodyHeight;
     }
   
     if (top < offset && top > (offset - height)) {
-      return {visible: true, positions: {left, width, top: offset}, colsWidth};
+      return {visible: true, positions: {left, width, top: offset}};
     } else {
       return {visible: false};
     }
+  },
+
+  /**
+   * テーブルヘッダーのの各項目の長さを取得
+   * @param {String} tableId テーブルＩＤ
+   */
+  getFixedHeaderColsWidth: function(tableId) {
+    const table = document.getElementById(tableId);
+    const headerCells = table.querySelector('thead>tr').children;
+    let colsWidth = [];
+    Array.prototype.forEach.call(headerCells, function(ele, idx) {
+      const colWidth = ele.getBoundingClientRect().width;
+      colsWidth.push(colWidth);
+    });
+    return colsWidth;
+  },
+
+  /**
+   * ヘッダー部分の項目長さを設定
+   * @param {String} tableId テーブルＩＤ
+   * @param {Array} colsWidth ヘッダーの各項目の長さ
+   */
+  setFixedHeaderColsWidth: function(tableId, colsWidth) {
+    const table = document.getElementById(tableId);
+    const headerCells = table.querySelector('thead>tr').children;
+    Array.prototype.forEach.call(headerCells, function(ele, idx) {
+      ele.style.width = colsWidth[idx];
+    });
   },
 
   /**

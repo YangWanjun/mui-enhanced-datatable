@@ -5,10 +5,11 @@ import {
 
 class DataTableFixedHead extends React.Component {
   render() {
-    const { classes, children, fixedPosition } = this.props;
+    const { classes, id, children, fixedPosition } = this.props;
 
     return (
       <Table
+        id={id}
         className={classes.table + ' ' + classes.tableFixedHeader}
         aria-labelledby="fixedHeader"
         style={{
