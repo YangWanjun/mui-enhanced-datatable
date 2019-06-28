@@ -24,6 +24,7 @@ class MyEnhancedTable extends React.Component {
   tableId = uuid();
   toolbarId = uuid();
   fixedTableId = uuid();
+  fixedHeaderId = uuid();
 
   constructor(props) {
     super(props);
@@ -39,12 +40,6 @@ class MyEnhancedTable extends React.Component {
     this.state = {
       tableData: table.initTableData(props.tableData),
       selected: [],
-      fixedHeaderOption: {
-        visible: false,
-      },
-      fixedToolbarOption: {
-        visible: false,
-      },
       ...this.initialize(),
     };
   }
@@ -82,15 +77,7 @@ class MyEnhancedTable extends React.Component {
 
   handleFixedHeader = () => {
     let { pushpinTop } = this.props;
-    let toolbarHeight = 0;
-    if (this.props.toolbar) {
-      toolbarHeight = document.getElementById(this.toolbarId).getBoundingClientRect().height;
-      const tableHeight = document.getElementById(this.tableId).getBoundingClientRect().height;
-      const fixedToolbarOption = common.getFixedDivOption(this.toolbarId, tableHeight, pushpinTop);
-      this.setState({fixedToolbarOption});
-    }
-    const fixedHeaderOption = common.getFixedHeaderOption(this.tableId, pushpinTop + toolbarHeight);
-    this.setState({fixedHeaderOption});
+    common.setFixedTableHeader(this.fixedHeaderId, this.toolbarId, this.tableId, this.fixedTableId, pushpinTop);
   };
 
   componentDidMount() {
@@ -104,11 +91,7 @@ class MyEnhancedTable extends React.Component {
   }
 
   componentDidUpdate() {
-    const { fixedHeaderOption } = this.state;
-    if (fixedHeaderOption.visible === true) {
-      const colsWidth = common.getFixedHeaderColsWidth(this.tableId);
-      common.setFixedHeaderColsWidth(this.fixedTableId, colsWidth);
-    }
+    this.handleFixedHeader();
   }
 
   handleChangePage = (event, page) => {
@@ -224,7 +207,7 @@ class MyEnhancedTable extends React.Component {
 
   render() {
     const { classes, tableHead, tableData, tableActions, rowActions, toolbar, selectable, allowCsv, pk } = this.props;
-    const { filters, page, rowsPerPage, order, orderBy, orderNumeric, fixedHeaderOption, fixedToolbarOption, selected } = this.state;
+    const { filters, page, rowsPerPage, order, orderBy, orderNumeric, selected } = this.state;
     let results = common.stableSort(tableData, common.getSorting(order, orderBy, orderNumeric));
     if (!common.isEmpty(filters)) {
       results = common.stableFilter(results, filters);
@@ -260,12 +243,6 @@ class MyEnhancedTable extends React.Component {
           <DataTableToolbar
             id={this.toolbarId}
             {...toolbarProps}
-          />
-        ) : null}
-        {toolbar && fixedHeaderOption && fixedHeaderOption.visible === true ? (
-          <DataTableToolbar
-            {...toolbarProps}
-            fixedOption={fixedToolbarOption}
           />
         ) : null}
         <Table className={classes.table} id={this.tableId} {...this.props.tableProps}>
@@ -325,19 +302,23 @@ class MyEnhancedTable extends React.Component {
           onChangePage={this.handleChangePage}
           onChangeRowsPerPage={this.handleChangeRowsPerPage}
         />
-        {fixedHeaderOption && fixedHeaderOption.visible === true ? (
-          <DataTableFixedHead
-            id={this.fixedTableId}
-            classes={classes}
-            fixedPosition={fixedHeaderOption.positions}
-            children={
-              <DataTableHead
-                {...headerProps}
-                colsWidth={fixedHeaderOption.colsWidth}
+        <DataTableFixedHead
+          id={this.fixedHeaderId}
+          tableId={this.fixedTableId}
+          classes={classes}
+          tableHeader={
+            <DataTableHead
+              {...headerProps}
+            />
+          }
+          toolbar={
+            toolbar ? (
+              <DataTableToolbar
+                {...toolbarProps}
               />
-            }
-          />
-        ) : null}
+            ) : null
+          }
+        />
       </div>
     );
   }

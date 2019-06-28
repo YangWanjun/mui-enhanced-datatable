@@ -4,23 +4,21 @@ import {
 } from "@material-ui/core";
 
 class DataTableFixedHead extends React.Component {
+
   render() {
-    const { classes, id, children, fixedPosition } = this.props;
+    const { classes, id, tableId, tableHeader, toolbar } = this.props;
 
     return (
-      <Table
-        id={id}
-        className={classes.table + ' ' + classes.tableFixedHeader}
-        aria-labelledby="fixedHeader"
-        style={{
-          position: "fixed",
-          backgroundColor: 'white',
-          tableLayout: 'fixed',
-          ...fixedPosition,
-        }}
-      >
-        {children}
-      </Table>
+      <div id={id} className={classes.tableFixedHeader}>
+        {toolbar}
+        <Table
+          id={tableId}
+          className={classes.table}
+          aria-labelledby="fixedHeader"
+        >
+          {tableHeader}
+        </Table>
+      </div>
     );
   }
 }

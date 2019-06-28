@@ -180,15 +180,6 @@ export const common = {
     return extraStyles;
   },
 
-  getFixedDivOption: function(divId, range, offset=0) {
-    const {left, width, top} = document.getElementById(divId).getBoundingClientRect();
-    if (top < offset && (!range || top > (offset - range))) {
-      return {visible: true, positions: {left, width, top: offset},};
-    } else {
-      return {visible: false};
-    }
-  },
-
   /**
    * 選択肢から表示する名称を取得
    * @param {Object} value 選択肢の値
@@ -204,39 +195,37 @@ export const common = {
     }
   },
 
-  /**
-   * テーブルのヘッダー部分が固定時の位置の取得
-   * @param {String} tableId テーブルのＩＤ
-   * @param {Integer} offset 調整値
-   */
-  getFixedHeaderOption: function(tableId, offset=0) {
-    const table = document.getElementById(tableId);
-    let {left, width, top, height} = table.getBoundingClientRect();
-    const bodyHeight = table.querySelector('tbody').getBoundingClientRect().height;
+  setFixedTableHeader: function(wrapperId, toolbarId, srcTabelid, fixedTableId, offset=0) {
+    const wrapper = document.getElementById(wrapperId);
+    const srcTable = document.getElementById(srcTabelid);
+    const toolbar = document.getElementById(toolbarId);
+    const fixedTable = document.getElementById(fixedTableId);
+    let {left, width, top, height} = srcTable.getBoundingClientRect();
+    const bodyHeight = srcTable.querySelector('tbody').getBoundingClientRect().height;
     if (bodyHeight) {
       height = bodyHeight;
     }
-  
-    if (top < offset && top > (offset - height)) {
-      return {visible: true, positions: {left, width, top: offset}};
-    } else {
-      return {visible: false};
+    if (toolbar) {
+      top = toolbar.getBoundingClientRect().top;
     }
-  },
 
-  /**
-   * テーブルヘッダーのの各項目の長さを取得
-   * @param {String} tableId テーブルＩＤ
-   */
-  getFixedHeaderColsWidth: function(tableId) {
-    const table = document.getElementById(tableId);
-    const headerCells = table.querySelector('thead>tr').children;
-    let colsWidth = [];
-    Array.prototype.forEach.call(headerCells, function(ele, idx) {
-      const colWidth = ele.getBoundingClientRect().width;
-      colsWidth.push(colWidth);
-    });
-    return colsWidth;
+    if (top < offset && top > (offset - height)) {
+      wrapper.style.display = 'inherit';
+      wrapper.style.left = left;
+      wrapper.style.width = width;
+      wrapper.style.top = offset;
+      // 各項目の長さを設定する
+      let colsWidth = [];
+      Array.prototype.forEach.call(srcTable.querySelector('thead>tr').children, function(ele, idx) {
+        const colWidth = ele.getBoundingClientRect().width;
+        colsWidth.push(colWidth);
+      });
+      Array.prototype.forEach.call(fixedTable.querySelector('thead>tr').children, function(ele, idx) {
+        ele.style.width = colsWidth[idx] + 'px';
+      });
+    } else {
+      wrapper.style.display = 'none';
+    }
   },
 
   /**

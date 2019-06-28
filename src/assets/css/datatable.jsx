@@ -55,12 +55,18 @@ const tableStyle = theme => ({
   tableFixedHeader: {
     "& th": {
       boxSizing: 'border-box',
-    }
+    },
+    position: "fixed",
+    backgroundColor: 'white',
+    tableLayout: 'fixed',
+    display: 'none',
+    zIndex: 1,
   },
   tableCell: {
     ...defaultFont,
     lineHeight: "1.42857143",
-    // padding: "12px 8px",
+    paddingLeft: "8px",
+    paddingRight: "8px",
     verticalAlign: "middle",
     fontSize: "0.85em",
   },

@@ -156,21 +156,12 @@ class DataTableToolbar extends React.Component {
   };
 
   render() {
-    const { classes, title, tableHead, fixedOption, selected, allowCsv } = this.props;
+    const { classes, id, title, tableHead, selected, allowCsv } = this.props;
     const { filters } = this.state;
     const numSelected = selected.length;
-    let fixedStyles = null;
-    if (fixedOption && fixedOption.visible === true) {
-      fixedStyles = {
-        position: "fixed",
-        backgroundColor: 'white',
-        zIndex: 1,
-        ...fixedOption.positions,
-      }
-    }
 
     return (
-      <div id={this.props.id} style={fixedStyles}>
+      <div id={id}>
         <Toolbar
           className={classNames(classes.root, {
             [classes.highlight]: numSelected > 0,
