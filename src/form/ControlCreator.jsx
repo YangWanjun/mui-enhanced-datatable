@@ -113,6 +113,33 @@ class ControlCreator extends React.Component {
           </Select>
         </React.Fragment>
       );
+    } else if (column.type === 'date') {
+      control = (
+        <TextField
+          { ...error }
+          name={column.name}
+          value={value}
+          label={label}
+          type="date"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          onChange={this.handleChange}
+        />
+      );
+    } else if (column.type === 'text') {
+      control = (
+        <TextField
+          { ...error }
+          multiline
+          name={column.name}
+          value={value}
+          label={label}
+          placeholder={this.props.placeholder}
+          InputLabelProps={this.props.placeholder ? { shrink: true,} : null}
+          onChange={this.handleChange}
+        />
+      );
     } else {
       control = (
         <TextField 

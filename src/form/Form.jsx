@@ -132,11 +132,6 @@ class MyForm extends React.Component {
     }
   };
 
-  handleOk = () => {
-    const formData = this.clean();
-    return formData;
-  };
-
   createFormLayout(data, schema, layout) {
     let control = null;
     if (common.isEmpty(layout)) {

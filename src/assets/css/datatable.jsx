@@ -1,16 +1,13 @@
-const defaultFont = {
-  fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-  fontWeight: "300",
-  lineHeight: "1.5em"
-};
-
-const primaryColor = "#9c27b0";
-const warningColor = "#ff9800";
-const dangerColor = "#f44336";
-const successColor = "#4caf50";
-const infoColor = "#00acc1";
-const roseColor = "#e91e63";
-const grayColor = "#999999";
+import {
+  warningColor,
+  primaryColor,
+  dangerColor,
+  successColor,
+  infoColor,
+  roseColor,
+  grayColor,
+  defaultFont
+} from "./common";
 
 const tableStyle = theme => ({
   warningTableHeader: {
@@ -50,7 +47,6 @@ const tableStyle = theme => ({
   tableHeadCell: {
     color: "inherit",
     ...defaultFont,
-    fontSize: "0.85em",
   },
   tableFixedHeader: {
     "& th": {
@@ -68,7 +64,7 @@ const tableStyle = theme => ({
     paddingLeft: "8px",
     paddingRight: "8px",
     verticalAlign: "middle",
-    fontSize: "0.85em",
+    fontSize: "12px",
   },
   tableCellCheckable: {
     width: 42,
