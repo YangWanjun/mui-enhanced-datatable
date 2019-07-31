@@ -41,7 +41,7 @@ export const common = {
     return true;
   },
 
-    /**
+  /**
    * JSON項目のリストから項目を取得
    * @param {Array} json_list 
    * @param {String} value 

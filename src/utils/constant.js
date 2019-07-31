@@ -32,5 +32,6 @@ export const constant = {
   },
   ERROR: {
     REQUIRE_FIELD: '%(name)sは必須項目です。',
+    INVALID_DATA: '有効なデータを入力してください。'
   },
 };

@@ -12,6 +12,7 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import formStyle from "../assets/css/form";
+import HierarchySelect from './HierarchySelect';
 import { common } from "../utils";
 
 class ControlCreator extends React.Component {
@@ -36,12 +37,18 @@ class ControlCreator extends React.Component {
     }
 
     if (this.props.handleChange) {
-      this.props.handleChange(name, value, type);
+      this.props.handleChange(name, value, type)(event);
     }
   };
 
+  handleBlur = (name) => (event) => {
+    if (this.props.handleBlur) {
+      this.props.handleBlur(event, name);
+    }
+  }
+
   render() {
-    const { classes, column, errors } = this.props;
+    const { classes, column, errors, placeholder } = this.props;
     let control = null;
     let { value } = this.props;
     let label = column.label + (column.required === true ? '（*）' : '');
@@ -54,8 +61,28 @@ class ControlCreator extends React.Component {
         </React.Fragment>
       ) : null
     );
+    let placeholderProps = null;
+    if (placeholder) {
+      placeholderProps = {
+        placeholder: placeholder,
+        InputLabelProps: { shrink: true,},
+      };
+    }
 
-    if (column.type === 'boolean') {
+    if (column.read_only === true) {
+      control = (
+        <TextField
+          disabled
+          error={error}
+          name={column.name}
+          value={value}
+          label={label}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+      );
+    } else if (column.type === 'boolean') {
       // チェックボックスを表示
       control = (
         <React.Fragment>
@@ -91,32 +118,45 @@ class ControlCreator extends React.Component {
     } else if (column.type === 'choice') {
       // 選択肢が存在する場合
       const choices = column.choices || [];
-      control = (
-        <React.Fragment>
-          <InputLabel htmlFor={column.name}>{label}</InputLabel>
-          <Select
+      if (!common.isEmpty(column.choices) && column.choices[0].hasOwnProperty('parent')) {
+        control = (
+          <HierarchySelect
+            name={column.name}
+            label={label}
             value={value}
-            inputProps={{ name: column.name, value: value }}
-            onChange={this.handleChange}
-          >
-            <MenuItem value=""><em>None</em></MenuItem>
-            {choices.map(item => {
-              return (
-                <MenuItem
-                  key={item.value}
-                  value={item.value}
-                >
-                  {item.display_name}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </React.Fragment>
-      );
+            error={error}
+            choices={choices}
+            handleChange={this.handleChange}
+          />
+        );
+      } else {
+        control = (
+          <React.Fragment>
+            <InputLabel htmlFor={column.name}>{label}</InputLabel>
+            <Select
+              value={value}
+              inputProps={{ name: column.name, value: value }}
+              onChange={this.handleChange}
+            >
+              <MenuItem value=""><em>None</em></MenuItem>
+              {choices.map(item => {
+                return (
+                  <MenuItem
+                    key={item.value}
+                    value={item.value}
+                  >
+                    {item.display_name}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </React.Fragment>
+        );
+      }
     } else if (column.type === 'date') {
       control = (
         <TextField
-          { ...error }
+          error={error}
           name={column.name}
           value={value}
           label={label}
@@ -130,13 +170,12 @@ class ControlCreator extends React.Component {
     } else if (column.type === 'text') {
       control = (
         <TextField
-          { ...error }
+          error={error}
           multiline
           name={column.name}
           value={value}
           label={label}
-          placeholder={this.props.placeholder}
-          InputLabelProps={this.props.placeholder ? { shrink: true,} : null}
+          {...placeholderProps}
           onChange={this.handleChange}
         />
       );
@@ -147,7 +186,10 @@ class ControlCreator extends React.Component {
           name={column.name}
           label={label}
           value={value}
+          {...placeholderProps}
+          inputProps={{maxLength: column.max_length}}
           onChange={this.handleChange}
+          onBlur={this.handleBlur(column.name)}
         />
       );
     }

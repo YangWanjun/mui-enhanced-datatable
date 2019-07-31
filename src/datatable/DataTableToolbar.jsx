@@ -224,7 +224,7 @@ class DataTableToolbar extends React.Component {
               })}
             </DialogContent>
             <DialogActions>
-              <Button onClick={this.handleClearFilter} color="secondary">
+              <Button onClick={this.handleClearFilter()} color="secondary">
                 クリア
               </Button>
               <Button onClick={this.handleCloseFilter} color="primary">

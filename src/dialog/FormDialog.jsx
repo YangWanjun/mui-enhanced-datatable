@@ -45,7 +45,7 @@ class FormDialog extends React.Component {
       const data = this._clean();
       if (data) {
         this.props.handleOk(data).then(json => {
-          console.log(json);
+          
         });
       }
     }
