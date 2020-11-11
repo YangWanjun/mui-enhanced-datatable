@@ -34,6 +34,7 @@ const tableStyle = theme => ({
   table: {
     marginBottom: "0",
     width: "100%",
+    minWidth: 600,
     maxWidth: "100%",
     backgroundColor: "transparent",
     borderSpacing: "0",
@@ -64,7 +65,7 @@ const tableStyle = theme => ({
     paddingLeft: "8px",
     paddingRight: "8px",
     verticalAlign: "middle",
-    fontSize: "12px",
+    // fontSize: "12px",
   },
   tableCellCheckable: {
     width: 42,
@@ -72,7 +73,7 @@ const tableStyle = theme => ({
   tableResponsive: {
     width: "100%",
     // marginTop: theme.spacing(3),
-    overflow: "visible",
+    // overflow: "visible",
   },
   tableActions: {
     display: "flex",
@@ -97,6 +98,10 @@ const tableStyle = theme => ({
   },
   tableRowSelected: {
     backgroundColor: '#fff0c3',
+  },
+  tableCellFixedWidth: {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
   },
 });
 

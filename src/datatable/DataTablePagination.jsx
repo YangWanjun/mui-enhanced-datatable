@@ -19,6 +19,16 @@ const paginationActionsStyles = theme => ({
   },
 });
 
+const styles = theme => ({
+  root: {
+    '& .MuiTablePagination-caption, & .MuiTablePagination-selectRoot': {
+      [theme.breakpoints.down('xs')]: {
+        display: 'none',
+      },
+    },
+  }
+});
+
 class TablePaginationActions extends React.Component {
   handleFirstPageButtonClick = event => {
     this.props.onChangePage(event, 0);
@@ -92,13 +102,16 @@ const TablePaginationActionsWrapped = withStyles(paginationActionsStyles, { with
 
 class DataTablePagination extends React.Component {
   render() {
+    const { classes } = this.props;
     return (
       <TablePagination
         {...this.props}
+        className={classes.root}
+        style={{overflow: 'visible'}}
         ActionsComponent={TablePaginationActionsWrapped}
       />
     );
   }
 }
 
-export default DataTablePagination;
+export default withStyles(styles)(DataTablePagination);

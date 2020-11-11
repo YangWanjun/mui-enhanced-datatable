@@ -1,25 +1,31 @@
 import React from 'react';
-import {
-  Table,
-  TableRow,
-  TableBody,
-  TableCell,
-} from "@material-ui/core";
+import {TableDetail} from '../../src/index';
+import { common } from '../../src/utils';
+import {columns, rows} from './data';
 
-const Detail = () => (
-  <div>
-    <Table>
-      <TableBody>
-        <TableRow>
-          <TableCell>名前</TableCell>
-          <TableCell>李さん</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>クラス</TableCell>
-          <TableCell>３-Ａ</TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
-  </div>
-);
+class Detail extends React.Component {
+
+  render() {
+    const { pk } = this.props.match.params;
+    const detail = common.getFromList(rows, "pk", parseInt(pk));
+
+    return (
+      <div>
+        <TableDetail
+          schema={columns}
+          data={detail}
+          editProps={{
+            title: '社員情報変更',
+            schema: columns,
+            handleEdit: (data) => console.log(data),
+          }}
+          deleteProps={{
+            title: '社員情報削除',
+            handleDelete: (data) => console.log(data),
+          }}
+        />
+      </div>
+    );
+  }
+}
 export default Detail;

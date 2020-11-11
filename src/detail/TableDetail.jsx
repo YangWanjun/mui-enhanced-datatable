@@ -14,10 +14,14 @@ import {
   TableCell,
   Typography,
   Button,
+  Menu,
+  IconButton,
 } from '@material-ui/core';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import detailStyle from '../assets/css/detail';
 import FormDialog from '../dialog/FormDialog';
 import { common } from '../utils/index';
+import ConfirmDialog from "../dialog/ConfirmDialog";
 
 class MyTableDetail extends React.Component {
 
@@ -26,15 +30,32 @@ class MyTableDetail extends React.Component {
 
     this.onShowEditDialog = this.onShowEditDialog.bind(this);
     this.state = {
+      open: false,
+      anchorEl: null,
       data: props.data || {},
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (JSON.stringify(this.props.data) !== JSON.stringify(nextProps.data)) {
       this.setState({data: nextProps.data});
     }
   }
+
+  handleOpenMenu = (event) => {
+    this.setState({open: true, anchorEl: event.currentTarget});
+  };
+
+  handleCloseMenu = (event) => {
+    this.setState({open: false});
+  };
+
+  handleMenuListKeyDown = (event) => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      this.setState({open: false});
+    }
+  };
 
   getAvatar = () => {
     const { classes, avatar } = this.props;
@@ -57,8 +78,8 @@ class MyTableDetail extends React.Component {
   };
 
   render() {
-    const { classes, title, schema, actions, editProps, deleteProps } = this.props;
-    const { data } = this.state;
+    const { classes, title, schema, actions, editProps, deleteProps, cardMenuItems } = this.props;
+    const { open, anchorEl, data } = this.state;
 
     return (
       <div>
@@ -66,25 +87,31 @@ class MyTableDetail extends React.Component {
           <CardHeader
             avatar={this.getAvatar()}
             title={title}
+            titleTypographyProps={{className: classes.title}}
+            className={classes.title}
+            action={cardMenuItems ? (
+              <IconButton
+                aria-owns={anchorEl ? "menu" : null}
+                aria-haspopup="true"
+                onClick={this.handleOpenMenu}
+              >
+                <MoreVertIcon />
+              </IconButton>
+            ) : null}
           />
           <CardContent>
             <Table className={classes.table}>
               <TableBody>
                 {schema.map(col => {
                   const value = data[col.name];
-                  let display_name = value;
-                  if (col.type === 'choice') {
-                    display_name = common.getDisplayNameFromChoice(value, col);
-                  }
+                  const display_name = common.getColumnDisplay(value, col, data);
                   return (
                     <TableRow key={col.name}>
                       <TableCell className={classes.tableCell + ' ' + classes.tableHeadCell}>{col.label}</TableCell>
                       <TableCell className={classes.tableCell}>
-                        <Typography style={{whiteSpace: 'pre-line'}}>
-                          {col.link ? (
-                            <Link to={common.formatStr(col.link, data)}>{display_name}</Link>
-                          ) : display_name}
-                        </Typography>
+                        {col.link ? (
+                          <Link to={common.formatStr(typeof col.link === 'function' ? col.link(data) : col.link, data)}>{display_name}</Link>
+                        ) : display_name}
                       </TableCell>
                     </TableRow>
                   );
@@ -97,34 +124,49 @@ class MyTableDetail extends React.Component {
               return button;
             })}
             <Typography style={{flex: 1}} />
-            {deleteProps ? (
+            {!common.isEmpty(deleteProps) && deleteProps.visible !== false ? (
               <Button
                 variant="contained"
                 color="secondary"
                 className={classes.button}
-                onClick={this.onShowDeleteDialog}
+                onClick={() => this.__confirm ? this.__confirm() : null} 
               >
-                &nbsp;&nbsp;削&nbsp;&nbsp;除&nbsp;&nbsp;
+                削除
               </Button>
             ) : null}
-            {editProps ? (
+            {!common.isEmpty(editProps) && editProps.visible !== false ? (
               <Button
                 variant="contained"
                 color="primary"
                 className={classes.button}
                 onClick={this.onShowEditDialog}
               >
-                &nbsp;&nbsp;変&nbsp;&nbsp;更&nbsp;&nbsp;
+                変更
               </Button>
             ) : null}
           </CardActions>
         </Card>
-        <FormDialog
-          title={editProps.title}
-          schema={editProps.schema}
-          handleOk={editProps.handleEdit}
-          ref={(dialog) => {this._showEditDialog = dialog && dialog.handleOpen}}
-        />
+        {!common.isEmpty(editProps) && editProps.visible !== false ? (
+          <FormDialog
+            {...editProps}
+            handleOk={editProps.handleEdit}
+            ref={(dialog) => {this._showEditDialog = dialog && dialog.handleOpen}}
+          />
+        ) : null}
+        {!common.isEmpty(deleteProps) && deleteProps.visible !== false ? (
+          <ConfirmDialog
+            title='削除してもよろしいですか。'
+            onOk={deleteProps.handleDelete}
+            innerRef={dlg => { this.__confirm = dlg && dlg.handleOpen }}
+          />
+        ) : null}
+        {cardMenuItems ? (
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={this.handleCloseMenu}
+          >{cardMenuItems}</Menu>
+        ) : null}
       </div>
     );
   }
@@ -132,15 +174,19 @@ class MyTableDetail extends React.Component {
 
 MyTableDetail.propTypes = {
   classes: PropTypes.object.isRequired,
+  title: PropTypes.string,
   data: PropTypes.object.isRequired,
   schema: PropTypes.array.isRequired,
   actions: PropTypes.arrayOf(PropTypes.object),
   editProps: PropTypes.object,
   deleteProps: PropTypes.object,
+  cardMenuItems: PropTypes.arrayOf(PropTypes.object),
 };
 
 MyTableDetail.defaultProps = {
   actions: [],
+  editProps: {},
+  deleteProps: {},
 };
 
 const TableDetail = withStyles(detailStyle)(MyTableDetail)

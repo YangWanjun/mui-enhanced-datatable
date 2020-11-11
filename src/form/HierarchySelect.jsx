@@ -5,7 +5,7 @@ import {
   InputLabel,
   Select,
 } from '@material-ui/core';
-import { common } from '../../utils/common';
+import { common } from '../utils/common';
 
 const styles = theme => ({
   formControl: {
@@ -30,30 +30,55 @@ class HierarchySelect extends React.Component {
     return items;
   }
 
-  getChildItems(items, item, deep=0) {
-    const children = this.props.choices.filter(sub => sub.parent === item.value);
-    let itemProps = {key: item.value + '_item', value: item.value};
+  getChildItems(items, item, deep = 0) {
+    const { classes, choices, native } = this.props;
+    const children = choices.filter(sub => sub.parent === item.value);
+    let itemProps = { key: item.value + '_item', value: item.value };
     let display_name = item.display_name;
     if (children && children.length > 0) {
-      itemProps['className'] = this.props.classes.parentItem;
+      itemProps['className'] = classes.parentItem;
       display_name = '▼' + display_name;
     }
 
-    items.push(<MenuItem disabled={item.disabled === true} {...itemProps} style={{marginLeft: deep * 30}}>{display_name}</MenuItem>)
+    if (native === true) {
+      items.push(
+        <option
+          disabled={item.disabled === true}
+          {...itemProps}
+        >
+          {`${'　'.repeat(deep)}${display_name}`}
+        </option>
+      );
+    } else {
+      items.push(
+        <MenuItem
+          disabled={item.disabled === true}
+          {...itemProps}
+          style={{ marginLeft: deep * 30 }}
+        >
+          {display_name}
+        </MenuItem>
+      );
+    }
     children.map(sub => {
       return this.getChildItems(items, sub, deep + 1);
     });
   }
 
   render() {
-    const { name, value, label } = this.props;
+    const { name, value, label, native, handleChange } = this.props;
     const items = this.getAllItems();
 
     return (
       <React.Fragment>
         <InputLabel htmlFor={name}>{label}</InputLabel>
-        <Select value={value} inputProps={{ name: name, value: value }} onChange={this.props.handleChange}>
-          <MenuItem key='none' value=""><em>None</em></MenuItem>
+        <Select
+          native={native === true}
+          value={value}
+          inputProps={{ name: name, value: value }}
+          onChange={handleChange}
+        >
+          {native === true ? <option value=""></option> : <MenuItem key='none' value=""><em>None</em></MenuItem>}
           {items.map(item => {
             return item;
           })}

@@ -2,7 +2,7 @@ import React from 'react';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import {EnhancedTable, Form} from '../../src/index';
-import {columns, rows, add_schema} from './data';
+import {columns, rows} from './data';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core';
 
 class MyEnhancedTable extends React.Component {
@@ -42,11 +42,11 @@ class MyEnhancedTable extends React.Component {
           tableHeaderColor={'warning'}
           pk='pk'
           server={false}
-          title="テーブルのタイトルです"
+          title="社員一覧"
           toolbar={true}
           pushpinTop={0}
           filters={{retired: false}}
-          selectable={'multiple'}
+          selectable={'single'}
           tableActions={[
             {
               'tooltip': 'レコード追加',
@@ -54,13 +54,11 @@ class MyEnhancedTable extends React.Component {
               'handleClick': this.handleOpen,
             }
           ]}
-          rowActions={[
-            {
-              'tooltip': 'レコード変更',
-              'icon': <EditIcon/>,
-              'handleClick': (data) => (console.log(data)),
-            }
-          ]}
+          editProps={{
+            title: '社員情報変更',
+            schema: columns,
+            handleOk: data => console.log(data),
+          }}
           allowCsv={true}
           urlReflect={true}
         />
@@ -69,11 +67,11 @@ class MyEnhancedTable extends React.Component {
           onClose={this.handleClose}
         >
           <DialogTitle>
-            データを追加
+            社員を追加
           </DialogTitle>
           <DialogContent dividers>
             <Form
-              schema={add_schema}
+              schema={columns}
               ref={(form) => {
                 this._handleOk = form && form.handleOk;
               }}

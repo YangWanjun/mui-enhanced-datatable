@@ -9,7 +9,6 @@ import {
   Button,
   Tooltip,
   Fab,
-  Typography,
 } from "@material-ui/core";
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import CloseIcon from '@material-ui/icons/Close';
@@ -17,6 +16,7 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import ArchiveIcon from '@material-ui/icons/Archive';
 import { common } from "../utils/common";
+import { getCellAlignment } from "./Common";
 
 class DataTableCell extends React.Component {
 
@@ -33,7 +33,11 @@ class DataTableCell extends React.Component {
     const { column, data } = this.props;
     let url = null;
     if (column.link) {
-      url = common.formatStr(column.link, data);
+      if (typeof column.link === 'string') {
+        url = common.formatStr(column.link, data);
+      } else if (typeof column.link === 'function') {
+        url = common.formatStr(column.link(data), data);
+      }
     }
 
     return (
@@ -56,9 +60,10 @@ class DataTableCell extends React.Component {
   };
 
   handleFileDownload = file_id => (event) => {
+    const { column, data } = this.props;
     event.stopPropagation();
-    if (this.props.handleFileDownload) {
-      this.props.handleFileDownload(file_id)
+    if (column.handle_download) {
+      column.handle_download(file_id, data);
     }
   }
 
@@ -76,7 +81,7 @@ class DataTableCell extends React.Component {
     let value = data[column.name];
 
     let style = Object.assign({}, this.props.style);
-    let attrs = {};
+    let attrs = { 'align': getCellAlignment(column.type).align };
     let output = null;
     if (Array.isArray(actions) && actions.length > 0 && (!actionsTrigger || actionsTrigger(data))) {
       style['padding'] = 0;
@@ -134,12 +139,12 @@ class DataTableCell extends React.Component {
       );
     } else if (column.type === 'integer' || column.type === 'decimal') {
       // 数字の場合右揃え、カンマ区切り表示
-      attrs['align'] = 'right';
       value = common.toNumComma(value);
       output = this.getOutput(value);
+    } else if (column.type === 'percent') {
+      output = common.getColumnDisplay(value, column);
     } else if (column.type === 'boolean') {
       style['padding'] = 0;
-      attrs['align'] = 'center';
       if (value === true || value === 1) {
         output = <CheckCircleIcon style={{color: 'green'}} />;
       } else if (value === false || value === 0) {
@@ -155,16 +160,18 @@ class DataTableCell extends React.Component {
     } else if (column.type === 'choice') {
       const display_name = common.getDisplayNameFromChoice(value, column);
       output = this.getOutput(display_name);
+    } else if (column.type === 'text') {
+      output = common.getColumnDisplay(value, column);
     } else {
       output = this.getOutput(value);
     }
 
     return column.visible === false ? null : (
       <TableCell className={classes.tableCell} key={uuid()} style={style} {...attrs}>
-        {column.maxWidth ? (
-          <Typography noWrap style={{ maxWidth: column.maxWidth, }}>
+        {column.max_width ? (
+          <div style={{ maxWidth: column.max_width, }} className={classes.tableCellFixedWidth} title={value}>
             {output}
-          </Typography>
+          </div>
         ) : output }
       </TableCell>
     );

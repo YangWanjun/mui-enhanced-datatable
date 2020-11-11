@@ -10,12 +10,27 @@ import {
   Select,
   Checkbox,
   MenuItem,
+  Button,
+  IconButton,
+  Chip,
+  ListItemText,
 } from "@material-ui/core";
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import ImageSearchIcon from '@material-ui/icons/ImageSearch';
 import formStyle from "../assets/css/form";
 import HierarchySelect from './HierarchySelect';
 import { common } from "../utils";
 
 class ControlCreator extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    this.setDatasource = this.setDatasource.bind(this);
+    this.state = {
+      datasource: null,
+    };
+  }
 
   handleChange = (event) => {
     let { name, value } = event.target;
@@ -34,11 +49,39 @@ class ControlCreator extends React.Component {
       }
     } else if (type === 'integer') {
       value = common.toInteger(value);
+    } else if (type === 'file') {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener('load', (e) => this.readFileBlob(e, name, file.name));
+      reader.readAsDataURL(file);
+      document.getElementById(`id_label_${this.props.column.name}`).innerText = file.name;
+      return;
     }
 
     if (this.props.handleChange) {
       this.props.handleChange(name, value, type)(event);
     }
+  };
+
+  handleChangeAutoComplete = (event, option) => {
+    const { name, type } = this.props.column;
+    if (this.props.handleChange) {
+      if (option) {
+        // 選択した場合
+        this.props.handleChange(name, option.value, type)(event);
+      } else {
+        // 空白の場合
+        this.props.handleChange(name, null, type)(event);
+      }
+    }
+  }
+
+  readFileBlob = (event, name, fileName) => {
+    this.props.handleChange(
+      name,
+      `name:${btoa(unescape(encodeURIComponent(fileName)))};${event.target.result}`,
+      'file'
+    )(event);
   };
 
   handleBlur = (name) => (event) => {
@@ -47,11 +90,16 @@ class ControlCreator extends React.Component {
     }
   }
 
+  setDatasource = (datasource) => {
+    this.setState({datasource});
+  };
+
   render() {
-    const { classes, column, errors, placeholder } = this.props;
+    const { classes, column, data, errors } = this.props;
+    const { datasource } = this.state;
     let control = null;
     let { value } = this.props;
-    let label = column.label + (column.required === true ? '（*）' : '');
+    let label = column.label + (column.required === true ? '(＊)' : '');
     value = (value === null || value === undefined) ? '' : value;
     const error = Array.isArray(errors) && errors.length > 0;
     const errorNodes = (
@@ -62,9 +110,9 @@ class ControlCreator extends React.Component {
       ) : null
     );
     let placeholderProps = null;
-    if (placeholder) {
+    if (column.help_text) {
       placeholderProps = {
-        placeholder: placeholder,
+        placeholder: column.help_text,
         InputLabelProps: { shrink: true,},
       };
     }
@@ -75,7 +123,7 @@ class ControlCreator extends React.Component {
           disabled
           error={error}
           name={column.name}
-          value={value}
+          value={column.type === 'choice' ? common.getDisplayNameFromChoice(value, column) : value}
           label={label}
           InputLabelProps={{
             shrink: true,
@@ -89,15 +137,28 @@ class ControlCreator extends React.Component {
           { column.variant === 'select' ? (
             <React.Fragment>
               <InputLabel htmlFor={column.name}>{label}</InputLabel>
-              <Select
-                value={value.toString()}
-                inputProps={{ name: column.name, value: value }}
-                onChange={this.handleChange}
-              >
-                <MenuItem value=""><em>None</em></MenuItem>
+              {column.native === true ? (
+                <Select
+                  native
+                  value={value.toString()}
+                  inputProps={{ name: column.name, value: value }}
+                  onChange={this.handleChange}
+                >
+                  <option value=""></option>
+                  <option key='true' value='true'>はい</option>
+                  <option key='false' value='false'>いいえ</option>
+                </Select>
+              ) : (
+                <Select
+                  value={value.toString()}
+                  inputProps={{ name: column.name, value: value }}
+                  onChange={this.handleChange}
+                >
+                  <MenuItem value=""><em>None</em></MenuItem>
                   <MenuItem key='true' value='true'>はい</MenuItem>
                   <MenuItem key='false' value='false'>いいえ</MenuItem>
-              </Select>
+                </Select>
+              )}
             </React.Fragment>
           ) : (
             <React.Fragment>
@@ -113,46 +174,124 @@ class ControlCreator extends React.Component {
               />
             </React.Fragment>
           ) }
+          {column.help_text ? (
+            <FormHelperText>{column.help_text}</FormHelperText>
+          ) : null}
         </React.Fragment>
       );
     } else if (column.type === 'choice') {
       // 選択肢が存在する場合
-      const choices = column.choices || [];
+      const choices = Array.isArray(datasource) ? datasource : (column.choices || []);
+      column['choices'] = choices;
       if (!common.isEmpty(column.choices) && column.choices[0].hasOwnProperty('parent')) {
         control = (
-          <HierarchySelect
-            name={column.name}
-            label={label}
-            value={value}
-            error={error}
-            choices={choices}
-            handleChange={this.handleChange}
-          />
+          <React.Fragment>
+            <HierarchySelect
+              native={column.native === true}
+              name={column.name}
+              label={label}
+              value={value}
+              error={error}
+              choices={choices}
+              handleChange={this.handleChange}
+            />
+            {column.help_text ? (
+              <FormHelperText>{column.help_text}</FormHelperText>
+            ) : null}
+          </React.Fragment>
+        );
+      } else if (column.variant === 'autocomplete') {
+        control = (
+          <>
+            <Autocomplete
+              className={classes.autoCompleteWrapper}
+              value={common.getFromList(choices, 'value', value)}
+              options={choices}
+              getOptionLabel={option => option.display_name || ''}
+              getOptionDisabled={(option) => option.disabled === true}
+              onChange={this.handleChangeAutoComplete}
+              renderInput={params => (
+                <TextField {...params} label={label} margin="normal" />
+              )}
+            />
+            {column.help_text ? (
+              <FormHelperText>{column.help_text}</FormHelperText>
+            ) : null}
+          </>
         );
       } else {
         control = (
           <React.Fragment>
             <InputLabel htmlFor={column.name}>{label}</InputLabel>
             <Select
+              native={column.native === true}
               value={value}
               inputProps={{ name: column.name, value: value }}
               onChange={this.handleChange}
             >
-              <MenuItem value=""><em>None</em></MenuItem>
-              {choices.map(item => {
-                return (
-                  <MenuItem
-                    key={item.value}
-                    value={item.value}
-                  >
-                    {item.display_name}
-                  </MenuItem>
-                );
-              })}
+              {column.native === true ? <option value=""></option> : <MenuItem value=""><em>None</em></MenuItem>}
+              {column.native === true ? (
+                choices.map(item => {
+                  return (
+                    <option
+                      key={item.value}
+                      value={item.value}
+                    >
+                      {item.display_name}
+                    </option>
+                  );
+                })
+              ) : (
+                choices.map(item => {
+                  return (
+                    <MenuItem
+                      key={item.value}
+                      value={item.value}
+                    >
+                      {item.display_name}
+                    </MenuItem>
+                  );
+                })
+              )}
             </Select>
+            {column.help_text ? (
+              <FormHelperText>{column.help_text}</FormHelperText>
+            ) : null}
           </React.Fragment>
         );
       }
+    } else if (column.type === 'choices') {
+      value = value || [];
+      control = (
+        <React.Fragment>
+          <InputLabel htmlFor={column.name}>{label}</InputLabel>
+          <Select
+            multiple
+            value={value}
+            inputProps={{ name: column.name, value: value }}
+            onChange={this.handleChange}
+            renderValue={selected => (
+              <div>
+                {selected.map(value => (
+                  <Chip key={value} label={common.getFromList(column.choices, 'value', value).display_name} />
+                ))}
+              </div>
+            )}
+          >
+            {column.choices && column.choices.map(item => {
+              return (
+                <MenuItem key={item.value} value={item.value}>
+                  <Checkbox checked={value.indexOf(item.value) > -1} />
+                  <ListItemText primary={item.display_name} />
+                </MenuItem>
+              );
+            })}
+          </Select>
+          {column.help_text ? (
+            <FormHelperText>{column.help_text}</FormHelperText>
+          ) : null }
+        </React.Fragment>
+      );
     } else if (column.type === 'date') {
       control = (
         <TextField
@@ -177,7 +316,70 @@ class ControlCreator extends React.Component {
           label={label}
           {...placeholderProps}
           onChange={this.handleChange}
+          InputProps={{
+            style: column.colStyles,
+          }}
         />
+      );
+    } else if (column.type === 'integer') {
+      control = (
+        <TextField
+          error={error}
+          name={column.name}
+          type='number'
+          value={value}
+          label={label}
+          inputProps={{min: column.min_value, max: column.max_value, step: column.step || 1}}
+          {...placeholderProps}
+          onChange={this.handleChange}
+        />
+      );
+    } else if (column.type === 'decimal') {
+      control = (
+        <TextField
+          error={error}
+          name={column.name}
+          type='number'
+          value={value}
+          label={label}
+          inputProps={{min: column.min_value, max: column.max_value, step: column.step}}
+          {...placeholderProps}
+          onChange={this.handleChange}
+        />
+      );
+    } else if (column.type === 'file') {
+      control = (
+        <div className={classes.fileWrapper}>
+          <label htmlFor={`id_${column.name}`}>
+            <Button variant='outlined' component='span'>
+              {label || 'ファイルを選択'}
+            </Button>
+            <input
+              type="file"
+              name={column.name}
+              id={`id_${column.name}`}
+              className={classes.inputFileBtnHide}
+              onChange={this.handleChange}
+            />
+          </label>
+          <label
+            htmlFor={`id_${column.name}`}
+            className={classes.fileNameWrapper}
+            id={`id_label_${column.name}`}
+          >
+            {data[column.verbose_name] || '選択されていません。'}
+          </label>
+          {data[column.verbose_name] ? (
+            <span className={classes.fileDownloadWrapper}>
+              <IconButton
+                className={classes.fileDownloadIcon}
+                onClick={() => column.handle_download(value)}
+              >
+                <ImageSearchIcon />
+              </IconButton>
+            </span>
+          ) : null}
+        </div>
       );
     } else {
       control = (
@@ -205,7 +407,14 @@ class ControlCreator extends React.Component {
 
 ControlCreator.propTypes = {
   classes: PropTypes.object.isRequired,
+  column: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  value: PropTypes.any,
+  data: PropTypes.object,
   errors: PropTypes.arrayOf(PropTypes.string),
+  handleBlur: PropTypes.func,
+  handleChange: PropTypes.func,
 };
 
 ControlCreator.defaultProps = {

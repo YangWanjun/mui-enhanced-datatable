@@ -7,6 +7,10 @@ const tableDetailStyle = {
   avatar: {
     backgroundColor: red[500],
   },
+  title: {
+    fontSize: 20,
+    paddingBottom: 0,
+  },
   table: {
     marginBottom: "0",
     width: "100%",
@@ -30,7 +34,7 @@ const tableDetailStyle = {
     paddingLeft: "8px",
     paddingRight: "8px",
     verticalAlign: "middle",
-    fontSize: "12px",
+    // fontSize: "12px",
   },
   actions: {
     padding: 16,

@@ -8,6 +8,7 @@ import {
   TableSortLabel,
   Checkbox,
 } from "@material-ui/core";
+import { getCellAlignment } from './Common';
 
 class DataTableHead extends React.Component {
 
@@ -47,14 +48,7 @@ class DataTableHead extends React.Component {
           <TableRow>
             { chkCell }
             {tableHead.filter(col => col.visible !== false).map((column, key) => {
-              let align = 'left';
-              let numeric = false;
-              if (column.type === 'integer' || column.type === 'decimal') {
-                align = 'right';
-                numeric = true;
-              } else if (column.type === 'boolean') {
-                align = 'center';
-              }
+              const { align, numeric } = getCellAlignment(column.type);
               return (
                 <TableCell
                   className={classes.tableCell + " " + classes.tableHeadCell}

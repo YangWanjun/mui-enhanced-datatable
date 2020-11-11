@@ -1,4 +1,8 @@
+import React from 'react';
 import { vsprintf } from 'sprintf-js';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import { Link } from '@material-ui/core';
 
 export const common = {
 
@@ -33,6 +37,8 @@ export const common = {
       return true;
     } else if (Array.isArray(obj)) {
       return obj.length === 0;
+    } else if (typeof obj === 'number') {
+      return false;
     }
     for(var key in obj) {
       if(obj.hasOwnProperty(key))
@@ -60,6 +66,18 @@ export const common = {
       let cols = json_list.filter(col => col[key] === value);
       return cols.length > 0 ? cols[0] : {};
     }
+  },
+
+  getChildren: function(value, items, key='value', parent='parent') {
+    let filter_in = [];
+    items.map(item => {
+      if ((item[parent] + '') === (value + '')) {
+        filter_in.push(item[key]);
+        filter_in = filter_in.concat(this.getChildren(item[key], items, key, parent));
+      }
+      return item;
+    });
+    return filter_in;
   },
 
   /**
@@ -109,10 +127,13 @@ export const common = {
    * @param {JSON} filters 
    */
   stableFilter: function(array, filters) {
-    Object.keys(filters).map( key => {
+    Object.keys(filters).map(key => {
       array = array.filter(function(item) {
         let item_value = item[key];
-        if (item_value === true || item_value === false) {
+        if (filters[key] && Array.isArray(filters[key].children)) {
+          // 組織などの階層化に対しての検索、すべての子項目を含めて検索
+          return filters[key].value === item_value || filters[key].children.indexOf(item_value) >= 0;
+        } else if (item_value === true || item_value === false) {
           return (filters[key] === true || filters[key] === false) ? item_value === filters[key] : true;
         } else if (filters[key] === true || filters[key] === false) {
           return item_value === (filters[key] === true ? 1 : 0);
@@ -180,6 +201,65 @@ export const common = {
     return extraStyles;
   },
 
+  getColumnDisplay: function(value, column, data, styles={}) {
+    switch (column.type) {
+      case 'choice':
+        return common.getDisplayNameFromChoice(value, column);
+      case 'choices':
+        return common.getDisplayNameFromChoices(value, column);
+      case 'boolean':
+        if (value === true || value === 1) {
+          return <CheckCircleIcon fontSize="small" style={{color: 'green'}} />;
+        } else if (value === false || value === 0) {
+          return <HighlightOffIcon fontSize="small" style={{color: 'red'}} />;
+        } else {
+          return null;
+        }
+      case 'integer':
+      case 'decimal':
+        return common.toNumComma(value);
+      case 'percent':
+        value = parseFloat(value) * 100;
+        if (!isNaN(value)) {
+          if (column.decimal_digits >= 0) {
+            value = value.toFixed(column.decimal_digits);
+          } else {
+            value = value.toFixed(2);
+          }
+          value += '%';
+        } else {
+          value = null;
+        }
+        return value;
+      case 'text':
+        return (
+          <div style={{whiteSpace: 'pre-line', ...styles}}>
+            {value}
+          </div>
+        );
+      case 'file':
+        let display_name = value;
+        if (!common.isEmpty(data) && column.verbose_name) {
+          display_name = data[column.verbose_name];
+        }
+        if (column.handle_download) {
+          return (
+            <Link
+              component="button"
+              variant="caption"
+              onClick={() => column.handle_download(value, data)}
+            >
+              {display_name || ''}
+            </Link>
+          );
+        } else {
+          return display_name;
+        }
+      default:
+        return value;
+    }
+  },
+
   /**
    * 選択肢から表示する名称を取得
    * @param {Object} value 選択肢の値
@@ -192,6 +272,28 @@ export const common = {
       return display_name || value;
     } else {
       return value;
+    }
+  },
+
+    /**
+   * 選択肢から表示する複数の名称を取得
+   * @param {Array} values 選択肢の値リスト
+   * @param {JSON} column 項目のスキーマ
+   */
+  getDisplayNameFromChoices: function(values, column) {
+    if (column.choices && !this.isEmpty(column.choices)) {
+      let display_name = '';
+      let choice = null;
+      let tmp_display_name = '';
+      values.map(value => {
+        choice = this.getFromList(column.choices, 'value', value);
+        tmp_display_name = (choice ? choice.display_name : null) || '';
+        display_name += ((display_name === '' ? '' : ', ') + tmp_display_name);
+        return display_name;
+      });
+      return display_name;
+    } else {
+      return values;
     }
   },
 
@@ -245,7 +347,8 @@ export const common = {
     let self = this;
     let headArray = [];
     let csvArray = [];
-    tableHead = tableHead.filter(col => col.visible !== false);
+    tableHead = tableHead.filter(col => (col.visible !== false || col.csv === true));
+    tableHead = tableHead.filter(col => (col.csv !== false));
     tableHead.map(col => (
       headArray.push(col.label || col.name)
     ));
@@ -335,6 +438,20 @@ export const common = {
         // json[hash[0]] = JSON.parse(hash[1]); 
     }
     return json;
+  },
+
+  /**
+   * Base64ファイルのサイズを取得（単位：バイト数）
+   * @param {String} b64string Base64ファイルの文字列
+   */
+  getB64FileSize: function(b64string) {
+    if (b64string && b64string.indexOf(";base64,") >= 0) {
+      const arr = b64string.split(';base64,');
+      const data = arr[1];
+      return data.length * 3 / 4 - (data.match(/=/g) || []).length;
+    } else {
+      return 0;
+    }
   },
 };
 
@@ -438,12 +555,22 @@ export const table = {
    * ＵＲＬからフィルターを取得する
    * @param {String} location ＵＲＬ
    */
-  loadFilters: function(location) {
+  loadFilters: function(location, columns) {
     if (location && location.search) {
       let json = common.urlToJson(location.search);
       Object.keys(json).map(key => {
         if (key.slice(0, 2) === '__') {
           delete json[key];
+        }
+        const column = common.getFromList(columns, 'name', key);
+        if (column) {
+          if (column.type === "integer") {
+            json[key] = parseInt(json[key]);
+          } else if (column.choices && !common.isEmpty(column.choices)) {
+            if (typeof column.choices[0].value === 'number') {
+              json[key] = parseFloat(json[key]);
+            }
+          }
         }
         return true;
       });
@@ -451,5 +578,28 @@ export const table = {
     } else {
       return {};
     }
-  }
+  },
+
+  resetFilter: function(filters, columns) {
+    Object.keys(filters).map(key => {
+      const column = common.getFromList(columns, 'name', key);
+      if (column) {
+        if (column.type === "integer") {
+          filters[key] = parseInt(filters[key]);
+        } else if (column.choices && !common.isEmpty(column.choices)) {
+          if (typeof column.choices[0].value === 'number') {
+            if (filters[key] && filters[key].value) {
+              // 階層型のデータをフィルターの場合
+              filters[key].value = parseFloat(filters[key].value);
+            } else {
+              filters[key] = parseFloat(filters[key]);
+            }
+          }
+        }
+      }
+      return true;
+    });
+    return filters;
+  },
 };
+

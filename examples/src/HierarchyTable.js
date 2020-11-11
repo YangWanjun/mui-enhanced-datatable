@@ -1,12 +1,12 @@
 import React from 'react';
 import {HierarchyTable} from '../../src/index';
-import {hierarchyColumns, hierarchyRows} from './data';
+import {hierarchyColumns, departments} from './data';
 
 const MyHierarchyTable = () => (
   <div>
     <HierarchyTable
       tableHead={hierarchyColumns}
-      tableData={hierarchyRows}
+      tableData={departments}
       tableHeaderColor={'warning'}
       pk='pk'
     />
