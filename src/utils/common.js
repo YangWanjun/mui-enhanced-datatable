@@ -47,6 +47,10 @@ export const common = {
     return true;
   },
 
+  clone: function(data) {
+    return JSON.parse(JSON.stringify(data)); 
+  },
+
   /**
    * JSON項目のリストから項目を取得
    * @param {Array} json_list 

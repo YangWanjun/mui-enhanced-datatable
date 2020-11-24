@@ -1,9 +1,8 @@
 import React from 'react';
-import AddIcon from '@material-ui/icons/Add';
-import EditIcon from '@material-ui/icons/Edit';
-import {EnhancedTable, Form} from '../../src/index';
+import MoodIcon from '@material-ui/icons/Mood';
+import {EnhancedTable, FormDialog} from '../../src/index';
 import {columns, rows} from './data';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core';
+import { common } from '../../src/utils';
 
 class MyEnhancedTable extends React.Component {
 
@@ -11,82 +10,110 @@ class MyEnhancedTable extends React.Component {
     super(props);
 
     this.state = {
-      open: false,
+      tableData: common.clone(rows),
     };
   }
 
-  handleOpen = () => {
-    this.setState({open: true});
-  };
-
-  handleClose = () => {
-    this.setState({open: false});
-  };
-
-  handleOk = () => {
-    if (this._handleOk) {
-      const data = this._handleOk();
-      console.log(data);
+  handleOpenMultiTab = () => {
+    const { tableData } = this.state;
+    if (this._showMultiTabs) {
+      this._showMultiTabs(tableData.slice(0, 6), tableData.slice(0, 5).map(item => item.name));
     }
   };
 
+  handleAddData = (data) => {
+    const { tableData } = this.state;
+    return fetch('./').then(results => {
+      this.setState({
+        tableData: [].concat(
+          tableData,
+          [data],
+        ),
+      });
+    }).catch(errors => {
+      console.log(errors);
+    });
+  };
+
+  handleEditData = (data) => {
+    const { tableData } = this.state;
+    return fetch('./').then(results => {
+      const selectedIndex = tableData.map(row => row.pk).indexOf(data.pk);
+      this.setState({
+        tableData: [].concat(
+          tableData.slice(0, selectedIndex),
+          [data],
+          tableData.slice(selectedIndex + 1),
+        ),
+      });
+    }).catch(errors => {
+      console.log(errors);
+    });
+  };
+
+  handleDeleteData = (data) => {
+    const { tableData } = this.state;
+    return fetch('./').then(results => {
+      const selectedIndex = tableData.map(row => row.pk).indexOf(data.pk);
+      this.setState({
+        tableData: [].concat(
+          tableData.slice(0, selectedIndex),
+          tableData.slice(selectedIndex + 1),
+        ),
+      });
+    }).catch(errors => {
+      console.log(errors);
+    });
+  };
+
   render() {
-    const { open } = this.state;
+    const { tableData } = this.state;
 
     return (
       <div>
         <EnhancedTable
+          title="社員一覧"
+          showTitle={true}
           tableHead={columns}
-          tableData={rows}
+          tableData={tableData}
           rowsPerPage={25}
           tableHeaderColor={'warning'}
           pk='pk'
           server={false}
-          title="社員一覧"
           toolbar={true}
           pushpinTop={0}
           filters={{retired: false}}
           selectable={'single'}
           tableActions={[
             {
-              'tooltip': 'レコード追加',
-              'icon': <AddIcon/>,
-              'handleClick': this.handleOpen,
+              'tooltip': 'テストダイアログ',
+              'icon': <MoodIcon />,
+              'handleClick': this.handleOpenMultiTab,
             }
           ]}
+          addProps={{
+            title: '社員情報追加',
+            schema: columns,
+            handleOk: this.handleAddData,
+          }}
           editProps={{
             title: '社員情報変更',
             schema: columns,
-            handleOk: data => console.log(data),
+            handleOk: this.handleEditData,
+          }}
+          deleteProps={{
+            handleDelete: this.handleDeleteData,
           }}
           allowCsv={true}
           urlReflect={true}
         />
-        <Dialog
-          open={open}
-          onClose={this.handleClose}
-        >
-          <DialogTitle>
-            社員を追加
-          </DialogTitle>
-          <DialogContent dividers>
-            <Form
-              schema={columns}
-              ref={(form) => {
-                this._handleOk = form && form.handleOk;
-              }}
-              // errors={{non_field_errors: [
-              //   '唯一の名前を入力してください。', 
-              //   '存在しないクラスです、正しいクラスを入力してください', 
-              //   'この項目は必須です。'
-              // ]}}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.handleClose}>キャンセル</Button>
-            <Button onClick={this.handleOk} autoFocus={true}>確定</Button>
-          </DialogActions>
-        </Dialog>
+        <FormDialog
+          innerRef={(dlg) => { this._showMultiTabs = dlg && dlg.handleOpen }}
+          title={'テスト'}
+          schema={columns}
+          handleOk={() => console.log('handleOk')}
+          saveCallback={() => console.log('saveCallback')}
+        />
       </div>
     );
   }
