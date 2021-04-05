@@ -42,7 +42,8 @@ class MyForm extends React.Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleBlur = this.handleBlur.bind(this);
-    this.clean = this.clean.bind();
+    this.clean = this.clean.bind(this);
+    this.realtimeData = this.realtimeData.bind(this);
     this.state = {
       data: this.initializeData(props),
       errors: props.errors || {},
@@ -199,27 +200,31 @@ class MyForm extends React.Component {
     return valid;
   };
 
+  realtimeData = () => {
+    const data = Object.assign({}, this.state.data);
+    this.props.schema.map(col => {
+      if (col.type === 'field') {
+        const value = data[col.name];
+        if (Array.isArray(value) && value.length > 0) {
+          const item = value[0];
+          data[col.name] = item.value;
+        }
+      } else if (col.type === 'fields') {
+        const value = data[col.name];
+        if (Array.isArray(value) && value.length > 0) {
+          let items = [];
+          value.map(item => (items.push(item.value)))
+          data[col.name] = items;
+        }
+      }
+      return true;
+    });
+    return data;
+  };
+
   clean = () => {
     if (this.validate() === true) {
-      let data = Object.assign({}, this.state.data);
-      this.props.schema.map(col => {
-        if (col.type === 'field') {
-          const value = data[col.name];
-          if (Array.isArray(value) && value.length > 0) {
-            const item = value[0];
-            data[col.name] = item.value;
-          }
-        } else if (col.type === 'fields') {
-          const value = data[col.name];
-          if (Array.isArray(value) && value.length > 0) {
-            let items = [];
-            value.map(item => (items.push(item.value)))
-            data[col.name] = items;
-          }
-        }
-        return true;
-      });
-      return data;
+      return this.realtimeData();
     } else {
       return null;
     }
