@@ -73,9 +73,9 @@ class MyForm extends React.Component {
     }
     if (JSON.stringify(nextProps.errors) !== JSON.stringify(this.props.errors)) {
       this.setState({errors: nextProps.errors});
-    } else if (JSON.stringify(nextProps.errors) !== JSON.stringify(this.state.errors)) {
-      this.setState({errors: nextProps.errors});
-    }
+    } // else if (JSON.stringify(nextProps.errors) !== JSON.stringify(this.state.errors)) {
+    //   this.setState({errors: nextProps.errors});
+    // }
   }
 
   handleChange = (prefix, inlineIndex) => (name, value, type) => (event) => {
