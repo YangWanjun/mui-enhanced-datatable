@@ -16,7 +16,7 @@ class AggregateFooter extends React.Component {
 
     if (aggregate === 'sum') {
       const total = tableData.reduce((sum, row) => {
-        return sum + (row[name] || 0);
+        return sum + (isNaN(parseFloat(row[name])) ? 0 : row[name] || 0);
       }, 0);
       this.data[name] = total;
       return common.toNumComma(total);

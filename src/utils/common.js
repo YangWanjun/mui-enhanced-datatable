@@ -163,8 +163,8 @@ export const common = {
   getSorting: function(order, orderBy, isNumeric) {
     if (isNumeric) {
       return order === 'desc'
-      ? (a, b) => (b[orderBy] - a[orderBy])
-      : (a, b) => (a[orderBy] - b[orderBy]);
+      ? (a, b) => ((Number.isInteger(b[orderBy]) ? b[orderBy] : -1) - (Number.isInteger(a[orderBy]) ? a[orderBy] : -1))
+      : (a, b) => ((Number.isInteger(a[orderBy]) ? a[orderBy] : -1) - (Number.isInteger(b[orderBy]) ? b[orderBy] : -1));
     } else {
       return order === 'desc'
       ? (a, b) => ((b[orderBy] || '') < (a[orderBy] || '') ? -1 : 1)
