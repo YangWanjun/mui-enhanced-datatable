@@ -55,8 +55,10 @@ class AggregateFooter extends React.Component {
                   {this.getAggregateValue(col)}
                 </TableCell>
               );
-            } else {
+            } else if (col.visible !== false) {
               return (<TableCell key={key} />)
+            } else {
+              return null;
             }
           })}
         </TableRow>
