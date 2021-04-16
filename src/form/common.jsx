@@ -159,7 +159,9 @@ export const validate_by_schema = (prefix, schema, data, errors) => {
   let valid = true;
   let dataList = null;
   let isInline = prefix ? true : false;
-  if (Array.isArray(data)) {
+  if (data === undefined || data === null) {
+    dataList = [];
+  } else if (Array.isArray(data)) {
     dataList = data;
     isInline = true;
   } else {
