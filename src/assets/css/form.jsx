@@ -1,3 +1,5 @@
+import { red } from "@material-ui/core/colors";
+
 const formStyle = theme => ({
   formControl: {
     margin: theme.spacing(1),
@@ -42,6 +44,11 @@ const formStyle = theme => ({
     '& .MuiFormControl-root': {
       margin: 0,
     },
+  },
+  required: {
+    color: red[500],
+    fontSize: theme.spacing(1.8),
+    fontWeight: 'bold',
   },
 });
 

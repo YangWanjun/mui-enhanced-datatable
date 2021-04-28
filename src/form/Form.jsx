@@ -73,9 +73,12 @@ class MyForm extends React.Component {
     }
     if (JSON.stringify(nextProps.errors) !== JSON.stringify(this.props.errors)) {
       this.setState({errors: nextProps.errors});
-    } // else if (JSON.stringify(nextProps.errors) !== JSON.stringify(this.state.errors)) {
-    //   this.setState({errors: nextProps.errors});
-    // }
+    } else if (JSON.stringify(nextProps.errors) !== JSON.stringify(this.state.errors) && !common.isEmpty(nextProps.errors)) {
+      // サーバー側エラーが返した場合、初回目は表示できますが。
+      // ２回目でまたサーバー側エラー発生したら、nextProps.errors === this.props.errorsなので、エラーが表示できなくなる
+      // だからここでの設定が必要です。
+      this.setState({errors: nextProps.errors});
+    }
   }
 
   handleChange = (prefix, inlineIndex) => (name, value, type) => (event) => {

@@ -34,7 +34,7 @@ class ControlCreator extends React.Component {
 
   handleChange = (event) => {
     let { name, value } = event.target;
-    const { type, variant } = this.props.column;
+    const { type, variant, multiple } = this.props.column;
     if (type === 'boolean') {
       if (variant !== 'select') {
         // チェックボックスの場合
@@ -50,11 +50,24 @@ class ControlCreator extends React.Component {
     } else if (type === 'integer') {
       value = common.toInteger(value);
     } else if (type === 'file') {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.addEventListener('load', (e) => this.readFileBlob(e, name, file.name));
-      reader.readAsDataURL(file);
-      document.getElementById(`id_label_${this.props.column.name}`).innerText = file.name;
+      const fileLabel = document.getElementById(`id_label_${this.props.column.name}`);
+      if (multiple === true) {
+        // ファイルが複数選択できる場合
+        fileLabel.innerText = "";
+        const blobFiles = [];
+        for (const file of event.target.files) {
+          const reader = new FileReader();
+          reader.addEventListener('load', (e) => this.readMultiFileBlob(e, name, file.name, blobFiles));
+          reader.readAsDataURL(file);
+          fileLabel.innerText += file.name + ';';
+        }
+      } else {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.addEventListener('load', (e) => this.readFileBlob(e, name, file.name));
+        reader.readAsDataURL(file);
+        fileLabel.innerText = file.name;
+      }
       return;
     }
 
@@ -84,6 +97,15 @@ class ControlCreator extends React.Component {
     )(event);
   };
 
+  readMultiFileBlob = (event, name, fileName, files) => {
+    files.push(`name:${btoa(unescape(encodeURIComponent(fileName)))};${event.target.result}`);
+    this.props.handleChange(
+      name,
+      files,
+      'file'
+    )(event);
+  };
+
   handleBlur = (name) => (event) => {
     if (this.props.handleBlur) {
       this.props.handleBlur(event, name);
@@ -99,7 +121,14 @@ class ControlCreator extends React.Component {
     const { datasource } = this.state;
     let control = null;
     let { value } = this.props;
-    let label = column.label + (column.required === true ? '(＊)' : '');
+    const label = column.required === true ? (
+      <span>
+        {column.label}
+        <span className={classes.required}>（＊）</span>
+      </span>
+    ) : (
+      <span>{column.label}</span>
+    );
     value = (value === null || value === undefined) ? '' : value;
     const error = Array.isArray(errors) && errors.length > 0;
     const errorNodes = (
@@ -124,7 +153,7 @@ class ControlCreator extends React.Component {
           error={error}
           name={column.name}
           value={column.type === 'choice' ? common.getDisplayNameFromChoice(value, column) : value}
-          label={label}
+          label={column.label + (column.required === true ? '(＊)' : '')}
           InputLabelProps={{
             shrink: true,
           }}
@@ -357,6 +386,7 @@ class ControlCreator extends React.Component {
             <input
               type="file"
               name={column.name}
+              multiple={column.multiple === true}
               id={`id_${column.name}`}
               className={classes.inputFileBtnHide}
               onChange={this.handleChange}

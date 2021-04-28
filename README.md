@@ -56,6 +56,7 @@ https://yangwanjun.github.io/mui-enhanced-datatable/
 | colStyles | null | 項目のCSSを自由に設定できますfontSize |
 | verbose_name | null | typeが"file"時有効、ファイルの名前で、リンクとして表示する、リンクをクリックするとプレビューできます |
 | limit | null | ファイルアップロード時サイズ制限(単位: byte)、例：5 * 1024 * 1024 = 5MB
+| multiple | false | typeが"file"時有効、ファイルは複数選択できるかどうか |
 | handle_download | null | typeが"file"時有効、ファイルのダウンロード処理 |
 | cascade_to | null | カスケード先の項目ID |
 | cascade_from | null | カスケード元の項目ID<br>使用時 onChange を設定する必要があります |
