@@ -445,7 +445,7 @@ class DataTableToolbar extends React.Component {
             title='削除'
             innerRef={(dlg) => { this._showDeleteConfirm = dlg && dlg.handleOpen }}
             onOk={() => {
-              deleteProps.handleDelete(this.props.selected[0]).then(() => clearSelected())
+              return deleteProps.handleDelete(this.props.selected[0]).then(() => clearSelected())
             }}
           />
         ) : null}

@@ -10,6 +10,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { constant } from '../utils';
+import SyncButton from '../form/SyncButton';
 
 const styles = theme => ({
   root: {
@@ -46,10 +47,9 @@ class ConfirmDialog extends React.Component {
   }
 
   handleOk() {
-    if (this.props.onOk) {
-      if (this.props.onOk()) {
-        this.handleCancel();
-      }
+    const { onOk } = this.props;
+    if (onOk) {
+      return onOk().then(() => this.handleCancel())
     }
   }
 
@@ -76,9 +76,11 @@ class ConfirmDialog extends React.Component {
           <Button onClick={this.handleCancel} color="secondary">
             取消
           </Button>
-          <Button onClick={this.handleOk} color="primary">
-            確定
-          </Button>
+          <SyncButton
+            title="確定"
+            handleClick={this.handleOk}
+            color="primary"
+          />
         </DialogActions>
       </Dialog>
     );

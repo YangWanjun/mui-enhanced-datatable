@@ -7,13 +7,12 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  CircularProgress,
   Typography,
   Tabs,
   Tab,
 } from '@material-ui/core';
-import { green } from '@material-ui/core/colors';
 import { Form } from '../form/Form';
+import SyncButton from '../form/SyncButton';
 
 const styles = theme => ({
   fullScreen: {
@@ -25,18 +24,6 @@ const styles = theme => ({
       maxHeight: 'none',
       borderRadius: 0,
     },
-  },
-  wrapper: {
-    margin: theme.spacing(1),
-    position: 'relative',
-  },
-  buttonProgress: {
-    color: green[500],
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: -12,
-    marginLeft: -12,
   },
   description: {
     whiteSpace: 'pre-line',
@@ -55,7 +42,6 @@ class FormDialog extends React.Component {
       open: false,
       data: {},
       errors: props.errors || {},
-      loading: false,
       tabIndex: 0,
       tabsLabel: [],
     };
@@ -79,7 +65,8 @@ class FormDialog extends React.Component {
 
   handleOk = () => {
     const { data } = this.state;
-    if (this.props.handleOk) {
+    const { handleOk, saveCallback } = this.props;
+    if (handleOk) {
       let cleaned_data = null;
       if (this._clean) {
         cleaned_data = this._clean();
@@ -90,24 +77,22 @@ class FormDialog extends React.Component {
         }
       }
       if (cleaned_data) {
-        this.setState({loading: true});
-        this.props.handleOk(cleaned_data, this.handleClose).then(() => {
-          if (this.props.saveCallback) {
-            this.props.saveCallback(cleaned_data);
+        return handleOk(cleaned_data, this.handleClose).then(() => {
+          if (saveCallback) {
+            saveCallback(cleaned_data);
           }
           this.handleClose();
         }).catch(errors => {
           this.setState({errors});
-        }).finally(() => {
-          this.setState({loading: false});
         });
       }
     }
+    return Promise.resolve();
   };
 
   render() {
     const { classes, title, description, schema, layout, ...rest } = this.props;
-    const { open, data, errors, loading, tabIndex, tabsLabel } = this.state;
+    const { open, data, errors, tabIndex, tabsLabel } = this.state;
 
     return (
       <Dialog
@@ -177,15 +162,12 @@ class FormDialog extends React.Component {
         </DialogContent>
         <DialogActions>
           <Button onClick={this.handleClose} color='secondary'>取消</Button>
-          <div className={classes.wrapper}>
-            <Button
-              onClick={this.handleOk}
-              autoFocus={true}
-              disabled={loading}
-              color='primary'
-            >確定</Button>
-            {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
-          </div>
+          <SyncButton
+            title="確定"
+            handleClick={this.handleOk}
+            autoFocus={true}
+            color='primary'
+          />
         </DialogActions>
       </Dialog>
     );
