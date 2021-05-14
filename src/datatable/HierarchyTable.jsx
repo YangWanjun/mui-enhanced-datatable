@@ -62,7 +62,14 @@ class MyHierarchyTable extends React.Component {
   getAllRows() {
     const { relatedName } = this.props;
     const { tableData } = this.state;
-    const rootRows = common.isEmpty(tableData) ? [] : tableData.filter(row => row[relatedName] === null);
+    let rootRows = common.isEmpty(tableData) ? [] : tableData.filter(row => row[relatedName] === null);
+    if (tableData.length > 0 && 'id' in tableData[0]) {
+      // 親が見つからないデータもトップに表示する。
+      const ids = tableData.map(i => i.id);
+      rootRows = rootRows.concat(tableData.filter(row => {
+        return row[relatedName] && ids.indexOf(row[relatedName]) < 0;
+      }));
+    }
     let rows = [];
     rootRows.map(row => {
       return this.getChildRows(rows, row);
