@@ -85,6 +85,14 @@ export const common = {
   },
 
   /**
+   * JSONかどうかを判定する関数
+   * @param {Object} arg 
+   */
+   isJSON: function(arg) {
+    return typeof arg === 'object';
+  },
+
+  /**
    * 文字列をフォーマットする
    * @param {String} format 
    *
@@ -604,6 +612,24 @@ export const table = {
       return true;
     });
     return filters;
+  },
+
+  /**
+   * DataTableのフィルターからajax呼び出し要のデータを取得する
+   * @param {JSON} filters フォルダー
+   * @returns 
+   */
+   getParamFromFilter: function(filters) {
+    const param = {};
+    Object.keys(filters).map(key => {
+      if (common.isJSON(filters[key]) && 'value' in filters[key]) {
+        param[key] = filters[key].value;
+      } else {
+        param[key] = filters[key];
+      }
+      return null;
+    });
+    return param;
   },
 };
 

@@ -25,7 +25,7 @@ import ClearAllIcon from '@material-ui/icons/ClearAll';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
 import { green } from '@material-ui/core/colors';
 import { createFormLayout } from "../form/common";
-import { common } from "../utils/common";
+import { common, table } from "../utils/common";
 import FormDialog from "../dialog/FormDialog";
 import ConfirmDialog from "../dialog/ConfirmDialog";
 
@@ -189,7 +189,7 @@ class DataTableToolbar extends React.Component {
 
   createActions = () => {
     const { classes, selected, tableData, tableActions, rowActions, saveCallback } = this.props;
-    const { btnLoadings } = this.state;
+    const { btnLoadings, filters } = this.state;
 
     if (Array.isArray(selected) && selected.length > 0 ) {
       // 行ごとのアクション
@@ -230,8 +230,8 @@ class DataTableToolbar extends React.Component {
                 className={classes.wrapper}
                 onClick={
                   action.showLoading === true 
-                    ? (props) => this.handleActionClick(() => action.handleClick(tableData), props, `tbl_action_${key}`)
-                    : () => action.handleClick(tableData)
+                    ? (props) => this.handleActionClick(() => action.handleClick(tableData, table.getParamFromFilter(filters)), props, `tbl_action_${key}`)
+                    : () => action.handleClick(tableData, table.getParamFromFilter(filters))
                 }
                 disabled={btnLoadings[`tbl_action_${key}`] === true}
               >
