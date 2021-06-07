@@ -3,7 +3,7 @@ import {
   defaultFont,
 } from './common';
 
-const tableDetailStyle = {
+const tableDetailStyle = (theme) => ({
   avatar: {
     backgroundColor: red[500],
   },
@@ -39,6 +39,16 @@ const tableDetailStyle = {
   actions: {
     padding: 16,
   },
-};
+  linearProgress: {
+    height: theme.spacing(1),
+    maxWidth: 300,
+    '& .MuiLinearProgress-bar1Indeterminate': {
+      opacity: 0.5,
+    },
+    '& .MuiLinearProgress-bar2Indeterminate': {
+      opacity: 0.5,
+    },
+  },
+});
 
 export default tableDetailStyle;

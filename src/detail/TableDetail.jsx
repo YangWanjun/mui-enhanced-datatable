@@ -16,6 +16,7 @@ import {
   Button,
   Menu,
   IconButton,
+  LinearProgress,
 } from '@material-ui/core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import detailStyle from '../assets/css/detail';
@@ -78,7 +79,7 @@ class MyTableDetail extends React.Component {
   };
 
   render() {
-    const { classes, title, schema, actions, editProps, deleteProps, cardMenuItems } = this.props;
+    const { classes, title, schema, actions, editProps, deleteProps, cardMenuItems, loading } = this.props;
     const { open, anchorEl, data } = this.state;
 
     return (
@@ -109,7 +110,9 @@ class MyTableDetail extends React.Component {
                     <TableRow key={col.name}>
                       <TableCell className={classes.tableCell + ' ' + classes.tableHeadCell}>{col.label}</TableCell>
                       <TableCell className={classes.tableCell}>
-                        {col.link ? (
+                        {loading ? (
+                          <LinearProgress className={classes.linearProgress} />
+                        ) : col.link ? (
                           <Link to={common.formatStr(typeof col.link === 'function' ? col.link(data) : col.link, data)}>{display_name}</Link>
                         ) : display_name}
                       </TableCell>
@@ -181,12 +184,14 @@ MyTableDetail.propTypes = {
   editProps: PropTypes.object,
   deleteProps: PropTypes.object,
   cardMenuItems: PropTypes.arrayOf(PropTypes.object),
+  loading: PropTypes.bool,
 };
 
 MyTableDetail.defaultProps = {
   actions: [],
   editProps: {},
   deleteProps: {},
+  loading: false,
 };
 
 const TableDetail = withStyles(detailStyle)(MyTableDetail)
