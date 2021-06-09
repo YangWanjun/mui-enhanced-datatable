@@ -79,6 +79,9 @@ class DataTableCell extends React.Component {
     const { classes, column, data, actions, actionsTrigger } = this.props;
     const { open } = this.state;
     let value = data[column.name];
+    if (column.get_value && typeof column.get_value === 'function') {
+      value = column.get_value(value, data);
+    }
 
     let style = Object.assign({}, this.props.style);
     let attrs = { 'align': getCellAlignment(column.type).align };

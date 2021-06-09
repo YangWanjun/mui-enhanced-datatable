@@ -61,3 +61,4 @@ https://yangwanjun.github.io/mui-enhanced-datatable/
 | cascade_to | null | カスケード先の項目ID |
 | cascade_from | null | カスケード元の項目ID<br>使用時 onChange を設定する必要があります |
 | get_props | null | 項目の属性を動的に設定できます<br>function (data, inlines) {} で設定します<br>dataはフォームのデータ,　inlinesは複数行の場合のデータ |
+| get_value | null | function(value, data) {} 設定した場合、このメソッドから値を取得する |
