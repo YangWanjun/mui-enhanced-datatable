@@ -385,8 +385,8 @@ export const common = {
   arrayToCSV: function(array) {
     let lineArray = [];
     array.forEach(function (infoArray, index) {
-      let line = infoArray.join(",");
-      lineArray.push(line);
+      let line = infoArray.join('","');
+      lineArray.push(`"${line}"`);
     });
     let csvContent = lineArray.join("\n");
     return csvContent;
