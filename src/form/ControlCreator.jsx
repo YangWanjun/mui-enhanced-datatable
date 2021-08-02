@@ -173,7 +173,7 @@ class ControlCreator extends React.Component {
                   inputProps={{ name: column.name, value: value }}
                   onChange={this.handleChange}
                 >
-                  <option value=""></option>
+                  <option value={null}></option>
                   <option key='true' value='true'>はい</option>
                   <option key='false' value='false'>いいえ</option>
                 </Select>
@@ -183,7 +183,7 @@ class ControlCreator extends React.Component {
                   inputProps={{ name: column.name, value: value }}
                   onChange={this.handleChange}
                 >
-                  <MenuItem value=""><em>None</em></MenuItem>
+                  <MenuItem value={null}><em>None</em></MenuItem>
                   <MenuItem key='true' value='true'>はい</MenuItem>
                   <MenuItem key='false' value='false'>いいえ</MenuItem>
                 </Select>
@@ -258,7 +258,7 @@ class ControlCreator extends React.Component {
               inputProps={{ name: column.name, value: value }}
               onChange={this.handleChange}
             >
-              {column.native === true ? <option value=""></option> : <MenuItem value=""><em>None</em></MenuItem>}
+              {column.native === true ? <option value={null}></option> : <MenuItem value={null}><em>None</em></MenuItem>}
               {column.native === true ? (
                 choices.map(item => {
                   return (
