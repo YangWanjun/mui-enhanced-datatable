@@ -77,7 +77,7 @@ class MySimpleTable extends React.Component {
             nextIconButtonProps={{
               'aria-label': 'Next Page',
             }}
-            onChangePage={this.handleChangePage}
+            onPageChange={this.handleChangePage}
           />
         ) : <React.Fragment/> }
       </div>
