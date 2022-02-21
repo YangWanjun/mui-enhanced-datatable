@@ -7,7 +7,7 @@ import {
   Tooltip,
   TableSortLabel,
   Checkbox,
-} from "@material-ui/core";
+} from "@mui/material";
 import { getCellAlignment } from './Common';
 
 class DataTableHead extends React.Component {

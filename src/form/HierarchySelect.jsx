@@ -1,10 +1,11 @@
 import React from 'react';
 import {
-  withStyles,
   MenuItem,
+  NativeSelect,
   InputLabel,
   Select,
-} from '@material-ui/core';
+} from '@mui/material';
+import { withStyles } from '@mui/styles';
 import { common } from '../utils/common';
 
 const styles = theme => ({
@@ -68,12 +69,12 @@ class HierarchySelect extends React.Component {
   render() {
     const { name, value, label, native, handleChange } = this.props;
     const items = this.getAllItems();
+    const CtrlSelect = native === true ? NativeSelect : Select;
 
     return (
       <React.Fragment>
         <InputLabel htmlFor={name}>{label}</InputLabel>
-        <Select
-          native={native === true}
+        <CtrlSelect
           value={value}
           inputProps={{ name: name, value: value }}
           onChange={handleChange}
@@ -82,7 +83,7 @@ class HierarchySelect extends React.Component {
           {items.map(item => {
             return item;
           })}
-        </Select>
+        </CtrlSelect>
       </React.Fragment>
     );
   }

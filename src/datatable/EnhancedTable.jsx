@@ -1,9 +1,8 @@
-import React from "react";
-import { withRouter } from 'react-router-dom';
-import uuid from 'uuid';
+import React, { useEffect, useState } from "react";
+import { useHistory, useLocation } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 import PropTypes from "prop-types";
-// @material-ui/core components
-import withStyles from "@material-ui/core/styles/withStyles";
+// @mui/material components
 import {
   Table,
   TableRow,
@@ -11,9 +10,8 @@ import {
   TableCell,
   Checkbox,
   TableFooter,
-  withWidth,
-  isWidthDown,
-} from "@material-ui/core";
+} from "@mui/material";
+import { makeStyles } from '@mui/styles';
 // core components
 import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';
@@ -23,157 +21,150 @@ import DataTableFixedHead from "./DataTableFixedHead";
 import tableStyle from "../assets/css/datatable";
 import { common, constant, table } from "../utils";
 import AggregateFooter from "./AggregateFooter";
+import { useIsWidthDown } from "../hooks";
 
-class MyEnhancedTable extends React.Component {
-  tableId = uuid();
-  toolbarId = uuid();
-  fixedTableId = uuid();
-  fixedHeaderId = uuid();
+const useStyles = makeStyles(tableStyle);
 
-  constructor(props) {
-    super(props);
+const tableId = uuidv4();
+const toolbarId = uuidv4();
+const fixedTableId = uuidv4();
+const fixedHeaderId = uuidv4();
 
-    this.handleChangePage = this.handleChangePage.bind(this);
-    this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this);
-    this.handleSort = this.handleSort.bind(this);
-    this.handleChangeFilter = this.handleChangeFilter.bind(this);
-    this.isSelected = this.isSelected.bind(this);
-    this.handleRowSelect = this.handleRowSelect.bind(this);
-    this.handleSelectAllClick = this.handleSelectAllClick.bind(this);
-    this.clearSelected = this.clearSelected.bind(this);
-    this.handleSaveCallback = this.handleSaveCallback.bind(this);
-    this.state = {
-      tableData: table.initTableData(props.tableData),
-      selected: [],
-      ...this.initialize(props),
-    };
-  }
+const EnhancedTable = (props) => {
 
-  initialize = (props) => {
-    const { location, rowsPerPage } = this.props;
+  const [tableData, setTableData] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(props.rowsPerPage);
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState('');
+  const [orderNumeric, setOrderNumeric] = useState(false);
+  const [filters, setFilters] = useState({});
+  const location = useLocation();
+  const history = useHistory();
+  const isXsDown = useIsWidthDown('sm');
+
+  // 初期化設定
+  useEffect(() => {
+    setTableData(table.initTableData(props.tableData));
     const json = common.urlToJson(location.search);
-    const order = table.getOrder(location)
-    let state = {
-      page: 0,
-      rowsPerPage: rowsPerPage,
-      order: 'asc',
-      orderBy: '',
-      orderNumeric: false,
-      filters: {},
-    };
+    const order = table.getOrder(location);
     if (order) {
-      state['order'] = order.__order;
-      state['orderBy'] = order.__orderBy;
-      state['orderNumeric'] = order.__orderNumeric;
+      setOrder(order.__order);
+      setOrderBy(order.__orderBy);
+      setOrderNumeric(order.__orderNumeric);
     }
     if (json.__rowsPerPage) {
-      state['rowsPerPage'] = common.toInteger(json.__rowsPerPage);
+      setRowsPerPage(common.toInteger(json.__rowsPerPage));
     }
     if (json.__page) {
-      state['page'] = common.toInteger(json.__page);
+      setPage(common.toInteger(json.__page));
     }
     // フィルター項目
     const urlFilters = table.loadFilters(location, props.tableHead);
-    const storageFilter = this.getFilter();
+    const storageFilter = getFilter();
     if (!common.isEmpty(storageFilter)) {
-      state['filters'] = storageFilter;
+      setFilters(storageFilter);
     } else if (!common.isEmpty(urlFilters)) {
-      state['filters'] = urlFilters;
+      setFilters(urlFilters);
     }
-    return state;
+  }, []);
+
+  const handleFixedHeader = () => {
+    const { pushpinTop } = props;
+    common.setFixedTableHeader(fixedHeaderId, toolbarId, tableId, fixedTableId, pushpinTop);
   };
 
-  handleFixedHeader = () => {
-    const { pushpinTop, width } = this.props;
-    if (!isWidthDown('xs', width)) {
-      common.setFixedTableHeader(this.fixedHeaderId, this.toolbarId, this.tableId, this.fixedTableId, pushpinTop);
-    }
-  };
-
-  componentDidMount() {
-    window.addEventListener('scroll', this.handleFixedHeader);
-    window.addEventListener('resize', this.handleFixedHeader);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('scroll', this.handleFixedHeader);
-    window.removeEventListener('resize', this.handleFixedHeader);
-  }
-
-  componentDidUpdate() {
-    this.handleFixedHeader();
-  }
-
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (JSON.stringify(this.props.tableData) !== JSON.stringify(nextProps.tableData)) {
-      const { selected } = this.state;
-      const tableData = table.initTableData(nextProps.tableData);
-      this.setState({tableData});
-      if (!common.isEmpty(selected)) {
-        // テーブルのデータ変更したら、選択したデータも変更する。
-        let pkList = [];
-        let key = null;
-        for (let data of selected) {
-          if (!key) {
-            key = this.getDataKey(data);
-          }
-          pkList.push(data[key]);
-        }
-        const newSelected = tableData.filter(row => pkList.indexOf(row[key]) >= 0);
-        this.setState({ selected: newSelected });
+  // ヘッダーを固定するイベント
+  useEffect(() => {
+    if (!isXsDown) {
+      window.addEventListener('scroll', handleFixedHeader);
+      window.addEventListener('resize', handleFixedHeader);
+      return () => {
+        window.removeEventListener('scroll', handleFixedHeader);
+        window.removeEventListener('resize', handleFixedHeader);  
       }
     }
-  }
+  }, []);
 
-  handleChangePage = (event, page) => {
-    this.handleFixedHeader();
-    this.setState({page});
-    const { urlReflect, location, history } = this.props;
+  useEffect(() => {
+    if (!isXsDown) {
+      handleFixedHeader();
+    }
+  });
+
+  // function UNSAFE_componentWillReceiveProps(nextProps) {
+  //   if (JSON.stringify(this.props.tableData) !== JSON.stringify(nextProps.tableData)) {
+  //     const { selected } = this.state;
+  //     const tableData = table.initTableData(nextProps.tableData);
+  //     this.setState({tableData});
+  //     if (!common.isEmpty(selected)) {
+  //       // テーブルのデータ変更したら、選択したデータも変更する。
+  //       let pkList = [];
+  //       let key = null;
+  //       for (let data of selected) {
+  //         if (!key) {
+  //           key = this.getDataKey(data);
+  //         }
+  //         pkList.push(data[key]);
+  //       }
+  //       const newSelected = tableData.filter(row => pkList.indexOf(row[key]) >= 0);
+  //       this.setState({ selected: newSelected });
+  //     }
+  //   }
+  // }
+
+  const handleChangePage = (event, page) => {
+    handleFixedHeader();
+    setPage(page);
+    const { urlReflect } = props;
     if (urlReflect === true) {
       table.changePaginationUrl(page, location, history);
     }
   };
 
-  handleChangeRowsPerPage = event => {
-    this.handleFixedHeader();
-    if (this.props.server) {
+  const handleChangeRowsPerPage = event => {
+    handleFixedHeader();
+    if (props.server) {
     } else {
-      this.setState({ rowsPerPage: event.target.value });
+      setRowsPerPage(event.target.value);
     }
     // 1ページ目に移動
-    this.handleChangePage(event, 0);
-    const { urlReflect, location, history } = this.props;
+    handleChangePage(event, 0);
+    const { urlReflect } = props;
     if (urlReflect === true) {
       table.changePageSizeUrl(event.target.value, location, history);
     }
   };
 
-  handleSort = (event, property, orderNumeric) => {
-    const orderBy = property;
-    let order = 'desc';
+  const handleSort = (event, property, _orderNumeric) => {
+    const _orderBy = property;
+    let _order = 'desc';
 
-    if (this.state.orderBy === property && this.state.order === 'desc') {
-      order = 'asc';
+    if (orderBy === property && order === 'desc') {
+      _order = 'asc';
     }
-    this.handleFixedHeader();
-    this.setState({ order, orderBy, orderNumeric });
-    const { urlReflect, location, history } = this.props;
+    handleFixedHeader();
+    setOrder(_order);
+    setOrderBy(_orderBy);
+    setOrderNumeric(_orderNumeric);
+    const { urlReflect } = props;
     if (urlReflect === true) {
-      table.changeOrderUrl(order, orderBy, orderNumeric, location, history);
+      table.changeOrderUrl(_order, _orderBy, _orderNumeric, location, history);
     }
   };
 
-  handleChangeFilter = (event, filters) => {
-    const { tableHead } = this.props;
-    this.handleFixedHeader();
-    filters = table.resetFilter(filters, tableHead);
-    this.setState({ filters });
-    this.saveFilter(filters);
+  const handleChangeFilter = (event, _filters) => {
+    const { tableHead } = props;
+    handleFixedHeader();
+    filters = table.resetFilter(_filters, tableHead);
+    setFilters(_filters);
+    saveFilter(_filters);
     // 1ページ目に移動
-    this.handleChangePage(event, 0);
-    const { urlReflect, location, history } = this.props;
+    handleChangePage(event, 0);
+    const { urlReflect } = props;
     if (urlReflect === true) {
-      table.changeFilterUrl(filters, location, history);
+      table.changeFilterUrl(_filters, location, history);
     }
   };
 
@@ -181,8 +172,8 @@ class MyEnhancedTable extends React.Component {
    * 絞り込み条件を保存する。
    * 他画面に遷移してまた戻る時に、入力した検索条件を維持するため。
    */
-  saveFilter = (filters) => {
-    const { location, storageKey } = this.props;
+  const saveFilter = (filters) => {
+    const { storageKey } = props;
     if (storageKey) {
       localStorage.setItem(`${location.pathname}-key-${storageKey}`, JSON.stringify(filters));
     }
@@ -192,8 +183,8 @@ class MyEnhancedTable extends React.Component {
    * 絞り込み条件を取得する。
    * 他画面に遷移してまた戻る時に、入力した検索条件を維持するため。
    */
-  getFilter = () => {
-    const { location, storageKey } = this.props;
+  const getFilter = () => {
+    const { storageKey } = props;
     if (storageKey) {
       const data = localStorage.getItem(`${location.pathname}-key-${storageKey}`);
       return JSON.parse(data);
@@ -202,12 +193,11 @@ class MyEnhancedTable extends React.Component {
     }
   }
 
-  isSelected = (data) => {
+  const isSelected = (data) => {
     if (!data) {
       return false;
     }
-    const { selected } = this.state;
-    let key = this.getDataKey(data);
+    let key = getDataKey(data);
 
     if (!selected) {
       return false;
@@ -216,8 +206,8 @@ class MyEnhancedTable extends React.Component {
     }
   };
 
-  getDataKey = (data) => {
-    const { pk } = this.props;
+  const getDataKey = (data) => {
+    const { pk } = props;
     let key = null;
     if (data.__index__ !== null && data.__index__ !== undefined) {
       key = '__index__';
@@ -227,15 +217,15 @@ class MyEnhancedTable extends React.Component {
     return key;
   }
 
-  handleRowSelect = (data) => {
-    if (this.props.selectable === 'none') {
+  const handleRowSelect = (data) => {
+    const { selectable } = props;
+    if (selectable === 'none') {
       return;
     }
-    const { selected } = this.state;
-    const isSelected = this.isSelected(data);
+    const _isSelected = isSelected(data);
     let newSelected = [];
-    if (this.props.selectable === 'multiple') {
-      if (isSelected === true) {
+    if (selectable === 'multiple') {
+      if (_isSelected === true) {
         const selectedIndex = selected.indexOf(data);
         newSelected = newSelected.concat(
           selected.slice(0, selectedIndex),
@@ -244,194 +234,190 @@ class MyEnhancedTable extends React.Component {
       } else {
         newSelected = newSelected.concat(selected, data);
       }
-    } else if (this.props.selectable === 'single') {
-      if (isSelected === true) {
+    } else if (selectable === 'single') {
+      if (_isSelected === true) {
         newSelected = [];
       } else {
         newSelected = [data];
       }
     }
 
-    this.setState({ selected: newSelected });
+    setSelected(newSelected);
   };
 
-  handleSelectAllClick = (event, checked) => {
+  const handleSelectAllClick = (event, checked) => {
     if (checked) {
-      const { filters, tableData } = this.state;
       const results = common.stableFilter(tableData, filters);
-      this.setState({ selected: results });
+      setSelected(results);
       return;
     } else {
-      this.clearSelected();
+      clearSelected();
     }
   };
 
-  clearSelected = () => {
-    this.setState({ selected: [] });
+  const clearSelected = () => {
+    setSelected([]);
   };
 
-  handleSaveCallback = (data) => {
-    const { selected } = this.state;
+  const handleSaveCallback = (data) => {
     if (Array.isArray(selected) && selected.length === 1) {
       // 変更成功の場合、変更後のデータをテーブルに更新する
-      this.setState({selected: [data]});
+      setSelected([data]);
     }
   };
 
-  render() {
-    const {
-      classes, tableHead, tableActions, rowActions, toolbar, selectable, allowCsv, pk, showTitle, showAggregate,
-      addProps, editProps, deleteProps, filterLayout, width, tableStyles,
-    } = this.props;
-    const { tableData, filters, page, rowsPerPage, order, orderBy, orderNumeric, selected } = this.state;
-    let results = common.stableSort(tableData, common.getSorting(order, orderBy, orderNumeric));
-    if (!common.isEmpty(filters)) {
-      results = common.stableFilter(results, filters);
-    }
-    const headerProps = {
-      classes: classes,
-      tableHeaderColor: this.props.tableHeaderColor,
-      tableHead: tableHead,
-      onSort: this.handleSort,
-      order: order,
-      orderBy: orderBy,
-      selectable: selectable,
-      selected: selected,
-      data: results,
-      onSelectAllClick: this.handleSelectAllClick,
-    };
-    const toolbarProps = {
-      title: this.props.title,
-      showTitle: showTitle,
-      filters: filters,
-      filterLayout: filterLayout,
-      tableHead: tableHead,
-      tableData: results,
-      selected: selected,
-      onChangeFilter: this.handleChangeFilter,
-      tableActions: tableActions,
-      rowActions: rowActions,
-      allowCsv: allowCsv,
-      pk: pk,
-      addProps: addProps,
-      editProps: editProps,
-      saveCallback: this.handleSaveCallback,
-      deleteProps: deleteProps,
-      clearSelected: this.clearSelected,
-    };
-
-    return (
-      <div className={classes.tableResponsive}>
-        {toolbar ? (
-          <DataTableToolbar
-            id={this.toolbarId}
-            {...toolbarProps}
-          />
-        ) : null}
-        <div style={{width: 'auto', overflowX: "auto"}} onScroll={this.handleFixedHeader}>
-        <Table className={classes.table} id={this.tableId} {...this.props.tableProps} style={{...tableStyles}}>
-          <DataTableHead
-            {...headerProps}
-          />
-          <TableBody>
-            {results.length > 0 ? (
-              common.getDataForDisplay(results, rowsPerPage, page)
-              .map((row, key) => {
-                const rowStyles = common.getExtraRowStyles(row, tableHead);
-                const isSelected = this.isSelected(row);
-                let chkCell = null;
-                if (selectable === 'multiple' || selectable === 'single') {
-                  chkCell = (
-                    <TableCell padding="none">
-                      <Checkbox checked={isSelected} onClick={() => this.handleRowSelect(row)} />
-                    </TableCell>
-                  );
-                }
-                return (
-                  <TableRow
-                    key={key}
-                    className={classes.tableRow}
-                    role="checkbox"
-                    aria-checked={isSelected}
-                    selected={isSelected}
-                    style={{...rowStyles}}
-                  >
-                    {chkCell}
-                    {tableHead.map((col, key) => {
-                      return (
-                        <DataTableCell
-                          key={key}
-                          classes={classes}
-                          column={col}
-                          data={row}
-                        />
-                      );
-                    })}
-                  </TableRow>
-                );
-              })
-            ) : (
-              <TableRow
-                className={classes.tableRow}
-              >
-                <TableCell colSpan={tableHead.length + (selectable === 'none' ? 0 : 1)}>
-                  {constant.INFO.NO_DATA}
-                </TableCell>
-              </TableRow>
-            ) }
-          </TableBody>
-          <TableFooter>
-            {results.length > 0 && showAggregate === true ? (
-              <AggregateFooter
-                classes={classes}
-                tableHead={tableHead}
-                tableData={results}
-                selectable={selectable}
-              />
-            ) : null }
-          </TableFooter>
-        </Table>
-        </div>
-        <DataTablePagination
-          component="div"
-          count={results.length}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={this.props.rowsPerPageOptions}
-          page={page}
-          backIconButtonProps={{
-            'aria-label': 'Previous Page',
-          }}
-          nextIconButtonProps={{
-            'aria-label': 'Next Page',
-          }}
-          onPageChange={this.handleChangePage}
-          onRowsPerPageChange={this.handleChangeRowsPerPage}
-        />
-        {!isWidthDown('xs', width) ? (
-          <DataTableFixedHead
-            id={this.fixedHeaderId}
-            tableId={this.fixedTableId}
-            classes={classes}
-            tableHeader={
-              <DataTableHead
-                {...headerProps}
-              />
-            }
-            toolbar={
-              toolbar ? (
-                <DataTableToolbar
-                  {...toolbarProps}
-                />
-              ) : null
-            }
-          />
-        ) : null }
-      </div>
-    );
+  const classes = useStyles();
+  const {
+    tableHead, tableActions, rowActions, toolbar, selectable, allowCsv, pk, showTitle, showAggregate,
+    addProps, editProps, deleteProps, filterLayout, tableStyles,
+  } = props;
+  let results = common.stableSort(tableData, common.getSorting(order, orderBy, orderNumeric));
+  if (!common.isEmpty(filters)) {
+    results = common.stableFilter(results, filters);
   }
+  const headerProps = {
+    classes: classes,
+    tableHeaderColor: props.tableHeaderColor,
+    tableHead: tableHead,
+    onSort: handleSort,
+    order: order,
+    orderBy: orderBy,
+    selectable: selectable,
+    selected: selected,
+    data: results,
+    onSelectAllClick: handleSelectAllClick,
+  };
+  const toolbarProps = {
+    title: props.title,
+    showTitle: showTitle,
+    filters: filters,
+    filterLayout: filterLayout,
+    tableHead: tableHead,
+    tableData: results,
+    selected: selected,
+    onChangeFilter: handleChangeFilter,
+    tableActions: tableActions,
+    rowActions: rowActions,
+    allowCsv: allowCsv,
+    pk: pk,
+    addProps: addProps,
+    editProps: editProps,
+    saveCallback: handleSaveCallback,
+    deleteProps: deleteProps,
+    clearSelected: clearSelected,
+  };
+
+  return (
+    <div className={classes.tableResponsive}>
+      {toolbar ? (
+        <DataTableToolbar
+          id={toolbarId}
+          {...toolbarProps}
+        />
+      ) : null}
+      <div style={{width: 'auto', overflowX: "auto"}} onScroll={handleFixedHeader}>
+      <Table className={classes.table} id={tableId} {...props.tableProps} style={{...tableStyles}}>
+        <DataTableHead
+          {...headerProps}
+        />
+        <TableBody>
+          {results.length > 0 ? (
+            common.getDataForDisplay(results, rowsPerPage, page)
+            .map((row, key) => {
+              const rowStyles = common.getExtraRowStyles(row, tableHead);
+              const _isSelected = isSelected(row);
+              let chkCell = null;
+              if (selectable === 'multiple' || selectable === 'single') {
+                chkCell = (
+                  <TableCell padding="none">
+                    <Checkbox checked={_isSelected} onClick={() => handleRowSelect(row)} />
+                  </TableCell>
+                );
+              }
+              return (
+                <TableRow
+                  key={key}
+                  className={classes.tableRow}
+                  role="checkbox"
+                  aria-checked={_isSelected}
+                  selected={_isSelected}
+                  style={{...rowStyles}}
+                >
+                  {chkCell}
+                  {tableHead.map((col, key) => {
+                    return (
+                      <DataTableCell
+                        key={key}
+                        classes={classes}
+                        column={col}
+                        data={row}
+                      />
+                    );
+                  })}
+                </TableRow>
+              );
+            })
+          ) : (
+            <TableRow
+              className={classes.tableRow}
+            >
+              <TableCell colSpan={tableHead.length + (selectable === 'none' ? 0 : 1)}>
+                {constant.INFO.NO_DATA}
+              </TableCell>
+            </TableRow>
+          ) }
+        </TableBody>
+        <TableFooter>
+          {results.length > 0 && showAggregate === true ? (
+            <AggregateFooter
+              classes={classes}
+              tableHead={tableHead}
+              tableData={results}
+              selectable={selectable}
+            />
+          ) : null }
+        </TableFooter>
+      </Table>
+      </div>
+      <DataTablePagination
+        component="div"
+        count={results.length}
+        rowsPerPage={rowsPerPage}
+        rowsPerPageOptions={props.rowsPerPageOptions}
+        page={page}
+        backIconButtonProps={{
+          'aria-label': 'Previous Page',
+        }}
+        nextIconButtonProps={{
+          'aria-label': 'Next Page',
+        }}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+      {!isXsDown ? (
+        <DataTableFixedHead
+          id={fixedHeaderId}
+          tableId={fixedTableId}
+          classes={classes}
+          tableHeader={
+            <DataTableHead
+              {...headerProps}
+            />
+          }
+          toolbar={
+            toolbar ? (
+              <DataTableToolbar
+                {...toolbarProps}
+              />
+            ) : null
+          }
+        />
+      ) : null }
+    </div>
+  );
 }
 
-MyEnhancedTable.propTypes = {
+EnhancedTable.propTypes = {
   ...constant.tableProps,
   ...constant.tableActionProps,
   selectable: PropTypes.oneOf(['none', 'single', 'multiple']),
@@ -471,7 +457,7 @@ MyEnhancedTable.propTypes = {
   ]),
 };
 
-MyEnhancedTable.defaultProps = {
+EnhancedTable.defaultProps = {
   ...constant.tablePropsDefault,
   ...constant.tableActionPropsDefault,
   selectable: 'none',
@@ -493,5 +479,4 @@ MyEnhancedTable.defaultProps = {
   deleteProps: null,
 };
 
-const EnhancedTable = withRouter(withStyles(tableStyle)(withWidth()(MyEnhancedTable)));
-export { EnhancedTable } ;
+export default EnhancedTable;

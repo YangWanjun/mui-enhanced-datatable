@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import {
   TableRow,
   TableCell,
-} from "@material-ui/core";
+} from "@mui/material";
 import { getCellAlignment } from './Common';
 import { common } from '../utils';
 

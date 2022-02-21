@@ -9,7 +9,7 @@ import {
   defaultFont
 } from "./common";
 
-const tableStyle = theme => ({
+const tableStyle = {
   warningTableHeader: {
     color: warningColor
   },
@@ -103,6 +103,6 @@ const tableStyle = theme => ({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
   },
-});
+};
 
 export default tableStyle;

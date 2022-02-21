@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 
 export const constant = {
   tableProps: {
-    classes: PropTypes.object.isRequired,
     title: PropTypes.string,
     tableHeaderColor: PropTypes.oneOf([
       "warning",

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from "prop-types";
-import withStyles from "@material-ui/core/styles/withStyles";
+import withStyles from "@mui/styles/withStyles";
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { 
   Dialog,
   DialogTitle,
@@ -10,11 +11,13 @@ import {
   Typography,
   Tabs,
   Tab,
-} from '@material-ui/core';
+} from '@mui/material';
 import { Form } from '../form/Form';
 import SyncButton from '../form/SyncButton';
 
-const styles = theme => ({
+const theme = createTheme();
+
+const styles = {
   fullScreen: {
     [theme.breakpoints.down('xs')]: {
       width: '100%',
@@ -31,7 +34,7 @@ const styles = theme => ({
   tabSep: {
     marginTop: theme.spacing(1),
   }
-});
+};
 
 class FormDialog extends React.Component {
 
@@ -95,81 +98,83 @@ class FormDialog extends React.Component {
     const { open, data, errors, tabIndex, tabsLabel } = this.state;
 
     return (
-      <Dialog
-        open={open}
-        onClose={this.handleClose}
-        PaperProps={{className: classes.fullScreen}}
-      >
-        <DialogTitle>
-          {title}
-        </DialogTitle>
-        <DialogContent dividers>
-          {description ? (
-            <Typography className={classes.description} variant="body2">
-              {description}
-            </Typography>
-          ) : null}
-          {Array.isArray(data) ? (
-            <div>
-              <Tabs
-                value={tabIndex}
-                onChange={this.handleTabChange}
-                indicatorColor="primary"
-                textColor="primary"
-                variant="scrollable"
-                scrollButtons="auto"
-                aria-label="scrollable auto tabs"
-              >
-                {data.map((item, index) => (
-                  <Tab
-                    key={index}
-                    label={(tabsLabel && tabsLabel.length > index) ? tabsLabel[index] : index + 1}
-                    id={`scrollable-auto-tab-${index}`}
-                    aria-controls={`scrollable-auto-tabpanel-${index}`}
-                  />
-                ))}
-              </Tabs>
-              {data.map((item, index) => (
-                <div
-                  key={index}
-                  role="tabpanel"
-                  hidden={tabIndex !== index}
-                  id={`scrollable-auto-tab-${index}`}
-                  aria-labelledby={`scrollable-auto-tabpanel-${index}`}
-                  className={classes.tabSep}
+      <ThemeProvider theme={theme}>
+        <Dialog
+          open={open}
+          onClose={this.handleClose}
+          PaperProps={{className: classes.fullScreen}}
+        >
+          <DialogTitle>
+            {title}
+          </DialogTitle>
+          <DialogContent dividers>
+            {description ? (
+              <Typography className={classes.description} variant="body2">
+                {description}
+              </Typography>
+            ) : null}
+            {Array.isArray(data) ? (
+              <div>
+                <Tabs
+                  value={tabIndex}
+                  onChange={this.handleTabChange}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  variant="scrollable"
+                  scrollButtons="auto"
+                  aria-label="scrollable auto tabs"
                 >
-                  <Form
-                    schema={schema}
-                    layout={layout}
-                    data={item}
-                    errors={errors}
-                    {...rest}
-                    innerRef={(form) => {this[`_clean_${index}`] = form && form.clean}}
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <Form
-              schema={schema}
-              layout={layout}
-              data={data}
-              errors={errors}
-              {...rest}
-              innerRef={(form) => {this._clean = form && form.clean}}
+                  {data.map((item, index) => (
+                    <Tab
+                      key={index}
+                      label={(tabsLabel && tabsLabel.length > index) ? tabsLabel[index] : index + 1}
+                      id={`scrollable-auto-tab-${index}`}
+                      aria-controls={`scrollable-auto-tabpanel-${index}`}
+                    />
+                  ))}
+                </Tabs>
+                {data.map((item, index) => (
+                  <div
+                    key={index}
+                    role="tabpanel"
+                    hidden={tabIndex !== index}
+                    id={`scrollable-auto-tab-${index}`}
+                    aria-labelledby={`scrollable-auto-tabpanel-${index}`}
+                    className={classes.tabSep}
+                  >
+                    <Form
+                      schema={schema}
+                      layout={layout}
+                      data={item}
+                      errors={errors}
+                      {...rest}
+                      innerRef={(form) => {this[`_clean_${index}`] = form && form.clean}}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Form
+                schema={schema}
+                layout={layout}
+                data={data}
+                errors={errors}
+                {...rest}
+                innerRef={(form) => {this._clean = form && form.clean}}
+              />
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose} color='secondary'>取消</Button>
+            <SyncButton
+              title="確定"
+              handleClick={this.handleOk}
+              autoFocus={true}
+              color='primary'
             />
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={this.handleClose} color='secondary'>取消</Button>
-          <SyncButton
-            title="確定"
-            handleClick={this.handleOk}
-            autoFocus={true}
-            color='primary'
-          />
-        </DialogActions>
-      </Dialog>
+          </DialogActions>
+        </Dialog>
+      </ThemeProvider>
     );
   }
 }

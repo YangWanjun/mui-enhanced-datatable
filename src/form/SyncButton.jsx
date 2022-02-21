@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from "prop-types";
-import withStyles from "@material-ui/core/styles/withStyles";
-import { Button, CircularProgress } from '@material-ui/core';
-import { green } from '@material-ui/core/colors';
+import withStyles from "@mui/styles/withStyles";
+import { Button, CircularProgress } from '@mui/material';
+import { green } from '@mui/material/colors';
 
 const styles = theme => ({
   wrapper: {

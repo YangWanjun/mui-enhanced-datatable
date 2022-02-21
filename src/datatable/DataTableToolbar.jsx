@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import classNames from 'classnames';
-import withStyles from "@material-ui/core/styles/withStyles";
 import {
   Toolbar,
   Tooltip,
@@ -11,32 +10,36 @@ import {
   Popper,
   Paper,
   ClickAwayListener,
-  withWidth,
-  isWidthDown,
   Collapse,
-} from "@material-ui/core";
-import AddIcon from '@material-ui/icons/Add';
-import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
-import CloseIcon from '@material-ui/icons/Close';
-import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
-import ClearAllIcon from '@material-ui/icons/ClearAll';
-import { lighten } from '@material-ui/core/styles/colorManipulator';
-import { green } from '@material-ui/core/colors';
+} from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import CloseIcon from '@mui/icons-material/Close';
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import ClearAllIcon from '@mui/icons-material/ClearAll';
+import { lighten } from '@mui/material/styles';
+import { green } from '@mui/material/colors';
+import { makeStyles } from '@mui/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { createFormLayout } from "../form/common";
 import { common, table } from "../utils/common";
 import FormDialog from "../dialog/FormDialog";
 import ConfirmDialog from "../dialog/ConfirmDialog";
+import { useIsWidthDown } from "../hooks";
 
-const styles = theme => ({
+const theme = createTheme();
+console.log('theme.palette', theme.palette);
+
+const styles = {
   root: {
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
     minHeight: 48,
   },
   highlight:
-    theme.palette.type === 'light'
+    theme.palette.mode === 'light'
       ? {
         color: theme.palette.secondary.main,
         backgroundColor: lighten(theme.palette.secondary.light, 0.85),
@@ -79,87 +82,81 @@ const styles = theme => ({
     height: 'calc(100% - 250px)',
     overflowY: 'auto',
   },
-});
+};
 
-class DataTableToolbar extends React.Component {
+const useStyles = makeStyles(styles);
 
-  constructor(props) {
-    super(props);
+const DataTableToolbar = (props) => {
+  const classes = useStyles();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [filters, setFilters] = useState(props.filters);
+  const [btnLoadings, setBtnLoadings] = useState({});
+  const [maxHeight, setMaxHeight] = useState(300);
+  let _showAddDialog = null;
+  let _showModel = null;
+  let _showDeleteConfirm = null;
 
-    this.state = {
-      openFilter: false,
-      anchorEl: null,
-      filters: props.filters,
-      btnLoadings: {},
-      maxHeight: 300,
-    };
-  }
-
-  onEscPress = (event) => {
+  const onEscPress = (event) => {
     if(event.keyCode === 27) {
       //Do whatever when esc is pressed
-      this.handleCloseFilter();
+      handleCloseFilter();
     }
   };
 
-  componentDidMount = () => {
-    document.addEventListener("keydown", this.onEscPress, false);
+  useEffect(() => {
+    document.addEventListener("keydown", onEscPress, false);
+    return () => {
+      document.removeEventListener("keydown", onEscPress, false);
+    }
+  }, []);
+
+  const handleOpenFilter = (event) => {
+    setAnchorEl(event.currentTarget);
+    setMaxHeight(window.innerHeight - 300);
   };
 
-  componentWillUnmount = () => {
-    document.removeEventListener("keydown", this.onEscPress, false);
+  const handleCloseFilter = () => {
+    setAnchorEl(null);
   };
 
-  handleOpenFilter = (event) => {
-    this.setState({ openFilter: true, anchorEl: event.currentTarget, maxHeight: window.innerHeight - 300 });
-  };
-
-  handleCloseFilter = () => {
-    this.setState({ openFilter: false });
-  };
-
-  handleClearFilter = (event) => {
-    const { filters } = this.state;
+  const handleClearFilter = (event) => {
     Object.keys(filters).map(key => delete filters[key]);
-    this.setState({ filters: filters });
-    if (this.props.onChangeFilter) {
-      this.props.onChangeFilter(event, filters);
+    setFilters(filters);
+    if (props.onChangeFilter) {
+      props.onChangeFilter(event, filters);
     }
   }
 
-  handleDeleteFilter = name => (event) => {
-    const { filters } = this.state;
+  const handleDeleteFilter = name => (event) => {
     delete filters[name];
-    if (this.props.onChangeFilter) {
-      this.props.onChangeFilter(event, filters);
+    if (props.onChangeFilter) {
+      props.onChangeFilter(event, filters);
     }
   };
 
-  handleChange = (name, value, type) => (event) => {
-    const { tableHead } = this.props;
+  const handleChange = (name, value, type) => (event) => {
+    const { tableHead } = props;
     const column = common.getFromList(tableHead, 'name', name);
     let filter_in = null;
     if (!common.isEmpty(column.choices) && column.choices[0].hasOwnProperty('parent')) {
       filter_in = common.getChildren(value, column.choices, 'value', 'parent');
     }
-    this.setState((state) => {
-      let filters = state.filters;
-      if (value === '' || value === null) {
-        delete filters[name];
-      } else if (filter_in) {
-        filters[name] = {children: filter_in, value: value};
-      } else {
-        filters[name] = value;
-      }
-      if (this.props.onChangeFilter) {
-        this.props.onChangeFilter(event, filters);
-      }
-      return {filters: filters};
-    });
+    let _filters = common.clone(filters);
+    if (value === '' || value === null) {
+      delete _filters[name];
+    } else if (filter_in) {
+      _filters[name] = {children: filter_in, value: value};
+    } else {
+      _filters[name] = value;
+    }
+    if (props.onChangeFilter) {
+      props.onChangeFilter(event, _filters);
+    }
+    setFilters(_filters);
   };
 
-  createCsvAction = () => {
-    const { title, tableHead, tableData } = this.props;
+  const createCsvAction = () => {
+    const { title, tableHead, tableData } = props;
     return (
       <Tooltip title='ＣＳＶダウンロード' placement='bottom' enterDelay={300}>
         <IconButton
@@ -172,24 +169,19 @@ class DataTableToolbar extends React.Component {
     );
   }
 
-  handleActionClick = (method, props, state_name) => {
-    this.setState(state => {
-      const btnLoadings = state.btnLoadings;
-      btnLoadings[state_name] = true;
-      return Object.assign({}, btnLoadings);
+  const handleActionClick = (method, props, state_name) => {
+    const _btnLoadings = common.clone(btnLoadings);
+    _btnLoadings[state_name] = true;
+    setBtnLoadings(_btnLoadings);
+    method(props).finally(() => {
+      const _btnLoadings = common.clone(btnLoadings);
+      _btnLoadings[state_name] = false;
+      setBtnLoadings(_btnLoadings);
     });
-    method(props).finally(() => (
-      this.setState(state => {
-        const btnLoadings = state.btnLoadings;
-        btnLoadings[state_name] = false;
-        return Object.assign({}, btnLoadings);
-      })
-    ));
   }
 
-  createActions = () => {
-    const { classes, selected, tableData, tableActions, rowActions, saveCallback } = this.props;
-    const { btnLoadings, filters } = this.state;
+  const createActions = () => {
+    const { selected, tableData, tableActions, rowActions, saveCallback } = props;
 
     if (Array.isArray(selected) && selected.length > 0 ) {
       // 行ごとのアクション
@@ -230,7 +222,7 @@ class DataTableToolbar extends React.Component {
                 className={classes.wrapper}
                 onClick={
                   action.showLoading === true 
-                    ? (props) => this.handleActionClick(() => action.handleClick(tableData, table.getParamFromFilter(filters)), props, `tbl_action_${key}`)
+                    ? (props) => handleActionClick(() => action.handleClick(tableData, table.getParamFromFilter(filters)), props, `tbl_action_${key}`)
                     : () => action.handleClick(tableData, table.getParamFromFilter(filters))
                 }
                 disabled={btnLoadings[`tbl_action_${key}`] === true}
@@ -248,41 +240,41 @@ class DataTableToolbar extends React.Component {
     }
   };
 
-  onShowAddDialog = () => {
-    if (this._showAddDialog) {
-      const { addProps } = this.props;
+  const onShowAddDialog = () => {
+    if (_showAddDialog) {
+      const { addProps } = props;
       if (addProps.handleBeforeShowup) {
         addProps.handleBeforeShowup();
       }
-      this._showAddDialog();
+      _showAddDialog();
     }
   };
 
-  onShowEditDialog = () => {
-    const { selected, editProps } = this.props;
-    if (this._showModel) {
+  const onShowEditDialog = () => {
+    const { selected, editProps } = props;
+    if (_showModel) {
       if (editProps.handleBeforeShowup) {
         editProps.handleBeforeShowup(selected[0]);
       }
-      this._showModel(selected[0]);
+      _showModel(selected[0]);
     }
   };
 
-  onShowDeleteDialog = () => {
-    if (this._showDeleteConfirm) {
-      this._showDeleteConfirm();
+  const onShowDeleteDialog = () => {
+    if (_showDeleteConfirm) {
+      _showDeleteConfirm();
     }
   };
 
-  render() {
-    const {
-      classes, id, title, showTitle, tableHead, selected, allowCsv,
-      addProps, editProps, saveCallback, deleteProps, clearSelected, filterLayout, width,
-    } = this.props;
-    const { filters, openFilter, anchorEl, maxHeight } = this.state;
-    const numSelected = selected.length;
+  const {
+    id, title, showTitle, tableHead, selected, allowCsv,
+    addProps, editProps, saveCallback, deleteProps, clearSelected, filterLayout,
+  } = props;
+  const numSelected = selected.length;
+  const openFilter = Boolean(anchorEl);
 
-    return (
+  return (
+    <ThemeProvider theme={theme}>
       <div id={id}>
         <Toolbar
           className={classNames(classes.root, {
@@ -307,69 +299,69 @@ class DataTableToolbar extends React.Component {
                   key={name}
                   label={common.getLabelFromColumn(value, column)}
                   className={classes.chip}
-                  onDelete={this.handleDeleteFilter(name)}
+                  onDelete={handleDeleteFilter(name)}
                 />
               );
             })}
           </div>
           <div className={classes.spacer} />
           <div className={classes.actions}>
-            {this.createActions()}
+            {createActions()}
             {(addProps && addProps.visible !== false && common.isEmpty(selected)) ? (
               <Tooltip title="追加" placement='bottom' enterDelay={300}>
-                <IconButton aria-label="Add" onClick={this.onShowAddDialog}>
+                <IconButton aria-label="Add" onClick={onShowAddDialog}>
                   <AddIcon color='secondary' />
                 </IconButton>
               </Tooltip>
             ) : null}
             {(editProps
-               && Array.isArray(selected) 
-               && selected.length === 1 
-               && (typeof(editProps.visible) === 'function' ? editProps.visible(selected[0]) : editProps.visible !== false)
+                && Array.isArray(selected) 
+                && selected.length === 1 
+                && (typeof(editProps.visible) === 'function' ? editProps.visible(selected[0]) : editProps.visible !== false)
             ) ? (
               <Tooltip title="変更" placement='bottom' enterDelay={300}>
-                <IconButton aria-label="Edit" onClick={this.onShowEditDialog}>
+                <IconButton aria-label="Edit" onClick={onShowEditDialog}>
                   <EditIcon />
                 </IconButton>
               </Tooltip>
             ) : null}
             {(deleteProps
-               && Array.isArray(selected) 
-               && selected.length === 1 
-               && (typeof(deleteProps.visible) === 'function' ? deleteProps.visible(selected[0]) : deleteProps.visible !== false)
+                && Array.isArray(selected) 
+                && selected.length === 1 
+                && (typeof(deleteProps.visible) === 'function' ? deleteProps.visible(selected[0]) : deleteProps.visible !== false)
             ) ? (
               <Tooltip title="削除" placement='bottom' enterDelay={300}>
-                <IconButton aria-label="Delete" onClick={this.onShowDeleteDialog}>
+                <IconButton aria-label="Delete" onClick={onShowDeleteDialog}>
                   <DeleteIcon />
                 </IconButton>
               </Tooltip>
             ) : null}
-            {allowCsv ? this.createCsvAction() : null}
+            {allowCsv ? createCsvAction() : null}
             {!common.isEmpty(filters) ? (
               <Tooltip title="検索条件をクリア" placement='bottom' enterDelay={300}>
-                <IconButton aria-label="ClearAll" onClick={this.handleClearFilter}>
+                <IconButton aria-label="ClearAll" onClick={handleClearFilter}>
                   <ClearAllIcon />
                 </IconButton>
               </Tooltip>
             ) : null}
             {tableHead.filter(col => col.searchable === true).length > 0 ? (
-              isWidthDown('xs', width) ? (
+              useIsWidthDown('xs') ? (
                 <Tooltip title="検索" placement='bottom' enterDelay={300}>
                   { openFilter === true ? (
-                    <IconButton aria-label="Filter list" onClick={this.handleCloseFilter}>
+                    <IconButton aria-label="Filter list" onClick={handleCloseFilter}>
                       <CloseIcon />
                     </IconButton>
                   ) : (
-                    <IconButton aria-label="Filter list" onClick={this.handleOpenFilter}>
+                    <IconButton aria-label="Filter list" onClick={handleOpenFilter}>
                       <FilterListIcon />
                     </IconButton>
                   )}
                 </Tooltip>
               ) : (
-                <ClickAwayListener onClickAway={this.handleCloseFilter}>
+                <ClickAwayListener onClickAway={handleCloseFilter}>
                   <span>
                     <Tooltip title="検索" placement='bottom' enterDelay={300}>
-                      <IconButton aria-label="Filter list" onClick={this.handleOpenFilter}>
+                      <IconButton aria-label="Filter list" onClick={handleOpenFilter}>
                         <FilterListIcon />
                       </IconButton>
                     </Tooltip>
@@ -392,7 +384,7 @@ class DataTableToolbar extends React.Component {
                           null,
                           null,
                           null,
-                          () => this.handleChange,
+                          () => handleChange,
                           null,
                         )}
                       </Paper>
@@ -403,7 +395,7 @@ class DataTableToolbar extends React.Component {
             ) : null}
           </div>
         </Toolbar>
-        { isWidthDown('xs', width) ? (
+        { useIsWidthDown('xs') ? (
           <div>
             <Collapse in={openFilter} timeout='auto' unmountOnExit>
               {createFormLayout(
@@ -416,7 +408,7 @@ class DataTableToolbar extends React.Component {
                 null,
                 null,
                 null,
-                () => this.handleChange,
+                () => handleChange,
                 null,
               )}
             </Collapse>
@@ -426,7 +418,7 @@ class DataTableToolbar extends React.Component {
         {(addProps && addProps.visible !== false && common.isEmpty(selected)) ? (
           <FormDialog
             title={`${title}を追加`}
-            innerRef={(dlg) => { this._showAddDialog = dlg && dlg.handleOpen }}
+            innerRef={(dlg) => { _showAddDialog = dlg && dlg.handleOpen }}
             {...addProps}
           />
         ) : null}
@@ -434,7 +426,7 @@ class DataTableToolbar extends React.Component {
         {(editProps && editProps.visible !== false && Array.isArray(selected) && selected.length === 1) ? (
           <FormDialog
             title={`${title}を変更`}
-            innerRef={(dlg) => { this._showModel = dlg && dlg.handleOpen }}
+            innerRef={(dlg) => { _showModel = dlg && dlg.handleOpen }}
             {...editProps}
             saveCallback={saveCallback}
           />
@@ -443,15 +435,15 @@ class DataTableToolbar extends React.Component {
         {(deleteProps && deleteProps.visible !== false && Array.isArray(selected) && selected.length === 1) ? (
           <ConfirmDialog
             title='削除'
-            innerRef={(dlg) => { this._showDeleteConfirm = dlg && dlg.handleOpen }}
+            innerRef={(dlg) => { _showDeleteConfirm = dlg && dlg.handleOpen }}
             onOk={() => {
-              return deleteProps.handleDelete(this.props.selected[0]).then(() => clearSelected())
+              return deleteProps.handleDelete(props.selected[0]).then(() => clearSelected())
             }}
           />
         ) : null}
       </div>
-    );
-  }
+    </ThemeProvider>
+  );
 }
 
 DataTableToolbar.propTypes = {
@@ -484,4 +476,4 @@ DataTableToolbar.defaultProps = {
   deleteProps: null,
 };
 
-export default withStyles(styles)(withWidth()(DataTableToolbar));
+export default DataTableToolbar;

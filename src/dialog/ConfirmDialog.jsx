@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 import {
   Button,
   DialogTitle,
@@ -8,7 +8,7 @@ import {
   DialogActions,
   Dialog,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import { constant } from '../utils';
 import SyncButton from '../form/SyncButton';
 

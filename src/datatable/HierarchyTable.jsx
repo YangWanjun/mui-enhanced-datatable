@@ -1,17 +1,16 @@
 import React from "react";
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import PropTypes from "prop-types";
-// @material-ui/core components
-import withStyles from "@material-ui/core/styles/withStyles";
+// @mui/material components
+import withStyles from "@mui/styles/withStyles";
 import {
   Table,
   TableRow,
   TableBody,
   TableCell,
   Checkbox,
-  withWidth,
-  isWidthDown,
-} from "@material-ui/core";
+} from "@mui/material";
+import { withTheme } from '@mui/styles';
 // core components
 import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';
@@ -24,10 +23,10 @@ import { common, constant, table } from "../utils";
 const indent = 8;
 
 class MyHierarchyTable extends React.Component {
-  tableId = uuid();
-  toolbarId = uuid();
-  fixedTableId = uuid();
-  fixedHeaderId = uuid();
+  tableId = uuidv4();
+  toolbarId = uuidv4();
+  fixedTableId = uuidv4();
+  fixedHeaderId = uuidv4();
 
   constructor(props) {
     super(props);
@@ -39,8 +38,8 @@ class MyHierarchyTable extends React.Component {
   }
 
   handleFixedHeader = () => {
-    let { pushpinTop, width } = this.props;
-    if (!isWidthDown('xs', width)) {
+    let { pushpinTop, theme } = this.props;
+    if (!theme.breakpoints.down('xs')) {
       common.setFixedTableHeader(this.fixedHeaderId, this.toolbarId, this.tableId, this.fixedTableId, pushpinTop);
     }
   };
@@ -121,7 +120,7 @@ class MyHierarchyTable extends React.Component {
 
   render () {
     const { 
-      classes, title, tableHeaderColor, tableHead, tableData, tableActions, rowActions, tableProps, allowCsv, pk, selectable, width, tableStyles,
+      classes, title, tableHeaderColor, tableHead, tableData, tableActions, rowActions, tableProps, allowCsv, pk, selectable, theme, tableStyles,
     } = this.props;
     const { selected } = this.state;
     const rows = this.getAllRows();
@@ -175,7 +174,7 @@ class MyHierarchyTable extends React.Component {
           </TableBody>
         </Table>
         </div>
-        {!isWidthDown('xs', width) ? (
+        {!theme.breakpoints.down('xs') ? (
           <DataTableFixedHead
             id={this.fixedHeaderId}
             tableId={this.fixedTableId}
@@ -218,5 +217,5 @@ MyHierarchyTable.defaultProps = {
   pushpinTop: 0,
 };
 
-const HierarchyTable = withStyles(tableStyle)(withWidth()(MyHierarchyTable))
+const HierarchyTable = withStyles(tableStyle)(withTheme(MyHierarchyTable))
 export { HierarchyTable } ;

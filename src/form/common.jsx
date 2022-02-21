@@ -1,7 +1,7 @@
 import React from "react";
 import {
   Grid,
-} from '@material-ui/core';
+} from '@mui/material';
 import ControlCreator from './ControlCreator';
 import { common, constant } from "../utils";
 

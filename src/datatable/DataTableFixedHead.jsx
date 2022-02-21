@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   Table,
-} from "@material-ui/core";
+} from "@mui/material";
 
 class DataTableFixedHead extends React.Component {
 

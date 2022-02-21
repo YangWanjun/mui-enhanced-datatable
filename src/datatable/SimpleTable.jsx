@@ -1,12 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
-// @material-ui/core components
-import withStyles from "@material-ui/core/styles/withStyles";
+// @mui/material components
+import withStyles from "@mui/styles/withStyles";
 import {
   Table,
   TableRow,
   TableBody,
-} from "@material-ui/core";
+} from "@mui/material";
 // core components
 import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';

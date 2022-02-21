@@ -1,8 +1,8 @@
 import React from 'react';
 import { vsprintf } from 'sprintf-js';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import HighlightOffIcon from '@material-ui/icons/HighlightOff';
-import { Link } from '@material-ui/core';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import { Link } from '@mui/material';
 
 export const common = {
 
@@ -322,7 +322,10 @@ export const common = {
     const srcTable = document.getElementById(srcTabelid);
     const toolbar = document.getElementById(toolbarId);
     const fixedTable = document.getElementById(fixedTableId);
-    let {left, width, top, height} = srcTable.getBoundingClientRect();
+    if (!wrapper || !srcTable) {
+      return;
+    }
+    let { left, width, top, height } = srcTable.getBoundingClientRect();
     const bodyHeight = srcTable.querySelector('tbody').getBoundingClientRect().height;
     if (bodyHeight) {
       height = bodyHeight;

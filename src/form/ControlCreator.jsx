@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {
-  withStyles,
   FormControl,
   FormControlLabel,
   FormHelperText,
@@ -14,9 +13,11 @@ import {
   IconButton,
   Chip,
   ListItemText,
-} from "@material-ui/core";
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import ImageSearchIcon from '@material-ui/icons/ImageSearch';
+  NativeSelect,
+} from "@mui/material";
+import { withStyles } from '@mui/styles';
+import Autocomplete from '@mui/material/Autocomplete';
+import ImageSearchIcon from '@mui/icons-material/ImageSearch';
 import formStyle from "../assets/css/form";
 import HierarchySelect from './HierarchySelect';
 import { common } from "../utils";
@@ -157,6 +158,7 @@ class ControlCreator extends React.Component {
           InputLabelProps={{
             shrink: true,
           }}
+          variant="standard"
         />
       );
     } else if (column.type === 'boolean') {
@@ -167,8 +169,7 @@ class ControlCreator extends React.Component {
             <React.Fragment>
               <InputLabel htmlFor={column.name}>{label}</InputLabel>
               {column.native === true ? (
-                <Select
-                  native
+                <NativeSelect
                   value={value.toString()}
                   inputProps={{ name: column.name, value: value }}
                   onChange={this.handleChange}
@@ -176,7 +177,7 @@ class ControlCreator extends React.Component {
                   <option value={null}></option>
                   <option key='true' value='true'>はい</option>
                   <option key='false' value='false'>いいえ</option>
-                </Select>
+                </NativeSelect>
               ) : (
                 <Select
                   value={value.toString()}
@@ -240,7 +241,7 @@ class ControlCreator extends React.Component {
               getOptionDisabled={(option) => option.disabled === true}
               onChange={this.handleChangeAutoComplete}
               renderInput={params => (
-                <TextField {...params} label={label} margin="normal" />
+                <TextField {...params} label={label} margin="normal" variant="standard" />
               )}
             />
             {column.help_text ? (
@@ -249,11 +250,11 @@ class ControlCreator extends React.Component {
           </>
         );
       } else {
+        const CtrlSelect = column.native === true ? NativeSelect : Select;
         control = (
           <React.Fragment>
             <InputLabel htmlFor={column.name}>{label}</InputLabel>
-            <Select
-              native={column.native === true}
+            <CtrlSelect
               value={value}
               inputProps={{ name: column.name, value: value }}
               onChange={this.handleChange}
@@ -282,7 +283,7 @@ class ControlCreator extends React.Component {
                   );
                 })
               )}
-            </Select>
+            </CtrlSelect>
             {column.help_text ? (
               <FormHelperText>{column.help_text}</FormHelperText>
             ) : null}
@@ -333,6 +334,7 @@ class ControlCreator extends React.Component {
             shrink: true,
           }}
           onChange={this.handleChange}
+          variant="standard"
         />
       );
     } else if (column.type === 'text') {
@@ -348,6 +350,7 @@ class ControlCreator extends React.Component {
           InputProps={{
             style: column.colStyles,
           }}
+          variant="standard"
         />
       );
     } else if (column.type === 'integer') {
@@ -361,6 +364,7 @@ class ControlCreator extends React.Component {
           inputProps={{min: column.min_value, max: column.max_value, step: column.step || 1}}
           {...placeholderProps}
           onChange={this.handleChange}
+          variant="standard"
         />
       );
     } else if (column.type === 'decimal') {
@@ -374,6 +378,7 @@ class ControlCreator extends React.Component {
           inputProps={{min: column.min_value, max: column.max_value, step: column.step}}
           {...placeholderProps}
           onChange={this.handleChange}
+          variant="standard"
         />
       );
     } else if (column.type === 'file') {
@@ -422,6 +427,7 @@ class ControlCreator extends React.Component {
           inputProps={{maxLength: column.max_length}}
           onChange={this.handleChange}
           onBlur={this.handleBlur(column.name)}
+          variant="standard"
         />
       );
     }

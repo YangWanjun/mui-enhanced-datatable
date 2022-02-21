@@ -1,15 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
-import withStyles from "@material-ui/core/styles/withStyles";
+import withStyles from "@mui/styles/withStyles";
 import {
   Typography,
   Tooltip,
   IconButton,
   Button,
-} from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
-import CloseIcon from '@material-ui/icons/Close';
-import { grey } from '@material-ui/core/colors';
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
+import { grey } from '@mui/material/colors';
 import { common } from '../utils';
 import { NonFieldErrors } from "./NonFieldErrors";
 import { pushError, createFormLayout, validate_by_schema } from "./common";

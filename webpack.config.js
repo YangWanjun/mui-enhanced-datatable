@@ -28,7 +28,7 @@ module.exports = {
   },
   // 開発用Webサーバのポートを指定します。
   devServer: {
-    port: 3001,
+    port: 3010,
     historyApiFallback: {
       index: '/mui-enhanced-datatable/'
     }

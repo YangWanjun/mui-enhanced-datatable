@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import withStyles from "@material-ui/core/styles/withStyles";
+import withStyles from "@mui/styles/withStyles";
 import {
   Card,
   CardHeader,
@@ -17,8 +17,8 @@ import {
   Menu,
   IconButton,
   LinearProgress,
-} from '@material-ui/core';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+} from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import detailStyle from '../assets/css/detail';
 import FormDialog from '../dialog/FormDialog';
 import { common } from '../utils/index';
