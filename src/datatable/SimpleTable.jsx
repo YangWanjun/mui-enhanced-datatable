@@ -12,10 +12,9 @@ import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';
 import DataTablePagination from './DataTablePagination';
 import tableStyle from "../assets/css/datatable";
-import { common } from "../utils/common";
-import { constant } from "../utils/constant";
+import { common, constant } from "../utils";
 
-class MySimpleTable extends React.Component {
+class SimpleTable extends React.Component {
 
   constructor(props) {
     super(props);
@@ -85,15 +84,14 @@ class MySimpleTable extends React.Component {
   }
 }
 
-MySimpleTable.propTypes = {
+SimpleTable.propTypes = {
   ...constant.tableProps,
   rowsPerPage: PropTypes.number,
 };
 
-MySimpleTable.defaultProps = {
+SimpleTable.defaultProps = {
   ...constant.tablePropsDefault,
   rowsPerPage: null,
 };
 
-const SimpleTable = withStyles(tableStyle)(MySimpleTable)
-export { SimpleTable } ;
+export default withStyles(tableStyle)(SimpleTable)

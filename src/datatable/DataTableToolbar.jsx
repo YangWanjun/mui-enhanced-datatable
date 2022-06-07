@@ -24,8 +24,7 @@ import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import ClearAllIcon from '@material-ui/icons/ClearAll';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
 import { green } from '@material-ui/core/colors';
-import { createFormLayout } from "../form/common";
-import { common, table } from "../utils/common";
+import { common, form, table } from "../utils";
 import FormDialog from "../dialog/FormDialog";
 import ConfirmDialog from "../dialog/ConfirmDialog";
 
@@ -382,7 +381,7 @@ class DataTableToolbar extends React.Component {
                       style={{zIndex: 10}}
                     >
                       <Paper className={classes.filter} elevation={8} style={{maxHeight: maxHeight}}>
-                        {createFormLayout(
+                        {form.createFormLayout(
                           filters,
                           tableHead.filter(col => col.searchable === true),
                           filterLayout,
@@ -406,7 +405,7 @@ class DataTableToolbar extends React.Component {
         { isWidthDown('xs', width) ? (
           <div>
             <Collapse in={openFilter} timeout='auto' unmountOnExit>
-              {createFormLayout(
+              {form.createFormLayout(
                 filters,
                 tableHead.filter(col => col.searchable === true),
                 filterLayout,

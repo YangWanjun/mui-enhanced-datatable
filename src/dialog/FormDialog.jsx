@@ -11,8 +11,8 @@ import {
   Tabs,
   Tab,
 } from '@material-ui/core';
-import { Form } from '../form/Form';
-import SyncButton from '../form/SyncButton';
+import Form from '../form/Form';
+import SyncButton from '../components/SyncButton';
 
 const styles = theme => ({
   fullScreen: {

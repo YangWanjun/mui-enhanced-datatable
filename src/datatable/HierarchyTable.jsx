@@ -1,5 +1,5 @@
 import React from "react";
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import PropTypes from "prop-types";
 // @material-ui/core components
 import withStyles from "@material-ui/core/styles/withStyles";
@@ -17,17 +17,16 @@ import DataTableCell from './DataTableCell';
 import DataTableHead from './DataTableHead';
 import DataTableFixedHead from './DataTableFixedHead';
 import DataTableToolbar from "./DataTableToolbar";
-import { isSelected, onRowSelect } from './Common';
 import tableStyle from "../assets/css/datatable";
 import { common, constant, table } from "../utils";
 
 const indent = 8;
 
-class MyHierarchyTable extends React.Component {
-  tableId = uuid();
-  toolbarId = uuid();
-  fixedTableId = uuid();
-  fixedHeaderId = uuid();
+class HierarchyTable extends React.Component {
+  tableId = uuidv4();
+  toolbarId = uuidv4();
+  fixedTableId = uuidv4();
+  fixedHeaderId = uuidv4();
 
   constructor(props) {
     super(props);
@@ -91,7 +90,7 @@ class MyHierarchyTable extends React.Component {
   getTableRow(row, deep) {
     const { classes, tableHead, selectable } = this.props;
     const { selected } = this.state;
-    const is_selected = isSelected(row, selected);
+    const is_selected = table.isSelected(row, selected);
 
     return (
       <TableRow
@@ -100,7 +99,7 @@ class MyHierarchyTable extends React.Component {
       >
         { selectable === 'single' ? (
           <TableCell padding="none">
-            <Checkbox checked={is_selected} onClick={() => this.setState(onRowSelect(row, selectable, selected))} />
+            <Checkbox checked={is_selected} onClick={() => this.setState(table.onRowSelect(row, selectable, selected))} />
           </TableCell>
         ) : null }
         {tableHead.map((col, key) => {
@@ -199,7 +198,7 @@ class MyHierarchyTable extends React.Component {
   }
 }
 
-MyHierarchyTable.propTypes = {
+HierarchyTable.propTypes = {
   ...constant.tableProps,
   ...constant.tableActionProps,
   title: PropTypes.string,
@@ -209,7 +208,7 @@ MyHierarchyTable.propTypes = {
   pushpinTop: PropTypes.number,
 };
 
-MyHierarchyTable.defaultProps = {
+HierarchyTable.defaultProps = {
   ...constant.tablePropsDefault,
   ...constant.tableActionPropsDefault,
   selectable: 'none',
@@ -218,5 +217,4 @@ MyHierarchyTable.defaultProps = {
   pushpinTop: 0,
 };
 
-const HierarchyTable = withStyles(tableStyle)(withWidth()(MyHierarchyTable))
-export { HierarchyTable } ;
+export default withStyles(tableStyle)(withWidth()(HierarchyTable))

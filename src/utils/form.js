@@ -2,8 +2,9 @@ import React from "react";
 import {
   Grid,
 } from '@material-ui/core';
-import ControlCreator from './ControlCreator';
-import { common, constant } from "../utils";
+import { ControlCreator } from '../components';
+import common from './common';
+import constant from './constant';
 
 const getColspanArray = (schema, isSingleLine) => {
   let arr = new Array(schema.length);
@@ -261,4 +262,14 @@ export const clean_form = (validateFunc, formData, schema) => {
   } else {
     return null;
   }
+};
+
+export default {
+  createFormLayout,
+  createRowLayout,
+  createFormField,
+  validate_form,
+  validate_by_schema,
+  pushError,
+  clean_form,
 };

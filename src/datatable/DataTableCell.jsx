@@ -1,5 +1,5 @@
 import React from "react";
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import PropTypes from "prop-types";
 import { Link } from 'react-router-dom';
 import {
@@ -15,8 +15,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import ArchiveIcon from '@material-ui/icons/Archive';
-import { common } from "../utils/common";
-import { getCellAlignment } from "./Common";
+import { common, table } from "../utils";
 
 class DataTableCell extends React.Component {
 
@@ -84,7 +83,7 @@ class DataTableCell extends React.Component {
     }
 
     let style = Object.assign({}, this.props.style);
-    let attrs = { 'align': getCellAlignment(column.type).align };
+    let attrs = { 'align': table.getCellAlignment(column.type).align };
     let output = null;
     if (Array.isArray(actions) && actions.length > 0 && (!actionsTrigger || actionsTrigger(data))) {
       style['padding'] = 0;
@@ -170,7 +169,7 @@ class DataTableCell extends React.Component {
     }
 
     return column.visible === false ? null : (
-      <TableCell className={classes.tableCell} key={uuid()} style={style} {...attrs}>
+      <TableCell className={classes.tableCell} key={uuidv4()} style={style} {...attrs}>
         {column.max_width ? (
           <div style={{ maxWidth: column.max_width, }} className={classes.tableCellFixedWidth} title={value}>
             {output}

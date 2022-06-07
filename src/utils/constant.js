@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-export const constant = {
+export default {
   tableProps: {
     classes: PropTypes.object.isRequired,
     title: PropTypes.string,

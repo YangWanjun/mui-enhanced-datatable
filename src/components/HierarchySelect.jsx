@@ -5,7 +5,7 @@ import {
   InputLabel,
   Select,
 } from '@material-ui/core';
-import { common } from '../utils/common';
+import { common } from '../utils';
 
 const styles = theme => ({
   formControl: {

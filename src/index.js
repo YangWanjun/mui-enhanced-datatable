@@ -1,11 +1,22 @@
 import FormDialog from './dialog/FormDialog';
 import ConfirmDialog from './dialog/ConfirmDialog';
-import SyncButton from './form/SyncButton';
+import { SyncButton } from './components';
 
-export * from './datatable/SimpleTable';
-export * from './datatable/HierarchyTable';
-export * from './datatable/EnhancedTable';
-export * from './form/Form';
-export * from './form/InlineForm';
-export * from './detail/TableDetail';
-export { FormDialog, ConfirmDialog, SyncButton };
+import SimpleTable from './datatable/SimpleTable';
+import HierarchyTable from './datatable/HierarchyTable';
+import EnhancedTable from './datatable/EnhancedTable';
+import Form from './form/Form';
+import InlineForm from './form/InlineForm';
+import TableDetail from './detail/TableDetail';
+
+export {
+  ConfirmDialog,
+  EnhancedTable,
+  Form,
+  FormDialog,
+  HierarchyTable,
+  InlineForm,
+  SimpleTable,
+  SyncButton,
+  TableDetail,
+};

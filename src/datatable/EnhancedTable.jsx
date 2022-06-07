@@ -1,6 +1,6 @@
 import React from "react";
 import { withRouter } from 'react-router-dom';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import PropTypes from "prop-types";
 // @material-ui/core components
 import withStyles from "@material-ui/core/styles/withStyles";
@@ -22,13 +22,13 @@ import DataTableToolbar from "./DataTableToolbar";
 import DataTableFixedHead from "./DataTableFixedHead";
 import tableStyle from "../assets/css/datatable";
 import { common, constant, table } from "../utils";
-import AggregateFooter from "./AggregateFooter";
+import { AggregateFooter } from "../components";
 
-class MyEnhancedTable extends React.Component {
-  tableId = uuid();
-  toolbarId = uuid();
-  fixedTableId = uuid();
-  fixedHeaderId = uuid();
+class EnhancedTable extends React.Component {
+  tableId = uuidv4();
+  toolbarId = uuidv4();
+  fixedTableId = uuidv4();
+  fixedHeaderId = uuidv4();
 
   constructor(props) {
     super(props);
@@ -431,7 +431,7 @@ class MyEnhancedTable extends React.Component {
   }
 }
 
-MyEnhancedTable.propTypes = {
+EnhancedTable.propTypes = {
   ...constant.tableProps,
   ...constant.tableActionProps,
   selectable: PropTypes.oneOf(['none', 'single', 'multiple']),
@@ -471,7 +471,7 @@ MyEnhancedTable.propTypes = {
   ]),
 };
 
-MyEnhancedTable.defaultProps = {
+EnhancedTable.defaultProps = {
   ...constant.tablePropsDefault,
   ...constant.tableActionPropsDefault,
   selectable: 'none',
@@ -493,5 +493,4 @@ MyEnhancedTable.defaultProps = {
   deleteProps: null,
 };
 
-const EnhancedTable = withRouter(withStyles(tableStyle)(withWidth()(MyEnhancedTable)));
-export { EnhancedTable } ;
+export default withRouter(withStyles(tableStyle)(withWidth()(EnhancedTable)));

@@ -4,8 +4,7 @@ import {
   TableRow,
   TableCell,
 } from "@material-ui/core";
-import { getCellAlignment } from './Common';
-import { common } from '../utils';
+import { common, table } from '../utils';
 
 class AggregateFooter extends React.Component {
   data = {}
@@ -50,7 +49,7 @@ class AggregateFooter extends React.Component {
                 <TableCell
                   key={key}
                   className={classes.tableCell}
-                  align={getCellAlignment(col.type).align}
+                  align={table.getCellAlignment(col.type).align}
                 >
                   {this.getAggregateValue(col)}
                 </TableCell>

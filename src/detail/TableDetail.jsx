@@ -24,7 +24,7 @@ import FormDialog from '../dialog/FormDialog';
 import { common } from '../utils/index';
 import ConfirmDialog from "../dialog/ConfirmDialog";
 
-class MyTableDetail extends React.Component {
+class TableDetail extends React.Component {
 
   constructor(props) {
     super(props);
@@ -175,7 +175,7 @@ class MyTableDetail extends React.Component {
   }
 }
 
-MyTableDetail.propTypes = {
+TableDetail.propTypes = {
   classes: PropTypes.object.isRequired,
   title: PropTypes.string,
   data: PropTypes.object.isRequired,
@@ -187,12 +187,11 @@ MyTableDetail.propTypes = {
   loading: PropTypes.bool,
 };
 
-MyTableDetail.defaultProps = {
+TableDetail.defaultProps = {
   actions: [],
   editProps: {},
   deleteProps: {},
   loading: false,
 };
 
-const TableDetail = withStyles(detailStyle)(MyTableDetail)
-export { TableDetail } ;
+export default withStyles(detailStyle)(TableDetail)

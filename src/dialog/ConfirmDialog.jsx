@@ -10,7 +10,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { constant } from '../utils';
-import SyncButton from '../form/SyncButton';
+import { SyncButton } from '../components';
 
 const styles = theme => ({
   root: {

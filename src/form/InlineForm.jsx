@@ -9,9 +9,8 @@ import {
 import CloseIcon from '@material-ui/icons/Close';
 import AddIcon from '@material-ui/icons/Add';
 import { grey } from '@material-ui/core/colors';
-import { createFormLayout, validate_form, clean_form } from "./common";
-import { common } from "../utils";
-import { NonFieldErrors } from "./NonFieldErrors";
+import { common, form } from "../utils";
+import { NonFieldErrors } from "../components";
 
 const styles = () => ({
   inlineTable: {
@@ -25,7 +24,7 @@ const styles = () => ({
   },
 });
 
-class MyInlineForm extends React.Component {
+class InlineForm extends React.Component {
 
   constructor(props) {
     super(props);
@@ -113,7 +112,7 @@ class MyInlineForm extends React.Component {
     const { schema, checkList } = this.props;
     const { data } = this.state;
     let errors = {};
-    const valid = validate_form(data, schema, checkList, errors);
+    const valid = form.validate_form(data, schema, checkList, errors);
 
     const oldErrors = this.props.errors || {};
     errors = Object.assign(oldErrors, errors)
@@ -122,7 +121,7 @@ class MyInlineForm extends React.Component {
   };
 
   clean = () => {
-    return clean_form(this.validate, this.state.data, this.props.schema);
+    return form.clean_form(this.validate, this.state.data, this.props.schema);
   }
 
   render() {
@@ -140,7 +139,7 @@ class MyInlineForm extends React.Component {
                 <tbody>
                   <tr>
                     <td>
-                      {createFormLayout(
+                      {form.createFormLayout(
                         row_data,
                         row_data.is_new === true ? new_line_schema : schema,
                         layout,
@@ -180,7 +179,7 @@ class MyInlineForm extends React.Component {
   }
 }
 
-MyInlineForm.propTypes = {
+InlineForm.propTypes = {
   schema: PropTypes.array.isRequired,
   layout: PropTypes.array,
   data: PropTypes.array,
@@ -189,7 +188,7 @@ MyInlineForm.propTypes = {
   allowDelete: PropTypes.bool,
 };
 
-MyInlineForm.defaultProps = {
+InlineForm.defaultProps = {
   layout: [],
   data: [],
   onChanges: [],
@@ -197,5 +196,4 @@ MyInlineForm.defaultProps = {
   allowDelete: true,
 };
 
-const InlineForm = withStyles(styles)(MyInlineForm);
-export {InlineForm};
+export default withStyles(styles)(InlineForm);

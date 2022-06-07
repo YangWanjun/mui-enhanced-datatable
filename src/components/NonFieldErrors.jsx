@@ -7,7 +7,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export function NonFieldErrors(props) {
+function NonFieldErrors(props) {
   const classes = useStyles();
   let { errors } = props;
   if (typeof errors === 'string') {
@@ -28,3 +28,5 @@ export function NonFieldErrors(props) {
     </React.Fragment>
   );
 }
+
+export default NonFieldErrors;

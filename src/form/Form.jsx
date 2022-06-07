@@ -10,9 +10,8 @@ import {
 import AddIcon from '@material-ui/icons/Add';
 import CloseIcon from '@material-ui/icons/Close';
 import { grey } from '@material-ui/core/colors';
-import { common } from '../utils';
-import { NonFieldErrors } from "./NonFieldErrors";
-import { pushError, createFormLayout, validate_by_schema } from "./common";
+import { common, form } from '../utils';
+import { NonFieldErrors } from "../components";
 
 const styles = (theme) => ({
   error: {
@@ -35,7 +34,7 @@ const styles = (theme) => ({
   },
 });
 
-class MyForm extends React.Component {
+class Form extends React.Component {
 
   constructor(props) {
     super(props);
@@ -171,12 +170,12 @@ class MyForm extends React.Component {
     let valid = true;
     let errors = {};
     // 項目の定義からチェック
-    if (validate_by_schema(null, this.props.schema, data, errors) === false) {
+    if (form.validate_by_schema(null, this.props.schema, data, errors) === false) {
       valid = false;
     }
     this.props.inlines.map(formset => {
       const dataList = data[formset.name];
-      if (validate_by_schema(formset.name, formset.schema, dataList, errors) === false) {
+      if (form.validate_by_schema(formset.name, formset.schema, dataList, errors) === false) {
         valid = false;
       }
       return true;
@@ -189,7 +188,7 @@ class MyForm extends React.Component {
           valid = false;
           if (Array.isArray(retVal)) {
             retVal.map(item => (
-              pushError(null, null, item.name, item.message, errors)
+              form.pushError(null, null, item.name, item.message, errors)
             ));
           }
         }
@@ -244,7 +243,7 @@ class MyForm extends React.Component {
     return (
       <div>
         <NonFieldErrors errors={non_field_errors} />
-        {createFormLayout(data, schema, layout, false, false, null, null, null, errors, this.handleChange, this.handleBlur)}
+        {form.createFormLayout(data, schema, layout, false, false, null, null, null, errors, this.handleChange, this.handleBlur)}
         {inlines.map((formset, key) => {
           const init_data_array = data[formset.name];
           return (
@@ -259,7 +258,7 @@ class MyForm extends React.Component {
                         <tbody>
                           <tr>
                             <td>
-                              {createFormLayout(
+                              {form.createFormLayout(
                                 init_data,
                                 formset.schema,
                                 formset.layout,
@@ -307,7 +306,7 @@ class MyForm extends React.Component {
 
 }
 
-MyForm.propTypes = {
+Form.propTypes = {
   schema: PropTypes.arrayOf(PropTypes.object).isRequired,
   layout: PropTypes.array,
   inlines: PropTypes.arrayOf(PropTypes.object),
@@ -319,7 +318,7 @@ MyForm.propTypes = {
   errors: PropTypes.object,
 };
 
-MyForm.defaultProps = {
+Form.defaultProps = {
   layout: [],
   inlines: [],
   data: {},
@@ -328,5 +327,4 @@ MyForm.defaultProps = {
   checkList: [],
 };
 
-const Form = withStyles(styles)(MyForm);
-export {Form};
+export default withStyles(styles)(Form);
