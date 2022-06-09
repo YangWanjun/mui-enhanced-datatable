@@ -4,10 +4,11 @@ import {
   MenuItem,
   InputLabel,
   Select,
+  makeStyles,
 } from '@material-ui/core';
 import { common } from '../utils';
 
-const styles = theme => ({
+const userStyles = makeStyles(theme => ({
   formControl: {
     margin: theme.spacing(1),
     minWidth: 120,
@@ -16,22 +17,22 @@ const styles = theme => ({
   parentItem: {
     fontWeight: 'bold',
   }
-});
+}));
 
-class HierarchySelect extends React.Component {
+function HierarchySelect(props) {
+  const { choices, native, name, value, label, handleChange } = props;
+  const classes = userStyles();
 
-  getAllItems() {
-    const { choices } = this.props;
+  const getAllItems = () => {
     const rootItems = common.isEmpty(choices) ? [] : choices.filter(item => item.parent === null);
     let items = [];
     rootItems.map(item => {
-      return this.getChildItems(items, item);
+      return getChildItems(items, item);
     });
     return items;
-  }
+  };
 
-  getChildItems(items, item, deep = 0) {
-    const { classes, choices, native } = this.props;
+  const getChildItems = (items, item, deep = 0) => {
     const children = choices.filter(sub => sub.parent === item.value);
     let itemProps = { key: item.value + '_item', value: item.value };
     let display_name = item.display_name;
@@ -61,31 +62,26 @@ class HierarchySelect extends React.Component {
       );
     }
     children.map(sub => {
-      return this.getChildItems(items, sub, deep + 1);
+      return getChildItems(items, sub, deep + 1);
     });
   }
 
-  render() {
-    const { name, value, label, native, handleChange } = this.props;
-    const items = this.getAllItems();
-
-    return (
-      <React.Fragment>
-        <InputLabel htmlFor={name}>{label}</InputLabel>
-        <Select
-          native={native === true}
-          value={value}
-          inputProps={{ name: name, value: value }}
-          onChange={handleChange}
-        >
-          {native === true ? <option value=""></option> : <MenuItem key='none' value=""><em>None</em></MenuItem>}
-          {items.map(item => {
-            return item;
-          })}
-        </Select>
-      </React.Fragment>
-    );
-  }
+  return (
+    <React.Fragment>
+      <InputLabel htmlFor={name}>{label}</InputLabel>
+      <Select
+        native={native === true}
+        value={value}
+        inputProps={{ name: name, value: value }}
+        onChange={handleChange}
+      >
+        {native === true ? <option value=""></option> : <MenuItem key='none' value=""><em>None</em></MenuItem>}
+        {getAllItems().map(item => {
+          return item;
+        })}
+      </Select>
+    </React.Fragment>
+  );
 }
 
-export default withStyles(styles)(HierarchySelect);
+export default HierarchySelect;

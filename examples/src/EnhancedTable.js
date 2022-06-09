@@ -82,6 +82,7 @@ class MyEnhancedTable extends React.Component {
           server={false}
           toolbar={true}
           pushpinTop={0}
+          showAggregate={true}
           filters={{retired: false}}
           selectable={'single'}
           tableActions={[

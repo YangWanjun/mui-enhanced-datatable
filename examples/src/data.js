@@ -43,6 +43,7 @@ export const columns = [
     "type": "integer",
     "label": "給料",
     "sortable": true,
+    "aggregate": "sum",
   },
   {
     "name": "dept",

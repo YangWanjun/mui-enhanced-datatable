@@ -6,63 +6,60 @@ import {
 } from "@material-ui/core";
 import { common, table } from '../utils';
 
-class AggregateFooter extends React.Component {
-  data = {}
+function AggregateFooter(props) {
+  const { classes, tableHead, tableData, selectable } = props;
+  const data = {};
 
-  getAggregateValue = (column) => {
-    const { tableData } = this.props;
+  const getAggregateValue = (column) => {
     const { aggregate, name } = column;
 
     if (aggregate === 'sum') {
       const total = tableData.reduce((sum, row) => {
         return sum + (isNaN(parseFloat(row[name])) ? 0 : row[name] || 0);
       }, 0);
-      this.data[name] = total;
+      data[name] = total;
       return common.toNumComma(total);
     } else if (typeof aggregate === 'function') {
-      return common.getColumnDisplay(aggregate(this.data), column);
+      return common.getColumnDisplay(aggregate(data), column);
     } else {
       return 0;
     }
   };
 
-  render() {
-    const { classes, tableHead, selectable } = this.props;
-    let chkCell = null;
-    if (selectable !== 'none') {
-      chkCell = (
-        <TableCell padding="none" />
-      );
-    }
+  let chkCell = null;
+  if (selectable !== 'none') {
+    chkCell = (
+      <TableCell padding="none" />
+    );
+  }
 
-    if (tableHead === undefined) {
-      return null;
-    } else {
-      return (
-        <TableRow
-          className={classes.tableRow}
-        >
-          {chkCell}
-          {tableHead.map((col, key) => {
-            if (col.aggregate) {
-              return (
-                <TableCell
-                  key={key}
-                  className={classes.tableCell}
-                  align={table.getCellAlignment(col.type).align}
-                >
-                  {this.getAggregateValue(col)}
-                </TableCell>
-              );
-            } else if (col.visible !== false) {
-              return (<TableCell key={key} />)
-            } else {
-              return null;
-            }
-          })}
-        </TableRow>
-      );
-    }
+  if (tableHead === undefined) {
+    return null;
+  } else {
+    return (
+      <TableRow
+        className={classes.tableRow}
+      >
+        {chkCell}
+        {tableHead.map((col, key) => {
+          if (col.aggregate) {
+            return (
+              <TableCell
+                key={key}
+                className={classes.tableCell}
+                align={table.getCellAlignment(col.type).align}
+              >
+                {getAggregateValue(col)}
+              </TableCell>
+            );
+          } else if (col.visible !== false) {
+            return (<TableCell key={key} />)
+          } else {
+            return null;
+          }
+        })}
+      </TableRow>
+    );
   }
 }
 

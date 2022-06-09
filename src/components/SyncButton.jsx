@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from "prop-types";
-import withStyles from "@material-ui/core/styles/withStyles";
-import { Button, CircularProgress } from '@material-ui/core';
+import { Button, CircularProgress, makeStyles } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
 
-const styles = theme => ({
+const userStyles = makeStyles(theme => ({
   wrapper: {
     margin: theme.spacing(1),
     position: 'relative',
@@ -18,49 +17,39 @@ const styles = theme => ({
     marginTop: -12,
     marginLeft: -12,
   },
-});
+}));
 
-class SyncButton extends React.Component {
-  constructor(props) {
-    super(props);
+function SyncButton(props) {
+  const { title, handleClick, ...rest } = props;
+  const [ loading, setLoading ] = useState(false);
+  const classes = userStyles();
 
-    this.state = {
-      loading: false,
-    };
-  }
-
-  onOk = () => {
-    const { handleClick } = this.props;
+  const onOk = () => {
     if (handleClick) {
-      this.setState({loading: true});
+      setLoading(true);
       handleClick().finally(() => {
-        this.setState({loading: false});
+        setLoading(false);
       });
     }
   };
 
-  render() {
-    const { classes, title, handleClick, ...rest } = this.props;
-    const { loading } = this.state;
-
-    return (
-      <div className={classes.wrapper}>
-        <Button
-          onClick={this.onOk}
-          disabled={loading}
-          {...rest}
-        >
-          {title}
-        </Button>
-        {loading && (
-          <CircularProgress
-            size={24}
-            className={classes.buttonProgress}
-          />
-        )}
-      </div>
-    )
-  }
+  return (
+    <div className={classes.wrapper}>
+      <Button
+        onClick={onOk}
+        disabled={loading}
+        {...rest}
+      >
+        {title}
+      </Button>
+      {loading && (
+        <CircularProgress
+          size={24}
+          className={classes.buttonProgress}
+        />
+      )}
+    </div>
+  )
 }
 
 SyncButton.propTypes = {
@@ -70,4 +59,4 @@ SyncButton.propTypes = {
 SyncButton.defaultProps = {
 };
 
-export default withStyles(styles)(SyncButton);
+export default SyncButton;
