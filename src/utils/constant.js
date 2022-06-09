@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 
 export default {
   tableProps: {
-    classes: PropTypes.object.isRequired,
     title: PropTypes.string,
     tableHeaderColor: PropTypes.oneOf([
       "warning",

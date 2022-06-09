@@ -216,9 +216,9 @@ export default {
   getColumnDisplay: function(value, column, data, styles={}) {
     switch (column.type) {
       case 'choice':
-        return common.getDisplayNameFromChoice(value, column);
+        return this.getDisplayNameFromChoice(value, column);
       case 'choices':
-        return common.getDisplayNameFromChoices(value, column);
+        return this.getDisplayNameFromChoices(value, column);
       case 'boolean':
         if (value === true || value === 1) {
           return <CheckCircleIcon fontSize="small" style={{color: 'green'}} />;
@@ -229,7 +229,7 @@ export default {
         }
       case 'integer':
       case 'decimal':
-        return common.toNumComma(value);
+        return this.toNumComma(value);
       case 'percent':
         value = parseFloat(value) * 100;
         if (!isNaN(value)) {
@@ -251,7 +251,7 @@ export default {
         );
       case 'file':
         let display_name = value;
-        if (!common.isEmpty(data) && column.verbose_name) {
+        if (!this.isEmpty(data) && column.verbose_name) {
           display_name = data[column.verbose_name];
         }
         if (column.handle_download) {

@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import {
   Button,
   DialogTitle,
@@ -12,85 +11,68 @@ import {
 import { constant } from '../utils';
 import { SyncButton } from '../components';
 
-const styles = theme => ({
-  root: {
-    width: '100%',
-    maxWidth: 360,
-    backgroundColor: theme.palette.background.paper,
-  },
-  paper: {
-    width: '80%',
-    maxHeight: 435,
-  },
-});
+function ConfirmDialog(props) {
+  const { title, onOk, anchorEl } = props;
+  const [ open, setOpen ] = useState(false);
+  const [ content, setContent ] = useState(null);
 
-class ConfirmDialog extends React.Component {
-
-  constructor(props) {
-    super(props);
-
-    this.handleOpen = this.handleOpen.bind(this);
-    this.handleCancel = this.handleCancel.bind(this);
-    this.handleOk = this.handleOk.bind(this);
-    this.state = {
-      open: false,
-      content: null,
+  React.useEffect(() => {
+    anchorEl.current = handleOpen;
+    return () => {
+      anchorEl.current = null;
     }
+  }, [])
+
+  const handleOpen = (content) => {
+    setOpen(true);
+    setContent(content);
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
   }
 
-  handleOpen(content) {
-    this.setState({open: true, content: content,})
-  }
-
-  handleCancel() {
-    this.setState({open: false,})
-  }
-
-  handleOk() {
-    const { onOk } = this.props;
+  const handleOk = () => {
     if (onOk) {
-      return onOk().then(() => this.handleCancel())
+      return onOk().then(() => handleCancel())
+    } else {
+      return Promise.resolve();
     }
   }
 
-  render() {
-    const { title } = this.props;
-    const { open, content } = this.state;
-
-    return (
-      <Dialog
-        open={open}
-        maxWidth="xs"
-        aria-labelledby="confirmation-dialog-title"
-      >
-        <DialogTitle id="confirmation-dialog-title">{ title }</DialogTitle>
-        <DialogContent>
-          {content ? (
-            null
-          ) : constant.INFO.DELETE_CONFIRM}
-          <Typography style={{whiteSpace: 'pre-line'}}>
-            {content}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={this.handleCancel} color="secondary">
-            取消
-          </Button>
-          <SyncButton
-            title="確定"
-            handleClick={this.handleOk}
-            color="primary"
-          />
-        </DialogActions>
-      </Dialog>
-    );
-  }
+  return (
+    <Dialog
+      open={open}
+      maxWidth="xs"
+      aria-labelledby="confirmation-dialog-title"
+    >
+      <DialogTitle id="confirmation-dialog-title">{ title }</DialogTitle>
+      <DialogContent>
+        {content ? (
+          null
+        ) : constant.INFO.DELETE_CONFIRM}
+        <Typography style={{whiteSpace: 'pre-line'}}>
+          {content}
+        </Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleCancel} color="secondary">
+          取消
+        </Button>
+        <SyncButton
+          title="確定"
+          handleClick={handleOk}
+          color="primary"
+        />
+      </DialogActions>
+    </Dialog>
+  )
 }
 
 ConfirmDialog.propTypes = {
-  classes: PropTypes.object.isRequired,
   title: PropTypes.string.isRequired,
+  anchorEl: PropTypes.object.isRequired,
   onOk: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(ConfirmDialog);
+export default ConfirmDialog;

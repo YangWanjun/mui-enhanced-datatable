@@ -17,11 +17,13 @@ class Detail extends React.Component {
           editProps={{
             title: '社員情報変更',
             schema: columns,
-            handleEdit: (data) => console.log(data),
+            handleEdit: (data) => Promise.resolve(data),
           }}
           deleteProps={{
             title: '社員情報削除',
-            handleDelete: (data) => console.log(data),
+            handleDelete: (data) => {
+              return Promise.resolve(data);
+            },
           }}
         />
       </div>

@@ -27,9 +27,11 @@ function SyncButton(props) {
   const onOk = () => {
     if (handleClick) {
       setLoading(true);
-      handleClick().finally(() => {
+      return handleClick().finally(() => {
         setLoading(false);
       });
+    } else {
+      return Promise.resolve();
     }
   };
 

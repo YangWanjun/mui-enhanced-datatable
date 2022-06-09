@@ -5,21 +5,83 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import {
   TablePagination,
   IconButton,
+  makeStyles,
 } from "@material-ui/core";
 import FirstPageIcon from '@material-ui/icons/FirstPage';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage'
 
-const paginationActionsStyles = theme => ({
+const usePaginationStyles = makeStyles(theme => ({
   root: {
     flexShrink: 0,
     color: theme.palette.text.secondary,
     marginLeft: theme.spacing(2.5),
   },
-});
+}));
 
-const styles = theme => ({
+function TablePaginationActions(props) {
+  const { page, count, rowsPerPage, onPageChange } = props;
+  const classes = usePaginationStyles();
+
+  const handleFirstPageButtonClick = event => {
+    onPageChange(event, 0);
+  };
+
+  const handleBackButtonClick = event => {
+    onPageChange(event, page - 1);
+  };
+
+  const handleNextButtonClick = event => {
+    onPageChange(event, page + 1);
+  };
+
+  const handleLastPageButtonClick = event => {
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+  };
+
+  return (
+    <div className={classes.root}>
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="First Page"
+      >
+        <FirstPageIcon />
+      </IconButton>
+      <IconButton
+        onClick={handleBackButtonClick}
+        disabled={page === 0}
+        aria-label="Previous Page"
+      >
+        <KeyboardArrowLeft />
+      </IconButton>
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="Next Page"
+      >
+        <KeyboardArrowRight />
+      </IconButton>
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="Last Page"
+      >
+        <LastPageIcon />
+      </IconButton>
+    </div>
+  );
+}
+
+TablePaginationActions.propTypes = {
+  count: PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+};
+
+const useStyles = makeStyles(theme => ({
   root: {
     '& .MuiTablePagination-caption, & .MuiTablePagination-selectRoot': {
       [theme.breakpoints.down('xs')]: {
@@ -27,91 +89,19 @@ const styles = theme => ({
       },
     },
   }
-});
+}));
 
-class TablePaginationActions extends React.Component {
-  handleFirstPageButtonClick = event => {
-    this.props.onPageChange(event, 0);
-  };
+function DataTablePagination(props) {
+  const classes = useStyles();
 
-  handleBackButtonClick = event => {
-    this.props.onPageChange(event, this.props.page - 1);
-  };
-
-  handleNextButtonClick = event => {
-    this.props.onPageChange(event, this.props.page + 1);
-  };
-
-  handleLastPageButtonClick = event => {
-    this.props.onPageChange(
-      event,
-      Math.max(0, Math.ceil(this.props.count / this.props.rowsPerPage) - 1),
-    );
-  };
-
-  render() {
-    const { classes, count, page, rowsPerPage, theme } = this.props;
-
-    return (
-      <div className={classes.root}>
-        <IconButton
-          onClick={this.handleFirstPageButtonClick}
-          disabled={page === 0}
-          aria-label="First Page"
-        >
-          {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
-        </IconButton>
-        <IconButton
-          onClick={this.handleBackButtonClick}
-          disabled={page === 0}
-          aria-label="Previous Page"
-        >
-          {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
-        </IconButton>
-        <IconButton
-          onClick={this.handleNextButtonClick}
-          disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-          aria-label="Next Page"
-        >
-          {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
-        </IconButton>
-        <IconButton
-          onClick={this.handleLastPageButtonClick}
-          disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-          aria-label="Last Page"
-        >
-          {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
-        </IconButton>
-      </div>
-    );
-  }
+  return (
+    <TablePagination
+      {...props}
+      className={classes.root}
+      style={{overflow: 'visible'}}
+      ActionsComponent={TablePaginationActions}
+    />
+  );
 }
 
-TablePaginationActions.propTypes = {
-  classes: PropTypes.object.isRequired,
-  count: PropTypes.number.isRequired,
-  onPageChange: PropTypes.func.isRequired,
-  page: PropTypes.number.isRequired,
-  rowsPerPage: PropTypes.number.isRequired,
-  theme: PropTypes.object.isRequired,
-};
-
-const TablePaginationActionsWrapped = withStyles(paginationActionsStyles, { withTheme: true })(
-  TablePaginationActions,
-);
-
-class DataTablePagination extends React.Component {
-  render() {
-    const { classes } = this.props;
-    return (
-      <TablePagination
-        {...this.props}
-        className={classes.root}
-        style={{overflow: 'visible'}}
-        ActionsComponent={TablePaginationActionsWrapped}
-      />
-    );
-  }
-}
-
-export default withStyles(styles)(DataTablePagination);
+export default DataTablePagination;
