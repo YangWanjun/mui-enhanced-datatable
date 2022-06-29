@@ -83,7 +83,7 @@ function DataTableToolbar(props) {
   const {
     onChangeFilter, id, title, tableHead, tableData, selected, tableActions, rowActions, saveCallback,
     addProps, editProps, showTitle, allowCsv,
-    deleteProps, clearSelected, filterLayout, width,
+    deleteProps, clearSelected, filterLayout,
   } = props;
   const [ openFilter, setOpenFilter ] = useState(false);
   const [ filters, setFilters ] = useState(props.filters);
@@ -91,10 +91,9 @@ function DataTableToolbar(props) {
   const [ maxHeight, setMaxHeight ] = useState(300);
   const [ anchorEl, setAnchorEl ] = useState(null);
   const classes = useStyles();
-  const dlgDeleteRef = React.useRef(null)
-
-  let _showAddDialog = null,
-      _showModel = null;
+  const refDelete = useRef(null)
+  const refAdd = useRef(null);
+  const refChange = useRef(null);
 
   useEffect(() => {
     setFilters(props.filters);
@@ -242,25 +241,21 @@ function DataTableToolbar(props) {
   };
 
   const onShowAddDialog = () => {
-    if (_showAddDialog) {
-      if (addProps.handleBeforeShowup) {
-        addProps.handleBeforeShowup();
-      }
-      _showAddDialog();
+    if (addProps.handleBeforeShowup) {
+      addProps.handleBeforeShowup();
     }
+    refAdd.current.handleOpen();
   };
 
   const onShowEditDialog = () => {
-    if (_showModel) {
-      if (editProps.handleBeforeShowup) {
-        editProps.handleBeforeShowup(selected[0]);
-      }
-      _showModel(selected[0]);
+    if (editProps.handleBeforeShowup) {
+      editProps.handleBeforeShowup(selected[0]);
     }
+    refChange.current.handleOpen(selected[0]);
   };
 
   const onShowDeleteDialog = () => {
-    dlgDeleteRef.current();
+    refDelete.current.handleOpen();
   };
 
   const numSelected = selected.length;
@@ -409,7 +404,7 @@ function DataTableToolbar(props) {
       {(addProps && addProps.visible !== false && common.isEmpty(selected)) ? (
         <FormDialog
           title={`${title}を追加`}
-          innerRef={(dlg) => { _showAddDialog = dlg && dlg.handleOpen }}
+          ref={refAdd}
           {...addProps}
         />
       ) : null}
@@ -417,7 +412,7 @@ function DataTableToolbar(props) {
       {(editProps && editProps.visible !== false && Array.isArray(selected) && selected.length === 1) ? (
         <FormDialog
           title={`${title}を変更`}
-          innerRef={(dlg) => { _showModel = dlg && dlg.handleOpen }}
+          ref={refChange}
           {...editProps}
           saveCallback={saveCallback}
         />
@@ -426,10 +421,14 @@ function DataTableToolbar(props) {
       {(deleteProps && deleteProps.visible !== false && Array.isArray(selected) && selected.length === 1) ? (
         <ConfirmDialog
           title='削除'
-          anchorEl={dlgDeleteRef}
+          ref={refDelete}
           onOk={() => {
             return deleteProps.handleDelete(selected[0])
-              .then(() => clearSelected())
+              .then(() => {
+                // setTimeoutしないと、選択レコード消したら、ConfirmDialogは勝てに消えるので、
+                // その後ConfirmDialog.handleCloseを呼び出したら、エラーになってします。
+                setTimeout(clearSelected, 100);
+              })
           }}
         />
       ) : null}

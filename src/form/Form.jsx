@@ -1,11 +1,11 @@
-import React from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import PropTypes from "prop-types";
-import withStyles from "@material-ui/core/styles/withStyles";
 import {
   Typography,
   Tooltip,
   IconButton,
   Button,
+  makeStyles,
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CloseIcon from '@material-ui/icons/Close';
@@ -13,7 +13,7 @@ import { grey } from '@material-ui/core/colors';
 import { common, form } from '../utils';
 import { NonFieldErrors } from "../components";
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   error: {
     color: 'red',
   },
@@ -32,24 +32,23 @@ const styles = (theme) => ({
     width: '100%',
     backgroundColor: grey[100],
   },
-});
+}));
 
-class Form extends React.Component {
+const Form = forwardRef((props, ref) => {
+  const { schema, layout, inlines, checkList, onChanges, onBlurs } = props;
+  const [ data, setData ] = useState({});
+  const [ errors, setErrors ] = useState({});
+  const classes = useStyles();
 
-  constructor(props) {
-    super(props);
+  useEffect(() => {
+    setData(initializeData(props))
+  }, [props.data, props.schema]);
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleBlur = this.handleBlur.bind(this);
-    this.clean = this.clean.bind(this);
-    this.realtimeData = this.realtimeData.bind(this);
-    this.state = {
-      data: this.initializeData(props),
-      errors: props.errors || {},
-    };
-  }
+  useEffect(() => {
+    setErrors(props.errors || {});
+  }, [props.data, props.schema]);
 
-  initializeData(props) {
+  const initializeData = (props) => {
     if (!common.isEmpty(props.data)) {
       return props.data;
     } else if (props.schema) {
@@ -64,47 +63,42 @@ class Form extends React.Component {
     } else {
       return {};
     }
-  }
+  };
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (JSON.stringify(nextProps.data) !== JSON.stringify(this.props.data)) {
-      this.setState({data: this.initializeData(nextProps)});
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   if (JSON.stringify(nextProps.data) !== JSON.stringify(this.props.data)) {
+  //     this.setState({data: this.initializeData(nextProps)});
+  //   }
+  //   if (JSON.stringify(nextProps.errors) !== JSON.stringify(this.props.errors)) {
+  //     this.setState({errors: nextProps.errors});
+  //   } else if (JSON.stringify(nextProps.errors) !== JSON.stringify(this.state.errors) && !common.isEmpty(nextProps.errors)) {
+  //     // サーバー側エラーが返した場合、初回目は表示できますが。
+  //     // ２回目でまたサーバー側エラー発生したら、nextProps.errors === this.props.errorsなので、エラーが表示できなくなる
+  //     // だからここでの設定が必要です。
+  //     this.setState({errors: nextProps.errors});
+  //   }
+  // }
+
+  const handleChange = (prefix, inlineIndex) => (name, value, type) => (event) => {
+    const _data = Object.assign({}, data);
+    if (prefix && inlineIndex !== undefined && inlineIndex !== null) {
+      let formsetData = _data[prefix];
+      formsetData[inlineIndex][name] = value;
+    } else {
+      _data[name] = value;
     }
-    if (JSON.stringify(nextProps.errors) !== JSON.stringify(this.props.errors)) {
-      this.setState({errors: nextProps.errors});
-    } else if (JSON.stringify(nextProps.errors) !== JSON.stringify(this.state.errors) && !common.isEmpty(nextProps.errors)) {
-      // サーバー側エラーが返した場合、初回目は表示できますが。
-      // ２回目でまたサーバー側エラー発生したら、nextProps.errors === this.props.errorsなので、エラーが表示できなくなる
-      // だからここでの設定が必要です。
-      this.setState({errors: nextProps.errors});
-    }
-  }
+    setData(_data);
 
-  handleChange = (prefix, inlineIndex) => (name, value, type) => (event) => {
-    this.setState((state) => {
-      let data = Object.assign({}, state.data);
+    onChanges.map(method => {
+      const _data = Object.assign({}, data);
       if (prefix && inlineIndex !== undefined && inlineIndex !== null) {
-        let formsetData = data[prefix];
-        formsetData[inlineIndex][name] = value;
+        _data[prefix][inlineIndex][name] = value;
       } else {
-        data[name] = value;
+        _data[name] = value;
       }
-      return {data: data};
-    });
-
-    this.props.onChanges.map(method => {
-      let data = this.state.data;
-      if (prefix && inlineIndex !== undefined && inlineIndex !== null) {
-        data[prefix][inlineIndex][name] = value;
-      } else {
-        data[name] = value;
-      }
-      const retVal = method(name, data, null, prefix, inlineIndex);
+      const retVal = method(name, _data, null, prefix, inlineIndex);
       if (retVal) {
-        this.setState((state) => {
-          let data = Object.assign({}, state.data, retVal);
-          return {data: data};
-        });
+        setData(Object.assign(_data, retVal))
       }
       return true;
     });
@@ -120,22 +114,18 @@ class Form extends React.Component {
     // }
   };
 
-  handleBlur = (event, name) => {
-    this.props.onBlurs.map(method => {
-      const data = this.state.data;
-      const retVal = method(name, data);
+  const handleBlur = (event, name) => {
+    onBlurs.map(method => {
+      const _data = Object.assign({}, state.data);
+      const retVal = method(name, _data);
       if (retVal) {
-        this.setState((state) => {
-          let data = Object.assign({}, state.data, retVal);
-          return {data: data};
-        });
+        setData(Object.assign(_data, retVal))
       }
       return true;
     });
   };
 
-  handleDeleteInline = (prefix, index) => () => {
-    let { data, errors } = this.state;
+  const handleDeleteInline = (prefix, index) => () => {
     let inlineData = data[prefix];
     inlineData.splice(index, 1);
     let inlineErrors = errors[prefix];
@@ -151,29 +141,28 @@ class Form extends React.Component {
         return true;
       });
     }
-    this.setState({data, errors});
+    setData(Object.assign({}, data));
+    setErrors(Object.assign({}, errors));
   };
 
-  handleInlineAdd = (prefix, schema) => () => {
-    let { data } = this.state;
+  const handleInlineAdd = (prefix, schema) => () => {
     let inlineData = data[prefix];
     if (Array.isArray(inlineData)) {
       inlineData.push({});
     } else {
       data[prefix] = [];
     }
-    this.setState({data});
+    setData(Object.assign({}, data));
   };
 
-  validate = () => {
-    const { data } = this.state;
+  const validate = () => {
     let valid = true;
     let errors = {};
     // 項目の定義からチェック
-    if (form.validate_by_schema(null, this.props.schema, data, errors) === false) {
+    if (form.validate_by_schema(null, schema, data, errors) === false) {
       valid = false;
     }
-    this.props.inlines.map(formset => {
+    inlines.map(formset => {
       const dataList = data[formset.name];
       if (form.validate_by_schema(formset.name, formset.schema, dataList, errors) === false) {
         valid = false;
@@ -182,7 +171,7 @@ class Form extends React.Component {
     });
     // カスタマイズのチェック
     if (valid === true) {
-      this.props.checkList.map(method => {
+      checkList.map(method => {
         const retVal = method(data);
         if (retVal !== true) {
           valid = false;
@@ -196,115 +185,110 @@ class Form extends React.Component {
       });
     }
 
-    // const oldErrors = this.props.errors || {};
-    errors = Object.assign({}, errors)
-    this.setState({errors});
+    setErrors(Object.assign({}, errors));
     return valid;
   };
 
-  realtimeData = () => {
-    const data = Object.assign({}, this.state.data);
-    this.props.schema.map(col => {
+  const realtimeData = () => {
+    const _data = Object.assign({}, data);
+    schema.map(col => {
       if (col.type === 'field') {
-        const value = data[col.name];
+        const value = _data[col.name];
         if (Array.isArray(value) && value.length > 0) {
           const item = value[0];
-          data[col.name] = item.value;
+          _data[col.name] = item.value;
         }
       } else if (col.type === 'fields') {
-        const value = data[col.name];
+        const value = _data[col.name];
         if (Array.isArray(value) && value.length > 0) {
           let items = [];
           value.map(item => (items.push(item.value)))
-          data[col.name] = items;
+          _data[col.name] = items;
         }
       }
       return true;
     });
-    return data;
+    return _data;
   };
 
-  clean = () => {
-    if (this.validate() === true) {
-      return this.realtimeData();
-    } else {
-      return null;
-    }
-  };
+  useImperativeHandle(ref, () => ({
+    clean: () => {
+      if (validate() === true) {
+        return realtimeData();
+      } else {
+        return null;
+      }
+    },
+  }));
 
-  render() {
-    const { classes, schema, layout, inlines } = this.props;
-    const { data, errors } = this.state;
-    let non_field_errors = null;
-    if (errors) {
-      non_field_errors = errors.non_field_errors;
-    }
-
-    return (
-      <div>
-        <NonFieldErrors errors={non_field_errors} />
-        {form.createFormLayout(data, schema, layout, false, false, null, null, null, errors, this.handleChange, this.handleBlur)}
-        {inlines.map((formset, key) => {
-          const init_data_array = data[formset.name];
-          return (
-            <div key={key}>
-              <Typography variant='subtitle1' className={classes.inlineTitle}>{formset.title}</Typography>
-              {(Array.isArray(init_data_array) && init_data_array.length > 0) ? (
-                <React.Fragment>
-                  {init_data_array.map((init_data, key2) => {
-                    const inlineErrors = errors[formset.name] || {};
-                    return (
-                      <table key={key2} className={classes.inlineTable}>
-                        <tbody>
-                          <tr>
-                            <td>
-                              {form.createFormLayout(
-                                init_data,
-                                formset.schema,
-                                formset.layout,
-                                false,
-                                true,
-                                formset.name,
-                                key2,
-                                init_data_array,
-                                inlineErrors[key2],
-                                this.handleChange,
-                                this.handleBlur,
-                              )}
-                            </td>
-                            {formset.allowDelete !== false ? (
-                              <td style={{width: 45}}>
-                                <Tooltip title='削除' placement='bottom' enterDelay={300}>
-                                  <IconButton aria-label="Action" onClick={this.handleDeleteInline(formset.name, key2)}>
-                                    <CloseIcon />
-                                  </IconButton>
-                                </Tooltip>
-                              </td>
-                            ) : null}
-                          </tr>
-                        </tbody>
-                      </table>
-                    );
-                  })}
-                </React.Fragment>
-              ) : null}
-              { formset.allowAdd !== false ? (
-                <div>
-                  <Tooltip title='追加' placement='bottom' enterDelay={300}>
-                    <Button className={classes.inlineAdd} onClick={this.handleInlineAdd(formset.name, formset.schema)}>
-                      <AddIcon />
-                    </Button>
-                  </Tooltip>
-                </div>
-              ) : null }
-            </div>
-          );
-        })}
-      </div>
-    );
+  let non_field_errors = null;
+  if (errors) {
+    non_field_errors = errors.non_field_errors;
   }
 
-}
+  return (
+    <div>
+      <NonFieldErrors errors={non_field_errors} />
+      {form.createFormLayout(data, schema, layout, false, false, null, null, null, errors, handleChange, handleBlur)}
+      {inlines.map((formset, key) => {
+        const init_data_array = data[formset.name];
+        return (
+          <div key={key}>
+            <Typography variant='subtitle1' className={classes.inlineTitle}>{formset.title}</Typography>
+            {(Array.isArray(init_data_array) && init_data_array.length > 0) ? (
+              <React.Fragment>
+                {init_data_array.map((init_data, key2) => {
+                  const inlineErrors = errors[formset.name] || {};
+                  return (
+                    <table key={key2} className={classes.inlineTable}>
+                      <tbody>
+                        <tr>
+                          <td>
+                            {form.createFormLayout(
+                              init_data,
+                              formset.schema,
+                              formset.layout,
+                              false,
+                              true,
+                              formset.name,
+                              key2,
+                              init_data_array,
+                              inlineErrors[key2],
+                              handleChange,
+                              handleBlur,
+                            )}
+                          </td>
+                          {formset.allowDelete !== false ? (
+                            <td style={{width: 45}}>
+                              <Tooltip title='削除' placement='bottom' enterDelay={300}>
+                                <IconButton aria-label="Action" onClick={handleDeleteInline(formset.name, key2)}>
+                                  <CloseIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </td>
+                          ) : null}
+                        </tr>
+                      </tbody>
+                    </table>
+                  );
+                })}
+              </React.Fragment>
+            ) : null}
+            { formset.allowAdd !== false ? (
+              <div>
+                <Tooltip title='追加' placement='bottom' enterDelay={300}>
+                  <Button className={classes.inlineAdd} onClick={handleInlineAdd(formset.name, formset.schema)}>
+                    <AddIcon />
+                  </Button>
+                </Tooltip>
+              </div>
+            ) : null }
+          </div>
+        );
+      })}
+    </div>
+  );
+});
 
 Form.propTypes = {
   schema: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -327,4 +311,4 @@ Form.defaultProps = {
   checkList: [],
 };
 
-export default withStyles(styles)(Form);
+export default Form;

@@ -12,12 +12,13 @@ class MyEnhancedTable extends React.Component {
     this.state = {
       tableData: common.clone(rows),
     };
+    this.myRef = React.createRef();
   }
 
   handleOpenMultiTab = () => {
     const { tableData } = this.state;
-    if (this._showMultiTabs) {
-      this._showMultiTabs(tableData.slice(0, 6), tableData.slice(0, 5).map(item => item.name));
+    if (this.myRef.current) {
+      this.myRef.current.handleOpen(tableData.slice(0, 6), tableData.slice(0, 5).map(item => item.name));
     }
   };
 
@@ -66,6 +67,10 @@ class MyEnhancedTable extends React.Component {
     });
   };
 
+  handleMultiUpdateOk = (data) => {
+    
+  }
+
   render() {
     const { tableData } = this.state;
 
@@ -109,11 +114,16 @@ class MyEnhancedTable extends React.Component {
           urlReflect={true}
         />
         <FormDialog
-          innerRef={(dlg) => { this._showMultiTabs = dlg && dlg.handleOpen }}
+          ref={this.myRef}
           title={'テスト'}
           schema={columns}
-          handleOk={() => console.log('handleOk')}
-          saveCallback={() => console.log('saveCallback')}
+          handleOk={(data) => {
+            console.log('handleOk', data);
+            return Promise.resolve()
+          }}
+          saveCallback={(data) => {
+            console.log('saveCallback', data);
+          }}
         />
       </div>
     );

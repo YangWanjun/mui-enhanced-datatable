@@ -313,16 +313,19 @@ export default {
    * テーブルのヘッダー部分を固定する
    * @param {String} wrapperId 固定部分のＩＤ
    * @param {String} toolbarId ToolbarのＩＤ
-   * @param {String} srcTabelid テーブルのＩＤ
+   * @param {String} srcTableId テーブルのＩＤ
    * @param {String} fixedTableId 固定部分のテーブルＩＤ
    * @param {Integer} offset 
    */
-  setFixedTableHeader: function(wrapperId, toolbarId, srcTabelid, fixedTableId, offset=0) {
+  setFixedTableHeader: function(wrapperId, toolbarId, srcTableId, fixedTableId, offset=0) {
     const wrapper = document.getElementById(wrapperId);
-    const srcTable = document.getElementById(srcTabelid);
+    const srcTable = document.getElementById(srcTableId);
+    if (!wrapper || !srcTable) {
+      return;
+    }
     const toolbar = document.getElementById(toolbarId);
     const fixedTable = document.getElementById(fixedTableId);
-    let {left, width, top, height} = srcTable.getBoundingClientRect();
+    let { left, width, top, height } = srcTable.getBoundingClientRect();
     const bodyHeight = srcTable.querySelector('tbody').getBoundingClientRect().height;
     if (bodyHeight) {
       height = bodyHeight;

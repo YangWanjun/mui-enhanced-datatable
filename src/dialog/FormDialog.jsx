@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { createRef, forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from "prop-types";
-import withStyles from "@material-ui/core/styles/withStyles";
 import { 
   Dialog,
   DialogTitle,
@@ -10,11 +9,13 @@ import {
   Typography,
   Tabs,
   Tab,
+  makeStyles,
 } from '@material-ui/core';
 import Form from '../form/Form';
 import SyncButton from '../components/SyncButton';
+import { useEffect } from 'react';
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   fullScreen: {
     [theme.breakpoints.down('xs')]: {
       width: '100%',
@@ -31,148 +32,142 @@ const styles = theme => ({
   tabSep: {
     marginTop: theme.spacing(1),
   }
-});
+}));
 
-class FormDialog extends React.Component {
+const FormDialog = forwardRef((props, ref) => {
+  const { title, description, schema, layout, handleOk, saveCallback, ...rest } = props;
+  const [ open, setOpen ] = useState(false);
+  const [ data, setData ] = useState({});
+  const [ errors, setErrors ] = useState({});
+  const [ tabIndex, setTabIndex ] = useState(0);
+  const [ tabsLabel, setTabsLabel ] = useState([]);
+  const classes = useStyles();
+  const elementsRef = useRef([]);
 
-  constructor(props) {
-    super(props);
+  useEffect(() => {
+    setErrors(props.errors || {});
+  }, [props.errors]);
+  
+  useImperativeHandle(ref, () => ({
+    handleOpen: (initial, tabsLabel) => {
+      setOpen(true);
+      setData(initial);
+      setTabsLabel(tabsLabel || []);
+    },
+  }));
 
-    this.state = {
-      open: false,
-      data: {},
-      errors: props.errors || {},
-      tabIndex: 0,
-      tabsLabel: [],
-    };
-  }
-
-  handleOpen = (initial, tabsLabel) => {
-    this.setState({
-      open: true,
-      data: initial,
-      tabsLabel: tabsLabel || [],
-    });
+  const handleClose = () => {
+    setOpen(false);
+    setErrors({});
   };
 
-  handleClose = () => {
-    this.setState({open: false, errors: {}});
+  const handleTabChange = (event, index) => {
+    setTabIndex(index);
   };
 
-  handleTabChange = (event, index) => {
-    this.setState({ tabIndex: index });
-  };
-
-  handleOk = () => {
-    const { data } = this.state;
-    const { handleOk, saveCallback } = this.props;
+  const handleLocalOk = () => {
     if (handleOk) {
       let cleaned_data = null;
-      if (this._clean) {
-        cleaned_data = this._clean();
-      } else if (Array.isArray(data)) {
+      if (Array.isArray(data)) {
         cleaned_data = [];
-        for (let i=0; i < data.length; i++) {
-          cleaned_data.push(this[`_clean_${i}`]());
-        }
+        elementsRef.current.map(subRef => (
+          cleaned_data.push(subRef.clean())
+        ));
+      } else {
+        cleaned_data = elementsRef.current[0].clean();
       }
       if (cleaned_data) {
-        return handleOk(cleaned_data, this.handleClose).then(() => {
+        return handleOk(cleaned_data).then(() => {
           if (saveCallback) {
             saveCallback(cleaned_data);
           }
-          this.handleClose();
+          handleClose();
         }).catch(errors => {
-          this.setState({errors});
+          setErrors(errors)
         });
       }
     }
     return Promise.resolve();
   };
 
-  render() {
-    const { classes, title, description, schema, layout, ...rest } = this.props;
-    const { open, data, errors, tabIndex, tabsLabel } = this.state;
-
-    return (
-      <Dialog
-        open={open}
-        onClose={this.handleClose}
-        PaperProps={{className: classes.fullScreen}}
-      >
-        <DialogTitle>
-          {title}
-        </DialogTitle>
-        <DialogContent dividers>
-          {description ? (
-            <Typography className={classes.description} variant="body2">
-              {description}
-            </Typography>
-          ) : null}
-          {Array.isArray(data) ? (
-            <div>
-              <Tabs
-                value={tabIndex}
-                onChange={this.handleTabChange}
-                indicatorColor="primary"
-                textColor="primary"
-                variant="scrollable"
-                scrollButtons="auto"
-                aria-label="scrollable auto tabs"
-              >
-                {data.map((item, index) => (
-                  <Tab
-                    key={index}
-                    label={(tabsLabel && tabsLabel.length > index) ? tabsLabel[index] : index + 1}
-                    id={`scrollable-auto-tab-${index}`}
-                    aria-controls={`scrollable-auto-tabpanel-${index}`}
-                  />
-                ))}
-              </Tabs>
+  return (
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      PaperProps={{className: classes.fullScreen}}
+    >
+      <DialogTitle>
+        {title}
+      </DialogTitle>
+      <DialogContent dividers>
+        {description ? (
+          <Typography className={classes.description} variant="body2">
+            {description}
+          </Typography>
+        ) : null}
+        {Array.isArray(data) ? (
+          <div>
+            <Tabs
+              value={tabIndex}
+              onChange={handleTabChange}
+              indicatorColor="primary"
+              textColor="primary"
+              variant="scrollable"
+              scrollButtons="auto"
+              aria-label="scrollable auto tabs"
+            >
               {data.map((item, index) => (
-                <div
+                <Tab
                   key={index}
-                  role="tabpanel"
-                  hidden={tabIndex !== index}
+                  label={(tabsLabel && tabsLabel.length > index) ? tabsLabel[index] : index + 1}
                   id={`scrollable-auto-tab-${index}`}
-                  aria-labelledby={`scrollable-auto-tabpanel-${index}`}
-                  className={classes.tabSep}
-                >
-                  <Form
-                    schema={schema}
-                    layout={layout}
-                    data={item}
-                    errors={errors}
-                    {...rest}
-                    innerRef={(form) => {this[`_clean_${index}`] = form && form.clean}}
-                  />
-                </div>
+                  aria-controls={`scrollable-auto-tabpanel-${index}`}
+                />
               ))}
-            </div>
-          ) : (
-            <Form
-              schema={schema}
-              layout={layout}
-              data={data}
-              errors={errors}
-              {...rest}
-              innerRef={(form) => {this._clean = form && form.clean}}
-            />
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={this.handleClose} color='secondary'>取消</Button>
-          <SyncButton
-            title="確定"
-            handleClick={this.handleOk}
-            autoFocus={true}
-            color='primary'
+            </Tabs>
+            {data.map((item, index) => (
+              <div
+                key={index}
+                role="tabpanel"
+                hidden={tabIndex !== index}
+                id={`scrollable-auto-tab-${index}`}
+                aria-labelledby={`scrollable-auto-tabpanel-${index}`}
+                className={classes.tabSep}
+              >
+                <Form
+                  schema={schema}
+                  layout={layout}
+                  data={item}
+                  errors={errors}
+                  {...rest}
+                  ref={(el) => (elementsRef.current[index] = el)}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <Form
+            schema={schema}
+            layout={layout}
+            data={data}
+            errors={errors}
+            {...rest}
+            ref={(el) => (elementsRef.current[0] = el)}
           />
-        </DialogActions>
-      </Dialog>
-    );
-  }
-}
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose} color='secondary'>取消</Button>
+        <SyncButton
+          title="確定"
+          handleClick={handleLocalOk}
+          autoFocus={true}
+          color='primary'
+        />
+      </DialogActions>
+    </Dialog>
+  );
+});
 
 FormDialog.propTypes = {
   title: PropTypes.string,
@@ -185,4 +180,4 @@ FormDialog.propTypes = {
 FormDialog.defaultProps = {
 };
 
-export default withStyles(styles)(FormDialog);
+export default FormDialog;

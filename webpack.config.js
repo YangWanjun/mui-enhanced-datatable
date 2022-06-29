@@ -38,5 +38,6 @@ module.exports = {
     filename: "bundle.js",
     publicPath: '/mui-enhanced-datatable/'
   },
-  performance: { hints: false }
+  performance: { hints: false },
+  devtool: "eval-source-map",
 }

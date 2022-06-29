@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
@@ -11,30 +11,25 @@ import {
 import { constant } from '../utils';
 import { SyncButton } from '../components';
 
-function ConfirmDialog(props) {
-  const { title, onOk, anchorEl } = props;
+const ConfirmDialog = forwardRef((props, ref) => {
+  const { title, onOk } = props;
   const [ open, setOpen ] = useState(false);
   const [ content, setContent ] = useState(null);
 
-  React.useEffect(() => {
-    anchorEl.current = handleOpen;
-    return () => {
-      anchorEl.current = null;
-    }
-  }, [])
+  useImperativeHandle(ref, () => ({
+    handleOpen: (content) => {
+      setOpen(true);
+      setContent(content);
+    },
+  }));
 
-  const handleOpen = (content) => {
-    setOpen(true);
-    setContent(content);
-  };
-
-  const handleCancel = () => {
+  const handleClose = () => {
     setOpen(false);
   }
 
   const handleOk = () => {
     if (onOk) {
-      return onOk().then(() => handleCancel())
+      return onOk().then(() => handleClose())
     } else {
       return Promise.resolve();
     }
@@ -56,7 +51,7 @@ function ConfirmDialog(props) {
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleCancel} color="secondary">
+        <Button onClick={handleClose} color="secondary">
           取消
         </Button>
         <SyncButton
@@ -67,11 +62,10 @@ function ConfirmDialog(props) {
       </DialogActions>
     </Dialog>
   )
-}
+});
 
 ConfirmDialog.propTypes = {
   title: PropTypes.string.isRequired,
-  anchorEl: PropTypes.object.isRequired,
   onOk: PropTypes.func.isRequired,
 };
 
