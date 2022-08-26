@@ -144,7 +144,7 @@ export default {
       }
       return true;
     });
-    return filters;
+    return Object.assign({}, filters);
   },
 
   /**
