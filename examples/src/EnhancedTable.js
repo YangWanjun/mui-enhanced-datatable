@@ -111,7 +111,7 @@ class MyEnhancedTable extends React.Component {
             handleDelete: this.handleDeleteData,
           }}
           allowCsv={true}
-          urlReflect={true}
+          urlReflect={false}
         />
         <FormDialog
           ref={this.myRef}

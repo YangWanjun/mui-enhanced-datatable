@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import PropTypes from "prop-types";
 // @material-ui/core components
 import {
@@ -30,7 +30,7 @@ const useStyles = makeStyles(tableStyle);
 
 function EnhancedTable(props) {
   const {
-    title, storageKey, pushpinTop, urlReflect, history, server, pk, selectable, rowsPerPageOptions,
+    title, storageKey, pushpinTop, urlReflect, server, pk, selectable, rowsPerPageOptions,
     tableHead, tableActions, rowActions, toolbar, allowCsv, showTitle, showAggregate,
     addProps, editProps, deleteProps, filterLayout, tableStyles, tableHeaderColor, tableProps,
   } = props;
@@ -44,6 +44,7 @@ function EnhancedTable(props) {
   const [ filters, setFilters ] = useState({});
   const classes = useStyles();
   const location = useLocation()
+  const history = useHistory();
 
   useEffect(() => {
     setTableData(table.initTableData(props.tableData));
@@ -70,9 +71,9 @@ function EnhancedTable(props) {
     const urlFilters = table.loadFilters(location, props.tableHead);
     const storageFilter = getFilter();
     if (!common.isEmpty(storageFilter)) {
-      state['filters'] = storageFilter;
+      setFilters(storageFilter);
     } else if (!common.isEmpty(urlFilters)) {
-      state['filters'] = urlFilters;
+      setFilters(urlFilters)
     }
   }, [location.search]);
 
@@ -155,8 +156,8 @@ function EnhancedTable(props) {
   const handleChangeFilter = (event, _filters) => {
     handleFixedHeader();
     _filters = table.resetFilter(_filters, tableHead);
-    setFilters(filters)
-    saveFilter(filters);
+    setFilters(_filters)
+    saveFilter(_filters);
     // 1ページ目に移動
     handleChangePage(event, 0);
     if (urlReflect === true) {

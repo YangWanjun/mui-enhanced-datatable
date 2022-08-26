@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  withStyles,
   MenuItem,
   InputLabel,
   Select,
