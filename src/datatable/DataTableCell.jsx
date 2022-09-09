@@ -177,6 +177,8 @@ DataTableCell.propTypes = {
   column: PropTypes.object,
   data: PropTypes.object,
   actions: PropTypes.array,
+  actionsTrigger: PropTypes.func,
+  style: PropTypes.object,
 };
 
 export default DataTableCell;

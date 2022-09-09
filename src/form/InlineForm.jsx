@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Tooltip,
@@ -24,7 +24,7 @@ const useStyles = makeStyles({
   },
 });
 
-function InlineForm(props) {
+const InlineForm = forwardRef((props, ref) => {
   const { schema, layout, allowAdd, allowDelete, new_line_schema, checkList, onChanges } = props;
   const [ data, setData ] = useState({});
   const [ errors, setErrors ] = useState({});
@@ -37,6 +37,12 @@ function InlineForm(props) {
   useEffect(() => {
     setErrors(props.errors || {});
   }, [props.data, props.schema]);
+
+  useImperativeHandle(ref, () => ({
+    clean: () => {
+      return form.clean_form(validate, data, schema);
+    },
+  }));
 
   const initializeData = (props) => {
     if (props.schema) {
@@ -81,7 +87,7 @@ function InlineForm(props) {
     setData(_data);
   };
 
-  const handleChange = (prefix, inlineIndex) => (name, value, type) => (event) => {
+  const handleChange = (prefix, inlineIndex) => (name, value, type) => (event) => {  // eslint-disable-line
     const _data = data.slice();
     _data[inlineIndex][name] = value;
     setData(_data);
@@ -116,10 +122,6 @@ function InlineForm(props) {
     setErrors(_errors);
     return valid;
   };
-
-  const clean = () => {
-    return form.clean_form(validate, data, schema);
-  }
 
   const non_field_errors = errors ? errors.non_field_errors : null;
 
@@ -170,7 +172,7 @@ function InlineForm(props) {
       </>
     )
   }
-}
+});
 
 InlineForm.propTypes = {
   schema: PropTypes.array.isRequired,
@@ -179,6 +181,9 @@ InlineForm.propTypes = {
   onChanges: PropTypes.arrayOf(PropTypes.func),
   allowAdd: PropTypes.bool,
   allowDelete: PropTypes.bool,
+  new_line_schema: PropTypes.array,
+  checkList: PropTypes.array,
+  errors: PropTypes.object,
 };
 
 InlineForm.defaultProps = {
@@ -188,5 +193,7 @@ InlineForm.defaultProps = {
   allowAdd: true,
   allowDelete: true,
 };
+
+InlineForm.displayName = "InlineForm";
 
 export default InlineForm;

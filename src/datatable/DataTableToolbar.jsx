@@ -138,10 +138,10 @@ function DataTableToolbar(props) {
     }
   };
 
-  const handleChange = (name, value, type) => (event) => {
+  const handleChange = (name, value, type) => (event) => {  // eslint-disable-line
     const column = common.getFromList(tableHead, 'name', name);
     let filter_in = null;
-    if (!common.isEmpty(column.choices) && column.choices[0].hasOwnProperty('parent')) {
+    if (!common.isEmpty(column.choices) && Object.prototype.hasOwnProperty.call(column.choices[0], "parent")) {
       filter_in = common.getChildren(value, column.choices, 'value', 'parent');
     }
     let _filters = Object.assign({}, filters);
@@ -259,6 +259,7 @@ function DataTableToolbar(props) {
   };
 
   const numSelected = selected.length;
+  const isWidthDownXS = useIsWidthDown('xs');
 
   return (
     <div id={id}>
@@ -331,7 +332,7 @@ function DataTableToolbar(props) {
             </Tooltip>
           ) : null}
           {tableHead.filter(col => col.searchable === true).length > 0 ? (
-            useIsWidthDown('xs') ? (
+            isWidthDownXS ? (
               <Tooltip title="検索" placement='bottom' enterDelay={300}>
                 { openFilter === true ? (
                   <IconButton aria-label="Filter list" onClick={handleCloseFilter}>
@@ -381,7 +382,7 @@ function DataTableToolbar(props) {
           ) : null}
         </div>
       </Toolbar>
-      { useIsWidthDown('xs') ? (
+      { isWidthDownXS ? (
         <div>
           <Collapse in={openFilter} timeout='auto' unmountOnExit>
             {form.createFormLayout(
@@ -437,19 +438,26 @@ function DataTableToolbar(props) {
 }
 
 DataTableToolbar.propTypes = {
+  id: PropTypes.string,
+  title: PropTypes.string,
   showTitle: PropTypes.bool,
   filters: PropTypes.object,
   filterLayout: PropTypes.array,
+  selected: PropTypes.array,
+  tableHead: PropTypes.array,
+  tableData: PropTypes.array,
   addProps: PropTypes.shape({
     title: PropTypes.string,
     schema: PropTypes.array.isRequired,
     handleOk: PropTypes.func.isRequired,
+    handleBeforeShowup: PropTypes.func,
     visible: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   }),
   editProps: PropTypes.shape({
     title: PropTypes.string,
     schema: PropTypes.array.isRequired,
     handleOk: PropTypes.func.isRequired,
+    handleBeforeShowup: PropTypes.func,
     visible: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   }),
   saveCallback: PropTypes.func,
@@ -457,6 +465,11 @@ DataTableToolbar.propTypes = {
     handleDelete: PropTypes.func.isRequired,
     visible: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   }),
+  tableActions: PropTypes.array,
+  rowActions: PropTypes.array,
+  clearSelected: PropTypes.func,
+  allowCsv: PropTypes.bool,
+  onChangeFilter: PropTypes.func,
 };
 DataTableToolbar.defaultProps = {
   showTitle: true,

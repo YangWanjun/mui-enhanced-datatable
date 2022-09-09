@@ -1,7 +1,6 @@
 import React, { useRef, useState } from "react";
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import withStyles from "@material-ui/core/styles/withStyles";
 import {
   Card,
   CardHeader,
@@ -28,34 +27,20 @@ import ConfirmDialog from "../dialog/ConfirmDialog";
 const useStyles = makeStyles(detailStyle);
 
 function TableDetail(props) {
-  const { avatar, title, schema, actions, editProps, deleteProps, cardMenuItems, loading } = props;
+  const { avatar, title, schema, data, actions, editProps, deleteProps, cardMenuItems, loading } = props;
   const [ open, setOpen ] = useState(false);
   const [ anchorEl, setAnchorEl] = useState(null);
-  const [ data, setData ] = useState(props.data || {});
   const dlgDeleteRef = useRef(null);
   const classes = useStyles();
-  let _showEditDialog = null;
-
-  // UNSAFE_componentWillReceiveProps(nextProps) {
-  //   if (JSON.stringify(this.props.data) !== JSON.stringify(nextProps.data)) {
-  //     this.setState({data: nextProps.data});
-  //   }
-  // }
+  const refEditDialog = useRef(null);
 
   const handleOpenMenu = (event) => {
     setOpen(true);
     setAnchorEl(event.currentTarget);
   };
 
-  const handleCloseMenu = (event) => {
+  const handleCloseMenu = (event) => {  // eslint-disable-line
     setOpen(false);
-  };
-
-  const handleMenuListKeyDown = (event) => {
-    if (event.key === 'Tab') {
-      event.preventDefault();
-      setOpen(false);
-    }
   };
 
   const getAvatar = () => {
@@ -71,10 +56,7 @@ function TableDetail(props) {
   }
   
   const onShowEditDialog = () => {
-    if (this._showEditDialog) {
-      const { data } = this.state;
-      this._showEditDialog(data);
-    }
+    refEditDialog.current.handleOpen(data);
   };
 
   return (
@@ -127,7 +109,7 @@ function TableDetail(props) {
               variant="contained"
               color="secondary"
               className={classes.button}
-              onClick={() => dlgDeleteRef.current()} 
+              onClick={() => dlgDeleteRef.current.handleOpen()} 
             >
               削除
             </Button>
@@ -148,14 +130,14 @@ function TableDetail(props) {
         <FormDialog
           {...editProps}
           handleOk={editProps.handleEdit}
-          ref={(dialog) => {_showEditDialog = dialog && dialog.handleOpen}}
+          ref={refEditDialog}
         />
       ) : null}
       {!common.isEmpty(deleteProps) && deleteProps.visible !== false ? (
         <ConfirmDialog
           title='削除してもよろしいですか。'
           onOk={deleteProps.handleDelete}
-          anchorEl={dlgDeleteRef}
+          ref={dlgDeleteRef}
         />
       ) : null}
       {cardMenuItems ? (
@@ -178,6 +160,7 @@ TableDetail.propTypes = {
   deleteProps: PropTypes.object,
   cardMenuItems: PropTypes.arrayOf(PropTypes.object),
   loading: PropTypes.bool,
+  avatar: PropTypes.any,
 };
 
 TableDetail.defaultProps = {

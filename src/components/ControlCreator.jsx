@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import {
   FormControl,
@@ -24,8 +24,7 @@ import { common } from "../utils";
 const useStyles = makeStyles(formStyle);
 
 function ControlCreator(props) {
-  const [ datasource, setDatasource ] = useState(null);
-  const { column, data, errors, handleChange, handleBlur } = props;
+  const { column, data, errors, datasource, handleChange, handleBlur } = props;
   const classes = useStyles();
   
   const handleInnerChange = (event) => {
@@ -201,7 +200,7 @@ function ControlCreator(props) {
     // 選択肢が存在する場合
     const choices = Array.isArray(datasource) ? datasource : (column.choices || []);
     column['choices'] = choices;
-    if (!common.isEmpty(column.choices) && column.choices[0].hasOwnProperty('parent')) {
+    if (!common.isEmpty(column.choices) && Object.prototype.hasOwnProperty.call(column.choices[0], "parent")) {
       control = (
         <React.Fragment>
           <HierarchySelect
@@ -425,11 +424,28 @@ function ControlCreator(props) {
 
 ControlCreator.propTypes = {
   column: PropTypes.shape({
+    label: PropTypes.string,
+    type: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
+    read_only: PropTypes.bool,
+    required: PropTypes.bool,
+    help_text: PropTypes.string,
+    multiple: PropTypes.bool,
+    min_value: PropTypes.number,
+    max_value: PropTypes.number,
+    step: PropTypes.number,
+    native: PropTypes.bool,
+    choices: PropTypes.array,
+    verbose_name: PropTypes.string,
+    variant: PropTypes.string,
+    max_length: PropTypes.number,
+    colStyles: PropTypes.string,
+    handle_download: PropTypes.func,
   }).isRequired,
   value: PropTypes.any,
   data: PropTypes.object,
   errors: PropTypes.arrayOf(PropTypes.string),
+  datasource: PropTypes.array,
   handleBlur: PropTypes.func,
   handleChange: PropTypes.func,
 };

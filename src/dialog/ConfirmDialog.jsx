@@ -68,5 +68,6 @@ ConfirmDialog.propTypes = {
   title: PropTypes.string.isRequired,
   onOk: PropTypes.func.isRequired,
 };
+ConfirmDialog.displayName = "ConfirmDialog";
 
 export default ConfirmDialog;

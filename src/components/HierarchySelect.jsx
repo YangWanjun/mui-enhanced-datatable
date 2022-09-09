@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import {
   MenuItem,
   InputLabel,
@@ -82,5 +83,14 @@ function HierarchySelect(props) {
     </React.Fragment>
   );
 }
+
+HierarchySelect.propTypes = {
+  label: PropTypes.object,
+  name: PropTypes.string,
+  value: PropTypes.any,
+  choices: PropTypes.array,
+  native: PropTypes.bool,
+  handleChange: PropTypes.func,
+};
 
 export default HierarchySelect;

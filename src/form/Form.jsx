@@ -79,7 +79,7 @@ const Form = forwardRef((props, ref) => {
   //   }
   // }
 
-  const handleChange = (prefix, inlineIndex) => (name, value, type) => (event) => {
+  const handleChange = (prefix, inlineIndex) => (name, value, type) => (event) => {  // eslint-disable-line
     const _data = Object.assign({}, data);
     if (prefix && inlineIndex !== undefined && inlineIndex !== null) {
       let formsetData = _data[prefix];
@@ -116,7 +116,7 @@ const Form = forwardRef((props, ref) => {
 
   const handleBlur = (event, name) => {
     onBlurs.map(method => {
-      const _data = Object.assign({}, state.data);
+      const _data = Object.assign({}, data);
       const retVal = method(name, _data);
       if (retVal) {
         setData(Object.assign(_data, retVal))
@@ -145,7 +145,7 @@ const Form = forwardRef((props, ref) => {
     setErrors(Object.assign({}, errors));
   };
 
-  const handleInlineAdd = (prefix, schema) => () => {
+  const handleInlineAdd = (prefix, schema) => () => {  // eslint-disable-line
     let inlineData = data[prefix];
     if (Array.isArray(inlineData)) {
       inlineData.push({});
@@ -310,5 +310,7 @@ Form.defaultProps = {
   onBlurs: [],
   checkList: [],
 };
+
+Form.displayName = "Form";
 
 export default Form;

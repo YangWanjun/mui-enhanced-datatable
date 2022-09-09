@@ -9,7 +9,7 @@ import {
   defaultFont
 } from "./common";
 
-const tableStyle = theme => ({
+const tableStyle = () => ({
   warningTableHeader: {
     color: warningColor
   },

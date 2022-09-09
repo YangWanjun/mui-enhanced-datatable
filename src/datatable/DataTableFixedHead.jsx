@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import {
   Table,
 } from "@material-ui/core";
@@ -19,5 +20,13 @@ function DataTableFixedHead(props) {
     </div>
   );
 }
+
+DataTableFixedHead.propTypes = {
+  classes: PropTypes.object,
+  id: PropTypes.string,
+  tableId: PropTypes.string,
+  tableHeader: PropTypes.object,
+  toolbar: PropTypes.any,
+};
 
 export default DataTableFixedHead;

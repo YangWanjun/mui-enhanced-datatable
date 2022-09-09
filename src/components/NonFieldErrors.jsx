@@ -1,7 +1,8 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   error: {
     color: 'red',
   },
@@ -28,5 +29,9 @@ function NonFieldErrors(props) {
     </React.Fragment>
   );
 }
+
+NonFieldErrors.propTypes = {
+  errors: PropTypes.any,
+};
 
 export default NonFieldErrors;

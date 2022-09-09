@@ -1,4 +1,4 @@
-import React, { createRef, forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from "prop-types";
 import { 
   Dialog,
@@ -176,8 +176,10 @@ FormDialog.propTypes = {
   layout: PropTypes.array,
   handleOk: PropTypes.func.isRequired,
   saveCallback: PropTypes.func,
+  errors: PropTypes.object,
 };
 FormDialog.defaultProps = {
 };
+FormDialog.displayName = "FormDialog";
 
 export default FormDialog;

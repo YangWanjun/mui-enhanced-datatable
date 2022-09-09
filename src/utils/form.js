@@ -97,7 +97,7 @@ export const createFormField = (col, key, colSpan, data, prefix, inlineIndex, in
   } else {
     const choices = data[col.name + '_choices'];
     let value = data[col.name];
-    if (value && value.hasOwnProperty('value')) {
+    if (value && Object.prototype.hasOwnProperty.call(value, "value")) {
       // 階層型のデータをフィルターの場合
       value = value.value;
     }

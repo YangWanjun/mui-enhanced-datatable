@@ -1,9 +1,14 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ESLintWebpackPlugin = require('eslint-webpack-plugin');
 // HTMLファイルのビルド設定
 const htmlWebpackPlugin = new HtmlWebpackPlugin({
   template: path.join(__dirname, 'examples/src/index.html'),
   filename: './index.html'
+});
+const esLintWebpackPlugin = new ESLintWebpackPlugin({
+  exclude: ['node_modules', 'examples'],
+  extensions: ['.js', '.jsx']
 });
 module.exports = {
   // 依存関係解決の起点となる資産を指定します。
@@ -22,7 +27,7 @@ module.exports = {
       }
     ]
   },
-  plugins: [htmlWebpackPlugin],
+  plugins: [htmlWebpackPlugin, esLintWebpackPlugin],
   resolve: {
     extensions: ['.js', '.jsx']
   },

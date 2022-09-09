@@ -83,7 +83,17 @@ function DataTableHead(props) {
 }
 
 DataTableHead.propTypes = {
+  classes: PropTypes.object,
+  tableHead: PropTypes.array,
+  data: PropTypes.array,
+  selectable: PropTypes.string,
+  selected: PropTypes.array,
   sortable: PropTypes.bool,
+  order: PropTypes.string,
+  orderBy: PropTypes.string,
+  tableHeaderColor: PropTypes.string,
+  onSelectAllClick: PropTypes.func,
+  onSort: PropTypes.func,
 };
 
 DataTableHead.defaultProps = {

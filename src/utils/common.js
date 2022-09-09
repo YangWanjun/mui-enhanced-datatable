@@ -40,8 +40,8 @@ export default {
     } else if (typeof obj === 'number') {
       return false;
     }
-    for(var key in obj) {
-      if(obj.hasOwnProperty(key))
+    for(let key in obj) {
+      if(Object.prototype.hasOwnProperty.call(obj, key))
         return false;
     }
     return true;
@@ -183,7 +183,7 @@ export default {
   getLabelFromColumn: function(value, column) {
     let label = value;
     if (column === null || column === undefined) {
-
+      // Do nothing
     } else if (column.choices && !this.isEmpty(column.choices)) {
       let item = this.getFromList(column.choices, 'value', value);
       if (item) {
@@ -205,7 +205,7 @@ export default {
    */
   getExtraRowStyles: function(rowData, tableHead) {
     let extraStyles = {};
-    const columns = tableHead.filter(col => col.hasOwnProperty('rowStyles'));
+    const columns = tableHead.filter(col => Object.prototype.hasOwnProperty.call(col, "rowStyles"));
     columns.map(col => {
       let styles = col.rowStyles[rowData[col.name]];
       return Object.assign(extraStyles, styles);
@@ -249,7 +249,7 @@ export default {
             {value}
           </div>
         );
-      case 'file':
+      case 'file': {
         let display_name = value;
         if (!this.isEmpty(data) && column.verbose_name) {
           display_name = data[column.verbose_name];
@@ -267,6 +267,7 @@ export default {
         } else {
           return display_name;
         }
+      }
       default:
         return value;
     }
@@ -341,7 +342,7 @@ export default {
       wrapper.style.top = offset + 'px';
       // 各項目の長さを設定する
       let colsWidth = [];
-      Array.prototype.forEach.call(srcTable.querySelector('thead>tr').children, function(ele, idx) {
+      Array.prototype.forEach.call(srcTable.querySelector('thead>tr').children, function(ele, idx) {  // eslint-disable-line
         const colWidth = ele.getBoundingClientRect().width;
         colsWidth.push(colWidth);
       });
@@ -387,7 +388,7 @@ export default {
 
   arrayToCSV: function(array) {
     let lineArray = [];
-    array.forEach(function (infoArray, index) {
+    array.forEach(function (infoArray, index) {  // eslint-disable-line
       let line = infoArray.join('","');
       lineArray.push(`"${line}"`);
     });
