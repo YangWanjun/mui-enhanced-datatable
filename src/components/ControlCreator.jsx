@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 import PropTypes from "prop-types";
 import {
   FormControl,
@@ -23,9 +23,16 @@ import { common } from "../utils";
 
 const useStyles = makeStyles(formStyle);
 
-function ControlCreator(props) {
-  const { column, data, errors, datasource, handleChange, handleBlur } = props;
+const ControlCreator = forwardRef((props, ref) => {
+  const { column, data, errors, handleChange, handleBlur } = props;
+  const [ datasource, setDatasourceState ] = useState(null)  // CASCADE項目のために使う
   const classes = useStyles();
+
+  useImperativeHandle(ref, () => ({
+    setDatasource: (_datasource) => {
+      setDatasourceState(_datasource);
+    }
+  }));
   
   const handleInnerChange = (event) => {
     let { name, value } = event.target;
@@ -420,7 +427,7 @@ function ControlCreator(props) {
       {errorNodes}
     </FormControl>
   );
-}
+});
 
 ControlCreator.propTypes = {
   column: PropTypes.shape({
@@ -445,7 +452,6 @@ ControlCreator.propTypes = {
   value: PropTypes.any,
   data: PropTypes.object,
   errors: PropTypes.arrayOf(PropTypes.string),
-  datasource: PropTypes.array,
   handleBlur: PropTypes.func,
   handleChange: PropTypes.func,
 };
@@ -453,5 +459,7 @@ ControlCreator.propTypes = {
 ControlCreator.defaultProps = {
   errors: [],
 };
+
+ControlCreator.displayName = "ControlCreator";
 
 export default ControlCreator;

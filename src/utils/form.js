@@ -122,7 +122,7 @@ export const createFormField = (col, key, colSpan, data, prefix, inlineIndex, in
           errors={fieldErrors}
           handleBlur={handleBlur}
           handleChange={handleChange(prefix, inlineIndex)}
-          innerRef={(ctrl) => {
+          ref={(ctrl) => {
             if (col.cascade_from && ctrl && ctrl.setDatasource) {
               col['cascade_reflect'] = ctrl.setDatasource;
             }
