@@ -446,7 +446,7 @@ ControlCreator.propTypes = {
     verbose_name: PropTypes.string,
     variant: PropTypes.string,
     max_length: PropTypes.number,
-    colStyles: PropTypes.string,
+    colStyles: PropTypes.object,
     handle_download: PropTypes.func,
   }).isRequired,
   value: PropTypes.any,
