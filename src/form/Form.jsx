@@ -46,7 +46,7 @@ const Form = forwardRef((props, ref) => {
 
   useEffect(() => {
     setErrors(props.errors || {});
-  }, [props.data, props.schema]);
+  }, [props.errors]);
 
   const initializeData = (props) => {
     if (!common.isEmpty(props.data)) {

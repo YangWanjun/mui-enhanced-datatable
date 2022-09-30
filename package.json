@@ -1,6 +1,6 @@
 {
   "name": "mui-enhanced-datatable",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Material UI Datatable",
   "main": "dist/index.js",
   "scripts": {
