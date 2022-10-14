@@ -6,7 +6,7 @@ export default {
    * @param {Array} data デーブルデータ
    */
   initTableData: function(data) {
-    if (data) {
+    if (Array.isArray(data)) {
       data.map((row, index) => row['__index__'] = index);
     }
     return data;

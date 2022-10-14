@@ -192,7 +192,7 @@ function EnhancedTable(props) {
     if (!data) {
       return false;
     }
-    let key = getDataKey(data);
+    const key = getDataKey(data);
 
     if (!selected) {
       return false;
@@ -203,10 +203,12 @@ function EnhancedTable(props) {
 
   const getDataKey = (data) => {
     let key = null;
-    if (data.__index__ !== null && data.__index__ !== undefined) {
-      key = '__index__';
-    } else {
+    if (data.id !== null && data.id !== undefined) {
+      key = 'id';
+    } else if (data.pk !== null && data.pk !== undefined) {
       key = pk;
+    } else {
+      key = '__index__';
     }
     return key;
   }
@@ -217,9 +219,10 @@ function EnhancedTable(props) {
     }
     const _isSelected = isSelected(data);
     let newSelected = [];
+    const key = getDataKey(data);
     if (selectable === 'multiple') {
       if (_isSelected === true) {
-        const selectedIndex = selected.indexOf(data);
+        const selectedIndex = selected.findIndex(i => i[key] === data[key]);
         newSelected = newSelected.concat(
           selected.slice(0, selectedIndex),
           selected.slice(selectedIndex + 1),
