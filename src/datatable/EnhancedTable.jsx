@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { useLocation, useHistory } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 // @material-ui/core components
 import {
@@ -22,15 +22,11 @@ import tableStyle from "../assets/css/datatable";
 import { common, constant, table } from "../utils";
 import { AggregateFooter, useIsWidthDown } from "../components";
 
-const tableId = uuidv4();
-const toolbarId = uuidv4();
-const fixedTableId = uuidv4();
-const fixedHeaderId = uuidv4();
 const useStyles = makeStyles(tableStyle);
 
 function EnhancedTable(props) {
   const {
-    title, storageKey, pushpinTop, urlReflect, server, pk, selectable, rowsPerPageOptions,
+    title, storageKey, pushpinTop, server, pk, selectable, rowsPerPageOptions,
     tableHead, tableActions, rowActions, toolbar, allowCsv, showTitle, showAggregate,
     addProps, editProps, deleteProps, filterLayout, tableStyles, tableHeaderColor, tableProps,
   } = props;
@@ -42,9 +38,13 @@ function EnhancedTable(props) {
   const [ orderBy, setOrderBy ] = useState('');
   const [ orderNumeric, setOrderNumeric ] = useState(false);
   const [ filters, setFilters ] = useState({});
+  const [ tableId, setTableId ] = useState(null);
+  const [ toolbarId, setToolbarId ] = useState(null);
+  const [ fixedTableId, setFixedTableId ] = useState(null);
+  const [ fixedHeaderId, setFixedHeaderId ] = useState(null);
   const classes = useStyles();
   const location = useLocation()
-  const history = useHistory();
+  // const history = useHistory();
 
   useEffect(() => {
     setTableData(table.initTableData(props.tableData));
@@ -78,20 +78,31 @@ function EnhancedTable(props) {
   }, [location.search]);
 
   useEffect(() => {
-    window.addEventListener('scroll', handleFixedHeader);
-    window.addEventListener('resize', handleFixedHeader);
-    return () => {
-      window.removeEventListener('scroll', handleFixedHeader);
-      window.removeEventListener('resize', handleFixedHeader);  
-    };
+    setTableId(uuidv4());
+    setToolbarId(uuidv4());
+    setFixedTableId(uuidv4());
+    setFixedHeaderId(uuidv4());
   }, []);
-
+  
+  useEffect(() => {
+    if (tableId && toolbarId && fixedTableId && fixedHeaderId) {
+      window.addEventListener('scroll', handleFixedHeader);
+      window.addEventListener('resize', handleFixedHeader);
+      return () => {
+        window.removeEventListener('scroll', handleFixedHeader);
+        window.removeEventListener('resize', handleFixedHeader);  
+      };
+    }
+  }, [tableId, toolbarId, fixedTableId, fixedHeaderId]);
+  
   useEffect(() => {
     handleFixedHeader();
   });
 
   const handleFixedHeader = () => {
-    common.setFixedTableHeader(fixedHeaderId, toolbarId, tableId, fixedTableId, pushpinTop);
+    if (tableId && toolbarId && fixedTableId && fixedHeaderId) {
+      common.setFixedTableHeader(fixedHeaderId, toolbarId, tableId, fixedTableId, pushpinTop);
+    }
   };
 
   // UNSAFE_componentWillReceiveProps(nextProps) {
@@ -118,9 +129,9 @@ function EnhancedTable(props) {
   const handleChangePage = (event, page) => {
     handleFixedHeader();
     setPage(page);
-    if (urlReflect === true) {
-      table.changePaginationUrl(page, location, history);
-    }
+    // if (urlReflect === true) {
+    //   table.changePaginationUrl(page, location, history);
+    // }
   };
 
   const handleChangeRowsPerPage = event => {
@@ -132,9 +143,9 @@ function EnhancedTable(props) {
     }
     // 1ページ目に移動
     handleChangePage(event, 0);
-    if (urlReflect === true) {
-      table.changePageSizeUrl(event.target.value, location, history);
-    }
+    // if (urlReflect === true) {
+    //   table.changePageSizeUrl(event.target.value, location, history);
+    // }
   };
 
   const handleSort = (event, property, _orderNumeric) => {
@@ -148,9 +159,9 @@ function EnhancedTable(props) {
     setOrder(_order);
     setOrderBy(_orderBy);
     setOrderNumeric(_orderNumeric);
-    if (urlReflect === true) {
-      table.changeOrderUrl(_order, _orderBy, _orderNumeric, location, history);
-    }
+    // if (urlReflect === true) {
+    //   table.changeOrderUrl(_order, _orderBy, _orderNumeric, location, history);
+    // }
   };
 
   const handleChangeFilter = (event, _filters) => {
@@ -160,9 +171,9 @@ function EnhancedTable(props) {
     saveFilter(_filters);
     // 1ページ目に移動
     handleChangePage(event, 0);
-    if (urlReflect === true) {
-      table.changeFilterUrl(_filters, location, history);
-    }
+    // if (urlReflect === true) {
+    //   table.changeFilterUrl(_filters, location, history);
+    // }
   };
 
   /**
@@ -306,7 +317,7 @@ function EnhancedTable(props) {
           {...toolbarProps}
         />
       ) : null}
-      <div style={{width: 'auto', overflowX: "auto"}} onScroll={handleFixedHeader}>
+      <div style={{width: 'auto', overflowX: "auto"}}>
       <Table className={classes.table} id={tableId} {...tableProps} style={{...tableStyles}}>
         <DataTableHead
           {...headerProps}
