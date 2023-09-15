@@ -34,6 +34,11 @@ export const columns = [
     "searchable": true,
   },
   {
+    "name": "join_date",
+    "type": "date",
+    "label": "入社日",
+  },
+  {
     "name": "address",
     "type": "string",
     "label": "住所",

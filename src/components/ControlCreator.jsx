@@ -51,6 +51,10 @@ const ControlCreator = forwardRef((props, ref) => {
       }
     } else if (type === 'integer') {
       value = common.toInteger(value);
+    } else if (type === 'date') {
+      if (value === '') {
+        value = null;
+      }
     } else if (type === 'file') {
       const fileLabel = document.getElementById(`id_label_${column.name}`);
       if (multiple === true) {
