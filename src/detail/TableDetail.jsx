@@ -19,20 +19,25 @@ import {
   makeStyles,
 } from '@material-ui/core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import HistoryIcon from '@material-ui/icons/History';
 import detailStyle from '../assets/css/detail';
 import FormDialog from '../dialog/FormDialog';
 import { common } from '../utils/index';
 import ConfirmDialog from "../dialog/ConfirmDialog";
+import HistoryDialog from "../dialog/HistoryDialog";
 
 const useStyles = makeStyles(detailStyle);
 
 function TableDetail(props) {
-  const { avatar, title, schema, data, actions, editProps, deleteProps, cardMenuItems, loading } = props;
+  const {
+    avatar, title, schema, data, actions, editProps, deleteProps, cardMenuItems, loading, histories 
+  } = props;
   const [ open, setOpen ] = useState(false);
   const [ anchorEl, setAnchorEl] = useState(null);
   const dlgDeleteRef = useRef(null);
   const classes = useStyles();
   const refEditDialog = useRef(null);
+  const refHistoryDialog = useRef(null);
 
   const handleOpenMenu = (event) => {
     setOpen(true);
@@ -58,6 +63,29 @@ function TableDetail(props) {
   const onShowEditDialog = () => {
     refEditDialog.current.handleOpen(data);
   };
+
+  const hasHistory = (col, value) => {
+    if (Array.isArray(histories) && histories.length > 0) {
+      if (Array.isArray(col.history)) {
+        return histories.some(i => col.history.indexOf(i.key) >= 0 && i.value != value)
+      } else {
+        return histories.some(i => i.key === col.name && i.value != value)
+      }
+    }
+    return false;
+  }
+
+  const showHistories = (col) => {
+    if (Array.isArray(histories) && histories.length > 0 && refHistoryDialog.current) {
+      let items = [];
+      if (Array.isArray(col.history)) {
+        items = histories.filter(i => col.history.indexOf(i.key) >= 0);
+      } else {
+        items = histories.filter(i => i.key === col.name);
+      }
+      refHistoryDialog.current.handleOpen(items);
+    }
+  }
 
   return (
     <div>
@@ -92,6 +120,16 @@ function TableDetail(props) {
                       ) : col.link ? (
                         <Link to={common.formatStr(typeof col.link === 'function' ? col.link(data) : col.link, data)}>{display_name}</Link>
                       ) : display_name}
+                      { hasHistory(col, value) ? (
+                        <IconButton
+                          color="primary"
+                          size="small"
+                          className={classes.historyIcon}
+                          onClick={() => showHistories(col)}
+                        >
+                          <HistoryIcon />
+                        </IconButton>
+                      ) : null }
                     </TableCell>
                   </TableRow>
                 );
@@ -147,6 +185,9 @@ function TableDetail(props) {
           onClose={handleCloseMenu}
         >{cardMenuItems}</Menu>
       ) : null}
+      <HistoryDialog
+        ref={refHistoryDialog}
+      />
     </div>
   );
 }
@@ -161,6 +202,7 @@ TableDetail.propTypes = {
   cardMenuItems: PropTypes.arrayOf(PropTypes.object),
   loading: PropTypes.bool,
   avatar: PropTypes.any,
+  histories: PropTypes.array,
 };
 
 TableDetail.defaultProps = {
@@ -168,6 +210,7 @@ TableDetail.defaultProps = {
   editProps: {},
   deleteProps: {},
   loading: false,
+  histories: [],
 };
 
 export default TableDetail;

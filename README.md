@@ -34,6 +34,7 @@ https://yangwanjun.github.io/mui-enhanced-datatable/
 | type | 必須 | 文字列として表示する,下記の選択肢があります<br>"string": 文字列<br> "integer": 整数<br>"decimal": 小数<br>"choice": 選択肢<br>"choices": 複数選択できる選択肢<br>"boolean": デフォルトはチェックボックスとして表示<br>"date": 日付<br>"text": 改行できる文字列<br>"file": ファイルアップロードまたは表示できる |
 | label | 必須 | 項目の名称、一覧のヘッダー部分に表示する項目 |
 | link | null | 別の画面に遷移するＵＲＬ「.../%(pk)s/...」によってtableDataから文字列を置換できる |
+| hisotry | name指定の項目 | 変更履歴を表示する<br>配列で他項目の履歴も表示できる |
 | help_text | null | 項目の説明文字列 |
 | max_width | null | 一覧項目表示最大幅を指定する |
 | searchable | false |フィルター検索できるかどうか |

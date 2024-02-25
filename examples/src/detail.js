@@ -1,7 +1,7 @@
 import React from 'react';
 import {TableDetail} from '../../src/index';
 import { common } from '../../src/utils';
-import {columns, rows} from './data';
+import {columns, rows, memberHistory} from './data';
 
 class Detail extends React.Component {
 
@@ -25,6 +25,7 @@ class Detail extends React.Component {
               return Promise.resolve(data);
             },
           }}
+          histories={memberHistory}
         />
       </div>
     );

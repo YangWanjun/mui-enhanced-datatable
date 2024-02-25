@@ -37,6 +37,7 @@ export const columns = [
     "name": "join_date",
     "type": "date",
     "label": "入社日",
+    "history": ['address', 'name']
   },
   {
     "name": "address",
@@ -136,4 +137,39 @@ export const hierarchyColumns = [
     "type": "string",
     "label": "部長",
   },
+];
+
+export const memberHistory = [
+  {
+      "id": 919,
+      "created_dt": "2024-02-13T11:37:04.065766+09:00",
+      "updated_dt": "2024-02-13T11:37:04.065777+09:00",
+      "is_deleted": false,
+      "deleted_dt": null,
+      "object_id": 2858,
+      "category": "01",
+      "start_date": "2024-02-13",
+      "key": "address",
+      "label": "住所１",
+      "value": "東京都江戸川区東瑞江",
+      "display_text": null,
+      "data_type": "string",
+      "content_type": 32
+  },
+  {
+    "id": 919,
+    "created_dt": "2024-02-13T11:37:04.065766+09:00",
+    "updated_dt": "2024-02-13T11:37:04.065777+09:00",
+    "is_deleted": false,
+    "deleted_dt": null,
+    "object_id": 2858,
+    "category": "01",
+    "start_date": "2024-02-13",
+    "key": "name",
+    "label": "住所１",
+    "value": "名前",
+    "display_text": null,
+    "data_type": "string",
+    "content_type": 32
+}
 ];

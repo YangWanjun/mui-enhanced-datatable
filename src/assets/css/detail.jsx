@@ -49,6 +49,24 @@ const tableDetailStyle = (theme) => ({
       opacity: 0.5,
     },
   },
+  historyIcon: {
+    padding: 0,
+    marginLeft: theme.spacing(1),
+
+    '& svg': {
+      fontSize: "20px",
+    },
+  },
+  fullScreen: {
+    [theme.breakpoints.down('xs')]: {
+      width: '100%',
+      height: '100%',
+      margin: 0,
+      maxWidth: '100%',
+      maxHeight: 'none',
+      borderRadius: 0,
+    },
+  },
 });
 
 export default tableDetailStyle;
