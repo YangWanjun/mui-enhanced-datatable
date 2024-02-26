@@ -67,7 +67,16 @@ function TableDetail(props) {
   const hasHistory = (col, value) => {
     if (Array.isArray(histories) && histories.length > 0) {
       if (Array.isArray(col.history)) {
-        return histories.some(i => col.history.indexOf(i.key) >= 0 && i.value != value)
+        if (col.history.length === 1) {
+          return histories.some(i => col.history.indexOf(i.key) >= 0 && i.value != value)
+        } else {
+          const arrVal = (value || "").split(/[ \x20\u3000]/g)
+          for (const k of col.history) {
+            if (histories.some(x => x.key === k && arrVal.indexOf(x.value) < 0)) {
+              return true;
+            }
+          }
+        }
       } else {
         return histories.some(i => i.key === col.name && i.value != value)
       }

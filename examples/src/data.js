@@ -32,12 +32,12 @@ export const columns = [
     "maxWidth": 260,
     "sortable": true,
     "searchable": true,
+    "history": ['last_name', 'first_name']
   },
   {
     "name": "join_date",
     "type": "date",
     "label": "入社日",
-    "history": ['address', 'name']
   },
   {
     "name": "address",
@@ -73,7 +73,7 @@ export const columns = [
 ];
 
 export const rows = [
-  {'pk': 1, 'name': '森 直樹', 'dept': 1, 'address': '福井県夷隅郡大多喜町方京13丁目1番20号', 'salary': 700000, 'retired': false},
+  {'pk': 1, 'name': '森 直樹', 'first_name': '直樹', 'last_name': '森', 'dept': 1, 'address': '福井県夷隅郡大多喜町方京13丁目1番20号', 'salary': 700000, 'retired': false},
   {'pk': 2, 'name': '佐藤 智也', 'dept': 23, 'address': '兵庫県印旛郡本埜村柿木沢30丁目25番2号', 'salary': 720000, 'retired': false},
   {'pk': 3, 'name': '近藤 七夏', 'dept': 102, 'address': '京都府匝瑳市池之端27丁目5番19号 パーク六番町232', 'salary': 700000, 'retired': false},
   {'pk': 4, 'name': '山崎 花子', 'dept': 222, 'address': '茨城県川崎市高津区丸の内33丁目6番1号', 'salary': 710000, 'retired': false},
@@ -157,7 +157,7 @@ export const memberHistory = [
       "content_type": 32
   },
   {
-    "id": 919,
+    "id": 920,
     "created_dt": "2024-02-13T11:37:04.065766+09:00",
     "updated_dt": "2024-02-13T11:37:04.065777+09:00",
     "is_deleted": false,
@@ -165,11 +165,27 @@ export const memberHistory = [
     "object_id": 2858,
     "category": "01",
     "start_date": "2024-02-13",
-    "key": "name",
-    "label": "住所１",
-    "value": "名前",
+    "key": "last_name",
+    "label": "姓",
+    "value": "森1",
     "display_text": null,
     "data_type": "string",
     "content_type": 32
-}
+  },
+  {
+    "id": 920,
+    "created_dt": "2024-02-13T11:37:04.065766+09:00",
+    "updated_dt": "2024-02-13T11:37:04.065777+09:00",
+    "is_deleted": false,
+    "deleted_dt": null,
+    "object_id": 2858,
+    "category": "01",
+    "start_date": "2024-02-13",
+    "key": "first_name",
+    "label": "名",
+    "value": "直樹",
+    "display_text": null,
+    "data_type": "string",
+    "content_type": 32
+  },
 ];
