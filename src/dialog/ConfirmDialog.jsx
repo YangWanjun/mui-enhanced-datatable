@@ -15,11 +15,15 @@ const ConfirmDialog = forwardRef((props, ref) => {
   const { title, onOk } = props;
   const [ open, setOpen ] = useState(false);
   const [ content, setContent ] = useState(null);
+  const [ tmpdata, setTmpData ] = useState(null);  // 一時データ保存用、データをそのままonOkに渡す
 
   useImperativeHandle(ref, () => ({
     handleOpen: (content) => {
       setOpen(true);
       setContent(content);
+    },
+    setData: (_data) => {
+      setTmpData(_data);
     },
   }));
 
@@ -29,7 +33,7 @@ const ConfirmDialog = forwardRef((props, ref) => {
 
   const handleOk = () => {
     if (onOk) {
-      return onOk().then(() => handleClose())
+      return onOk(tmpdata).then(() => handleClose())
     } else {
       return Promise.resolve();
     }
