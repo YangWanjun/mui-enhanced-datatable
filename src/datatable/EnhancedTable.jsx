@@ -273,6 +273,17 @@ function EnhancedTable(props) {
     }
   };
 
+  const getHistories = (_row, _col) => {
+    if (_row && _col.history && _row.histories) {
+      if (Array.isArray(_col.history)) {
+        return _row.histories.filter(i => _col.history.indexOf(i.key) >= 0)
+      } else {
+        return _row.histories.filter(i => i.key === _col.history)
+      }
+    }
+    return [];
+  };
+
   let results = common.stableSort(tableData, common.getSorting(order, orderBy, orderNumeric));
   if (!common.isEmpty(filters)) {
     results = common.stableFilter(results, filters);
@@ -353,6 +364,7 @@ function EnhancedTable(props) {
                         classes={classes}
                         column={col}
                         data={row}
+                        histories={getHistories(row, col)}
                       />
                     );
                   })}

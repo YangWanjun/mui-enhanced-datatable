@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from "prop-types";
 import { Link } from 'react-router-dom';
@@ -15,11 +15,14 @@ import CloseIcon from '@material-ui/icons/Close';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import ArchiveIcon from '@material-ui/icons/Archive';
+import HistoryIcon from '@material-ui/icons/History';
+import HistoryDialog from "../dialog/HistoryDialog";
 import { common, table } from "../utils";
 
 function DataTableCell(props) {
-  const { classes, column, data, actions, actionsTrigger } = props;
+  const { classes, column, data, actions, actionsTrigger, histories } = props;
   const [ open, setOpen ] = useState(false);
+  const refHistoryDialog = useRef(null);
 
   const getOutput = (value) => {
     let url = null;
@@ -63,6 +66,12 @@ function DataTableCell(props) {
       method(data);
     }
   };
+
+  const showHistories = () => {
+    if (Array.isArray(histories) && histories.length > 0 && refHistoryDialog.current) {
+      refHistoryDialog.current.handleOpen(histories);
+    }
+  }
 
   let value = data[column.name];
   if (column.get_value && typeof column.get_value === 'function') {
@@ -162,6 +171,19 @@ function DataTableCell(props) {
           {output}
         </div>
       ) : output }
+      { histories.length > 0 ? (
+        <IconButton
+          color="primary"
+          size="small"
+          className={classes.historyIcon}
+          onClick={showHistories}
+        >
+          <HistoryIcon />
+        </IconButton>
+      ) : null }
+      <HistoryDialog
+        ref={refHistoryDialog}
+      />
     </TableCell>
   );
 }
@@ -170,6 +192,7 @@ DataTableCell.defaultProps = {
   column: {},
   data: {},
   actions: [],
+  histories: [],
 };
 
 DataTableCell.propTypes = {
@@ -179,6 +202,7 @@ DataTableCell.propTypes = {
   actions: PropTypes.array,
   actionsTrigger: PropTypes.func,
   style: PropTypes.object,
+  histories: PropTypes.array,
 };
 
 export default DataTableCell;
